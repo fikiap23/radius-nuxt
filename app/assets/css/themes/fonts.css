@@ -1,0 +1,25 @@
+/**
+ * Runtime font switching via data-font on <html>
+ * useTheme() + plugins/theme.ts keep this in sync with a cookie.
+ */
+
+:root,
+[data-font="default"] {
+	--font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-font="geometric"] {
+	--font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-font="classic"] {
+	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Playfair Display", ui-serif, Georgia, serif;
+}
+
+[data-font="rounded"] {
+	--font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+}
