@@ -7,11 +7,18 @@ function delay(ms = MOCK_DELAY_MS) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function createId() {
+	if (import.meta.client && typeof crypto !== "undefined" && crypto.randomUUID) {
+		return crypto.randomUUID();
+	}
+	return `user-${Date.now()}`;
+}
+
 function createUser(
 	partial: Pick<AuthUser, "name" | "email"> & Partial<Pick<AuthUser, "id">>,
 ): AuthUser {
 	return {
-		id: partial.id ?? crypto.randomUUID(),
+		id: partial.id ?? createId(),
 		name: partial.name,
 		email: partial.email,
 	};
