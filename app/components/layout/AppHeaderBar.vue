@@ -2,7 +2,7 @@
 	<div class="app-header-bar">
 		<div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
 			<UButton
-				:icon="sidebarCollapsed ? 'i-lucide-panel-left-open' : 'i-lucide-panel-left-close'"
+				:icon="sidebarToggleIcon"
 				color="neutral"
 				variant="ghost"
 				size="sm"
@@ -54,7 +54,7 @@
 					color="neutral"
 					variant="ghost"
 					size="sm"
-					class="max-w-[12rem] gap-2 ps-1.5 pe-2"
+					class="max-w-48 gap-2 ps-1.5 pe-2"
 				>
 					<UAvatar
 						:text="userInitials"
@@ -88,6 +88,12 @@ const emit = defineEmits<{
 const { user, logout } = useAuth();
 const { title, breadcrumbs } = useAppPageMeta();
 const { collapsed: sidebarCollapsed, toggle: toggleSidebar } = useAppSidebar();
+
+const sidebarToggleIcon = computed(() =>
+	sidebarCollapsed.value
+		? "i-lucide-panel-left-open"
+		: "i-lucide-panel-left-close",
+);
 
 const userInitials = computed(() => {
 	if (!user.value?.name) {

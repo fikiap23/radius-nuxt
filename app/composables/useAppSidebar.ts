@@ -1,22 +1,13 @@
-const SIDEBAR_COLLAPSED_KEY = "radius-sidebar-collapsed";
-
+/**
+ * Thin wrapper around Pinia UI store — keeps existing call sites stable.
+ */
 export function useAppSidebar() {
-	const collapsed = useCookie<boolean>(SIDEBAR_COLLAPSED_KEY, {
-		default: () => false,
-		sameSite: "lax",
-	});
-
-	function toggle() {
-		collapsed.value = !collapsed.value;
-	}
-
-	function expand() {
-		collapsed.value = false;
-	}
+	const store = useUiStore();
+	const { sidebarCollapsed } = storeToRefs(store);
 
 	return {
-		collapsed,
-		toggle,
-		expand,
+		collapsed: sidebarCollapsed,
+		toggle: store.toggleSidebar,
+		expand: store.expandSidebar,
 	};
 }

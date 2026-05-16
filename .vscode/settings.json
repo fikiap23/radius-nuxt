@@ -1,0 +1,41 @@
+{
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"editor.quickSuggestions": {
+		"strings": "on"
+	},
+	"tailwindCSS.classAttributes": ["class", "ui"],
+	"tailwindCSS.experimental.classRegex": [
+		["([\"'`][^\"'`]*.*?[\"'`])", "[\"'`]([^\"'`]*).*?[\"'`]"]
+	],
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"prettier.enable": false,
+	"editor.formatOnSave": false,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+	"[vue]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": "explicit"
+		}
+	},
+	"eslint.rules.customizations": [
+		{ "rule": "style/*", "severity": "off", "fixable": true },
+		{ "rule": "@stylistic/*", "severity": "off", "fixable": true },
+		{ "rule": "format/*", "severity": "off", "fixable": true },
+		{ "rule": "*-indent", "severity": "off", "fixable": true },
+		{ "rule": "*-spacing", "severity": "off", "fixable": true },
+		{ "rule": "*-spaces", "severity": "off", "fixable": true },
+		{ "rule": "*-order", "severity": "off", "fixable": true },
+		{ "rule": "*-dangle", "severity": "off", "fixable": true },
+		{ "rule": "*-newline", "severity": "off", "fixable": true },
+		{ "rule": "*quotes", "severity": "off", "fixable": true },
+		{ "rule": "*semi", "severity": "off", "fixable": true },
+		{ "rule": "vue/max-attributes-per-line", "severity": "off" },
+		{ "rule": "vue/first-attribute-linebreak", "severity": "off" },
+		{ "rule": "vue/html-indent", "severity": "off" }
+	]
+}
