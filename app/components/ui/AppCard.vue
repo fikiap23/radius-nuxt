@@ -1,30 +1,43 @@
 <template>
 	<section
 		:class="[
-			'rounded-xl border border-muted bg-elevated shadow-card',
+			'app-card',
+			variantClass,
 			props.padding === 'sm' && 'p-4',
-			props.padding === 'md' && 'p-6',
-			props.padding === 'lg' && 'p-8',
-			props.interactive && 'transition-colors hover:bg-accented/50',
+			props.padding === 'md' && 'p-5 sm:p-6',
+			props.padding === 'lg' && 'p-6 sm:p-8',
+			props.interactive && 'app-card--interactive',
 		]"
 	>
 		<header
-			v-if="title || description || $slots.actions"
+			v-if="title || description || icon || $slots.actions"
 			class="mb-4 flex items-start justify-between gap-4"
 		>
-			<div class="space-y-1">
-				<h2
-					v-if="title"
-					class="font-display text-lg font-bold text-highlighted"
+			<div class="flex min-w-0 items-start gap-3">
+				<span
+					v-if="icon"
+					class="app-card__icon-badge shrink-0"
+					aria-hidden="true"
 				>
-					{{ title }}
-				</h2>
-				<p
-					v-if="description"
-					class="text-sm text-muted"
-				>
-					{{ description }}
-				</p>
+					<UIcon
+						:name="icon"
+						class="size-[1.125rem]"
+					/>
+				</span>
+				<div class="min-w-0 space-y-1">
+					<h2
+						v-if="title"
+						class="font-display text-lg font-bold tracking-tight text-highlighted"
+					>
+						{{ title }}
+					</h2>
+					<p
+						v-if="description"
+						class="text-sm leading-relaxed text-muted"
+					>
+						{{ description }}
+					</p>
+				</div>
 			</div>
 			<div
 				v-if="$slots.actions"
@@ -39,21 +52,21 @@
 </template>
 
 <script setup lang="ts">
-/**
- * Example reusable surface component.
- * ✅ semantic: bg-elevated, text-highlighted, text-muted, border-muted
- * ❌ avoid: bg-white, text-gray-500, border-stone-200
- */
 const props = withDefaults(
 	defineProps<{
 		title?: string;
 		description?: string;
+		icon?: string;
+		variant?: "surface" | "muted" | "ghost";
 		padding?: "sm" | "md" | "lg";
 		interactive?: boolean;
 	}>(),
 	{
+		variant: "surface",
 		padding: "md",
 		interactive: false,
 	},
 );
+
+const variantClass = computed(() => `app-card--${props.variant}`);
 </script>

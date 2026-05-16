@@ -71,12 +71,12 @@
 					color="neutral"
 					variant="ghost"
 					size="sm"
-					class="max-w-48 gap-2 ps-1.5 pe-2"
+					class="max-w-48 gap-2 rounded-full ps-1.5 pe-2 ring-1 ring-muted/80 hover:ring-primary/30"
 				>
 					<UAvatar
 						:text="userInitials"
 						size="xs"
-						class="shrink-0"
+						class="shrink-0 ring-2 ring-primary/20"
 					/>
 					<span
 						v-if="user"

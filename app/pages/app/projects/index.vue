@@ -1,10 +1,11 @@
 <template>
 	<LayoutAppPlaceholderPage
 		title="Projects"
-		description="Project list and filters — slice S5"
+		description="Kanban boards and workspace folders — arriving in S5"
+		icon="i-lucide-folder-kanban"
 	>
-		Create and browse workspaces projects here. Kanban boards and list views
-		will connect to this route in upcoming slices.
+		You’ll create projects, switch list and board views, and invite teammates
+		from here soon.
 	</LayoutAppPlaceholderPage>
 </template>
 

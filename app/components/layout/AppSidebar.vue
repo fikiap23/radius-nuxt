@@ -21,9 +21,13 @@
 				:items="appNavItems"
 				:collapsed="collapsed"
 				orientation="vertical"
-				class="w-full"
+				class="app-sidebar-nav w-full"
 				:ui="{
-					link: collapsed ? 'justify-center px-2 py-2.5' : 'py-2.5',
+					root: 'gap-0.5',
+					link: collapsed
+						? 'justify-center rounded-xl px-2 py-2.5'
+						: 'gap-3 rounded-xl px-3 py-2.5',
+					linkLeadingIcon: 'size-[1.125rem]',
 				}"
 			/>
 		</nav>

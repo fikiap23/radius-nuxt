@@ -1,6 +1,12 @@
 <template>
-	<div class="space-y-6">
+	<div class="app-page space-y-6">
+		<UiAppPageIntro
+			title="Settings"
+			description="Profile, layout, and how Radius looks on your device"
+		/>
+
 		<UiAppCard
+			icon="i-lucide-user-round"
 			title="Profile"
 			description="Account settings placeholder"
 		>
@@ -25,6 +31,7 @@
 		</UiAppCard>
 
 		<UiAppCard
+			icon="i-lucide-layout-template"
 			title="Layout"
 			description="Sidebar, header, and content area arrangement"
 		>
@@ -32,6 +39,7 @@
 		</UiAppCard>
 
 		<UiAppCard
+			icon="i-lucide-palette"
 			title="Appearance"
 			description="Color mode, brand preset, and typography"
 		>

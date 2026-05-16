@@ -8,7 +8,7 @@
   }
 
   .app-shell__header {
-    @apply z-50 border-b border-muted bg-default/95 backdrop-blur-md;
+    @apply z-50 border-b border-muted/80 bg-default/80 backdrop-blur-xl;
   }
 
   .app-shell__body {
@@ -20,9 +20,37 @@
   }
 
   .app-shell__content {
-    @apply flex-1 overflow-y-auto overflow-x-hidden;
+    @apply relative flex-1 overflow-y-auto overflow-x-hidden;
     padding-inline: var(--spacing-page-x);
     padding-block: var(--spacing-page-y);
+  }
+
+  .app-shell__content::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(
+        ellipse 70% 45% at 100% 0%,
+        color-mix(in oklab, var(--ui-color-primary-500) 14%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 50% 35% at 0% 100%,
+        color-mix(in oklab, var(--ui-color-primary-500) 8%, transparent),
+        transparent 50%
+      );
+  }
+
+  .app-shell__content > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .app-page {
+    @apply mx-auto w-full max-w-5xl;
   }
 
   .app-shell__footer {
@@ -32,7 +60,19 @@
   }
 
   .app-sidebar {
-    @apply shrink-0 flex-col border-e border-muted bg-elevated transition-[width] duration-200 ease-out;
+    @apply shrink-0 flex-col border-e border-muted/60 bg-muted/20 transition-[width] duration-200 ease-out;
+  }
+
+  .app-sidebar :where([data-active="true"]) {
+    @apply bg-primary/12 text-primary shadow-none;
+  }
+
+  .app-sidebar :where(a[href]:not([data-active="true"])) {
+    @apply text-toned transition-colors;
+  }
+
+  .app-sidebar :where(a[href]:not([data-active="true"]):hover) {
+    @apply bg-accented/60 text-default;
   }
 
   .app-sidebar--expanded {
@@ -93,5 +133,141 @@
 
   .app-page-header__description {
     @apply max-w-2xl text-sm text-muted leading-relaxed;
+  }
+
+  /* Dashboard & shared app surfaces */
+  .app-welcome {
+    @apply relative overflow-hidden rounded-2xl border border-muted/80 p-5 sm:p-6;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--ui-color-primary-500) 10%, var(--ui-bg-elevated)) 0%,
+      var(--ui-bg-elevated) 48%,
+      color-mix(in oklab, var(--ui-bg-muted) 40%, var(--ui-bg-elevated)) 100%
+    );
+  }
+
+  .app-welcome__glow {
+    @apply pointer-events-none absolute -end-16 -top-16 size-48 rounded-full opacity-60 blur-3xl;
+    background: color-mix(in oklab, var(--ui-color-primary-400) 35%, transparent);
+  }
+
+  .app-welcome__inner {
+    @apply relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+  }
+
+  .app-welcome__eyebrow {
+    @apply text-sm font-medium text-primary;
+  }
+
+  .app-welcome__title {
+    @apply font-display text-2xl font-extrabold tracking-tight text-highlighted sm:text-3xl;
+  }
+
+  .app-section-label {
+    @apply text-xs font-semibold uppercase tracking-wider text-muted;
+  }
+
+  .app-page-intro {
+    @apply flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+  }
+
+  .app-page-intro__eyebrow {
+    @apply text-sm font-medium text-primary;
+  }
+
+  .app-page-intro__title {
+    @apply font-display text-xl font-bold tracking-tight text-highlighted sm:text-2xl;
+  }
+
+  .app-page-intro__description {
+    @apply text-sm leading-relaxed text-muted;
+  }
+
+  .app-card {
+    @apply rounded-2xl border transition-[box-shadow,border-color,transform] duration-200;
+  }
+
+  .app-card--surface {
+    @apply border-muted/80 bg-elevated shadow-card;
+  }
+
+  .app-card--muted {
+    @apply border-transparent bg-muted/25;
+  }
+
+  .app-card--ghost {
+    @apply border-dashed border-muted bg-transparent shadow-none;
+  }
+
+  .app-card--interactive:hover {
+    @apply border-default/40 shadow-md -translate-y-px;
+  }
+
+  .app-card__icon-badge {
+    @apply flex size-9 items-center justify-center rounded-xl bg-primary/12 text-primary;
+  }
+
+  .app-stat-pill {
+    @apply flex items-center gap-3 rounded-2xl border border-muted/70 bg-elevated/80 p-4 backdrop-blur-sm;
+  }
+
+  .app-stat-pill--primary .app-stat-pill__icon {
+    @apply bg-primary/15 text-primary;
+  }
+
+  .app-stat-pill--warning .app-stat-pill__icon {
+    @apply bg-warning/15 text-warning;
+  }
+
+  .app-stat-pill__icon {
+    @apply flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-toned;
+  }
+
+  .app-stat-pill__value {
+    @apply font-display text-2xl font-bold leading-none tracking-tight text-highlighted;
+  }
+
+  .app-stat-pill__label {
+    @apply mt-1 text-xs text-muted;
+  }
+
+  .app-quick-link {
+    @apply flex items-center gap-4 rounded-2xl border border-muted/80 bg-elevated/90 p-4 no-underline shadow-sm backdrop-blur-sm transition-[border-color,box-shadow,transform] duration-200;
+  }
+
+  .app-quick-link:hover {
+    @apply -translate-y-0.5 border-primary/25 shadow-md;
+  }
+
+  .app-quick-link__icon {
+    @apply flex size-11 shrink-0 items-center justify-center rounded-xl transition-colors;
+  }
+
+  .app-quick-link__icon--primary {
+    @apply bg-primary/12 text-primary;
+  }
+
+  .app-quick-link__icon--neutral {
+    @apply bg-muted text-toned;
+  }
+
+  .app-quick-link__icon--warning {
+    @apply bg-warning/12 text-warning;
+  }
+
+  .app-quick-link__title {
+    @apply block font-semibold text-highlighted;
+  }
+
+  .app-quick-link__description {
+    @apply mt-0.5 block text-sm text-muted;
+  }
+
+  .app-quick-link__arrow {
+    @apply text-muted opacity-0 transition-[opacity,transform] duration-200;
+  }
+
+  .app-quick-link:hover .app-quick-link__arrow {
+    @apply translate-x-0.5 -translate-y-0.5 opacity-100 text-primary;
   }
 }
