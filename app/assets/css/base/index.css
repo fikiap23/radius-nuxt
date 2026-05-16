@@ -1,0 +1,10 @@
+@layer base {
+	html {
+		@apply antialiased;
+	}
+
+	body {
+		font-family: var(--font-sans);
+		@apply bg-default text-default;
+	}
+}

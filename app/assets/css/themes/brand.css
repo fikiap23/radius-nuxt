@@ -1,0 +1,47 @@
+/**
+ * Runtime brand switching via data-brand on <html>
+ * useTheme() + plugins/theme.ts keep this in sync with a cookie.
+ */
+
+:root,
+[data-brand="default"] {
+	--ui-color-primary-50: var(--color-brand-50);
+	--ui-color-primary-100: var(--color-brand-100);
+	--ui-color-primary-200: var(--color-brand-200);
+	--ui-color-primary-300: var(--color-brand-300);
+	--ui-color-primary-400: var(--color-brand-400);
+	--ui-color-primary-500: var(--color-brand-500);
+	--ui-color-primary-600: var(--color-brand-600);
+	--ui-color-primary-700: var(--color-brand-700);
+	--ui-color-primary-800: var(--color-brand-800);
+	--ui-color-primary-900: var(--color-brand-900);
+	--ui-color-primary-950: var(--color-brand-950);
+}
+
+[data-brand="ocean"] {
+	--ui-color-primary-50: var(--color-ocean-50);
+	--ui-color-primary-100: var(--color-ocean-100);
+	--ui-color-primary-200: var(--color-ocean-200);
+	--ui-color-primary-300: var(--color-ocean-300);
+	--ui-color-primary-400: var(--color-ocean-400);
+	--ui-color-primary-500: var(--color-ocean-500);
+	--ui-color-primary-600: var(--color-ocean-600);
+	--ui-color-primary-700: var(--color-ocean-700);
+	--ui-color-primary-800: var(--color-ocean-800);
+	--ui-color-primary-900: var(--color-ocean-900);
+	--ui-color-primary-950: var(--color-ocean-950);
+}
+
+[data-brand="forest"] {
+	--ui-color-primary-50: var(--color-forest-50);
+	--ui-color-primary-100: var(--color-forest-100);
+	--ui-color-primary-200: var(--color-forest-200);
+	--ui-color-primary-300: var(--color-forest-300);
+	--ui-color-primary-400: var(--color-forest-400);
+	--ui-color-primary-500: var(--color-forest-500);
+	--ui-color-primary-600: var(--color-forest-600);
+	--ui-color-primary-700: var(--color-forest-700);
+	--ui-color-primary-800: var(--color-forest-800);
+	--ui-color-primary-900: var(--color-forest-900);
+	--ui-color-primary-950: var(--color-forest-950);
+}

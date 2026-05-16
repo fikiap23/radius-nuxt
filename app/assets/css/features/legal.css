@@ -1,0 +1,78 @@
+/**
+ * Legal pages — Terms & Privacy
+ */
+
+@layer components {
+  .legal-hero {
+    @apply relative overflow-hidden border-b border-muted;
+  }
+
+  .legal-hero__backdrop {
+    @apply pointer-events-none absolute inset-0 bg-linear-to-b from-primary/10 via-transparent to-transparent;
+  }
+
+  .legal-hero-inner {
+    @apply relative mx-auto py-14 sm:py-16;
+    max-width: var(--container-app);
+    padding-inline: var(--spacing-page-x);
+  }
+
+  .legal-meta {
+    @apply flex flex-wrap items-center gap-3 text-sm text-muted;
+  }
+
+  .legal-layout {
+    @apply mx-auto grid gap-10 py-12 lg:grid-cols-[minmax(0,13rem)_1fr] lg:gap-14 lg:py-16;
+    max-width: var(--container-app);
+    padding-inline: var(--spacing-page-x);
+  }
+
+  .legal-nav {
+    @apply lg:sticky lg:top-20 lg:self-start;
+  }
+
+  .legal-nav-list {
+    @apply flex flex-col gap-1;
+  }
+
+  .legal-nav-link {
+    @apply rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-muted/50 hover:text-default;
+  }
+
+  .legal-nav-link--active {
+    @apply bg-primary/10 font-medium text-primary;
+  }
+
+  .legal-prose {
+    @apply max-w-3xl space-y-10;
+  }
+
+  .legal-section {
+    @apply scroll-mt-24 space-y-4;
+  }
+
+  .legal-section h2 {
+    @apply font-display text-xl font-bold text-highlighted sm:text-2xl;
+  }
+
+  .legal-section h3 {
+    @apply font-display text-base font-semibold text-highlighted;
+  }
+
+  .legal-section p,
+  .legal-section li {
+    @apply text-sm leading-relaxed text-muted sm:text-base;
+  }
+
+  .legal-section ul {
+    @apply list-disc space-y-2 ps-5;
+  }
+
+  .legal-callout {
+    @apply rounded-xl border border-muted bg-elevated/80 p-4 text-sm text-muted backdrop-blur-sm;
+  }
+
+  .legal-actions {
+    @apply flex flex-wrap gap-3 pt-4;
+  }
+}

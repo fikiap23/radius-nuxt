@@ -1,0 +1,17 @@
+/**
+ * Radius tokens — synced with Nuxt UI --ui-radius
+ */
+
+@theme {
+	--radius-xs: 0.25rem;
+	--radius-sm: 0.375rem;
+	--radius-md: 0.5rem;
+	--radius-lg: 0.75rem;
+	--radius-xl: 1rem;
+	--radius-2xl: 1.25rem;
+	--radius-full: 9999px;
+}
+
+:root {
+	--ui-radius: var(--radius-md);
+}

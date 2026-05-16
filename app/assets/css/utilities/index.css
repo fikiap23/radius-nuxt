@@ -1,0 +1,36 @@
+/**
+ * App-level utilities (prefer semantic Nuxt UI classes in components)
+ */
+
+@layer utilities {
+	.font-display {
+		font-family: var(--font-display);
+	}
+
+	.text-display-lg {
+		font-family: var(--font-display);
+		font-size: var(--text-display-lg);
+		line-height: var(--text-display-lg--line-height);
+		letter-spacing: var(--text-display-lg--letter-spacing);
+	}
+
+	.px-page {
+		padding-inline: var(--spacing-page-x);
+	}
+
+	.py-page {
+		padding-block: var(--spacing-page-y);
+	}
+
+	.gap-section {
+		gap: var(--spacing-section);
+	}
+
+	.shadow-card {
+		box-shadow: var(--shadow-card);
+	}
+
+	.max-w-app {
+		max-width: var(--container-app);
+	}
+}

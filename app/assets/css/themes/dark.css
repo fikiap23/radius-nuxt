@@ -1,0 +1,7 @@
+/**
+ * Dark mode — lighter primary shade for contrast on dark surfaces
+ */
+
+.dark {
+	--ui-primary: var(--ui-color-primary-400);
+}

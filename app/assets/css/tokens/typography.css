@@ -1,0 +1,28 @@
+/**
+ * Typography tokens → Tailwind font-* and text-* utilities
+ * Fonts loaded in main.css; families registered here for consistency.
+ */
+
+@theme {
+	--font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+	--font-mono: ui-monospace, "Cascadia Code", monospace;
+
+	--text-display-lg: 3rem;
+	--text-display-lg--line-height: 1.05;
+	--text-display-lg--letter-spacing: -0.02em;
+
+	--text-display-md: 2.25rem;
+	--text-display-md--line-height: 1.1;
+	--text-display-md--letter-spacing: -0.02em;
+
+	--text-body-lg: 1.125rem;
+	--text-body-lg--line-height: 1.6;
+
+	--text-body-sm: 0.875rem;
+	--text-body-sm--line-height: 1.5;
+
+	--text-label: 0.75rem;
+	--text-label--line-height: 1.2;
+	--text-label--letter-spacing: 0.08em;
+}

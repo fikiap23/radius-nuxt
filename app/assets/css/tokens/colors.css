@@ -1,0 +1,57 @@
+/**
+ * Color tokens
+ * ─────────────
+ * 1. @theme static  → Tailwind palettes (brand-*, ocean-*, surfaces)
+ * 2. @theme         → aliases consumed as utilities (surface-promo, on-promo)
+ * 3. themes/brand.css → runtime brand switching via --ui-primary
+ *
+ * In components: use semantic Nuxt UI classes (text-default, bg-elevated, text-primary)
+ * or ds-* layout tokens — never raw hex or palette names (bg-orange-500).
+ */
+
+@theme static {
+	/* Default brand (warm orange) */
+	--color-brand-50: #fff7ed;
+	--color-brand-100: #ffedd5;
+	--color-brand-200: #fed7aa;
+	--color-brand-300: #fdba74;
+	--color-brand-400: #fb923c;
+	--color-brand-500: #f97316;
+	--color-brand-600: #ea580c;
+	--color-brand-700: #c2410c;
+	--color-brand-800: #9a3412;
+	--color-brand-900: #7c2d12;
+	--color-brand-950: #431407;
+
+	/* Alternate brand (ocean teal) */
+	--color-ocean-50: #f0fdfa;
+	--color-ocean-100: #ccfbf1;
+	--color-ocean-200: #99f6e4;
+	--color-ocean-300: #5eead4;
+	--color-ocean-400: #2dd4bf;
+	--color-ocean-500: #14b8a6;
+	--color-ocean-600: #0d9488;
+	--color-ocean-700: #0f766e;
+	--color-ocean-800: #115e59;
+	--color-ocean-900: #134e4a;
+	--color-ocean-950: #042f2e;
+
+	/* Forest brand (emerald green) */
+	--color-forest-50: #ecfdf5;
+	--color-forest-100: #d1fae5;
+	--color-forest-200: #a7f3d0;
+	--color-forest-300: #6ee7b7;
+	--color-forest-400: #34d399;
+	--color-forest-500: #10b981;
+	--color-forest-600: #059669;
+	--color-forest-700: #047857;
+	--color-forest-800: #065f46;
+	--color-forest-900: #064e3b;
+	--color-forest-950: #022c22;
+
+	/* Marketing / auth panel (intentionally fixed across color modes) */
+	--color-surface-promo: #141210;
+	--color-on-promo: #ffffff;
+	--color-on-promo-muted: #ffffffa6;
+	--color-on-promo-subtle: #ffffff1a;
+}

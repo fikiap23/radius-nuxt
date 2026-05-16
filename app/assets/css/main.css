@@ -1,0 +1,15 @@
+/**
+ * Global CSS entry — @import url() MUST be first (before Tailwind expands).
+ */
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap");
+
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@import "./tokens/index.css";
+@import "./themes/index.css";
+@import "./base/index.css";
+@import "./utilities/index.css";
+@import "./features/auth.css";
+@import "./features/landing.css";
+@import "./features/legal.css";

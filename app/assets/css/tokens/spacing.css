@@ -1,0 +1,14 @@
+/**
+ * Layout spacing tokens (ds-*)
+ * Use for page shells and sections; use Tailwind scale (p-4, gap-6) inside components.
+ */
+
+@theme {
+	--spacing-page-x: 1.5rem;
+	--spacing-page-y: 1.25rem;
+	--spacing-section: 3rem;
+	--spacing-stack: 1.5rem;
+	--spacing-inline: 0.75rem;
+	--container-app: 80rem;
+	--height-header: 4rem;
+}

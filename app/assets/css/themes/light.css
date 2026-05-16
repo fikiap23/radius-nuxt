@@ -1,0 +1,9 @@
+/**
+ * Light mode semantic overrides (Nuxt UI + app tokens)
+ * .dark class is toggled by @nuxtjs/color-mode via Nuxt UI.
+ */
+
+:root {
+	--ui-primary: var(--ui-color-primary-600);
+	--ui-radius: var(--radius-md);
+}
