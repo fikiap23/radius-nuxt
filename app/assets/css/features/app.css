@@ -4,7 +4,19 @@
 
 @layer components {
   .app-header-bar {
-    @apply flex w-full min-h-14 items-center gap-3;
+    @apply flex w-full min-h-14 items-center justify-between gap-4;
+  }
+
+  .app-header-bar__breadcrumb {
+    @apply text-sm;
+  }
+
+  .app-header-bar__breadcrumb :is(a, span) {
+    @apply text-muted;
+  }
+
+  .app-header-bar__breadcrumb :is(a:hover, [data-active='true']) {
+    @apply text-default;
   }
 
   .app-page-header {

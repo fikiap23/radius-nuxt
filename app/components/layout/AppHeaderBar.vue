@@ -1,16 +1,40 @@
 <template>
 	<div class="app-header-bar">
-		<UButton
-			icon="i-lucide-menu"
-			color="neutral"
-			variant="ghost"
-			size="sm"
-			class="shrink-0 lg:hidden"
-			aria-label="Open navigation"
-			@click="emit('open-sidebar')"
-		/>
+		<div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+			<UButton
+				icon="i-lucide-menu"
+				color="neutral"
+				variant="ghost"
+				size="sm"
+				class="shrink-0 lg:hidden"
+				aria-label="Open navigation"
+				@click="emit('open-sidebar')"
+			/>
 
-		<div class="ms-auto flex items-center gap-2 sm:gap-3">
+			<div class="hidden min-w-0 items-center gap-2 md:flex">
+				<span class="shrink-0 text-sm font-semibold text-toned">
+					{{ APP_NAME }}
+				</span>
+				<UIcon
+					name="i-lucide-chevron-right"
+					class="size-3.5 shrink-0 text-muted"
+					aria-hidden="true"
+				/>
+				<UBreadcrumb
+					:items="breadcrumbs"
+					class="app-header-bar__breadcrumb min-w-0"
+				/>
+			</div>
+
+			<p
+				v-if="title"
+				class="truncate text-sm font-medium text-highlighted md:hidden"
+			>
+				{{ title }}
+			</p>
+		</div>
+
+		<div class="flex shrink-0 items-center gap-2 sm:gap-3">
 			<LayoutThemeToggle compact />
 
 			<UDropdownMenu
@@ -46,12 +70,14 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
+import { APP_NAME } from "~/config/brand";
 
 const emit = defineEmits<{
 	"open-sidebar": [];
 }>();
 
 const { user, logout } = useAuth();
+const { title, breadcrumbs } = useAppPageMeta();
 
 const userInitials = computed(() => {
 	if (!user.value?.name) {
