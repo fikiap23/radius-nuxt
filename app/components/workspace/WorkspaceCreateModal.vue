@@ -3,9 +3,11 @@
 		v-model:open="open"
 		title="Create workspace"
 		description="Organize projects and members in a dedicated space."
+		:ui="{ footer: 'justify-end gap-2' }"
 	>
 		<template #body>
 			<UForm
+				id="workspace-create-form"
 				:state="state"
 				class="space-y-4"
 				@submit="onSubmit"
@@ -43,22 +45,23 @@
 					icon="i-lucide-circle-alert"
 					:title="error"
 				/>
-
-				<div class="flex justify-end gap-2 pt-2">
-					<UButton
-						label="Cancel"
-						color="neutral"
-						variant="outline"
-						@click="open = false"
-					/>
-					<UButton
-						type="submit"
-						label="Create workspace"
-						:loading="loading"
-						icon="i-lucide-plus"
-					/>
-				</div>
 			</UForm>
+		</template>
+
+		<template #footer="{ close }">
+			<UButton
+				label="Cancel"
+				color="neutral"
+				variant="outline"
+				@click="close"
+			/>
+			<UButton
+				type="submit"
+				form="workspace-create-form"
+				label="Create workspace"
+				:loading="loading"
+				icon="i-lucide-plus"
+			/>
 		</template>
 	</UModal>
 </template>
@@ -99,12 +102,20 @@ function onNameChange() {
 	}
 }
 
-async function onSubmit() {
+async function onSubmit(event: Event) {
+	event.preventDefault();
 	error.value = null;
+
+	const name = state.name.trim();
+	if (!name) {
+		error.value = "Workspace name is required.";
+		return;
+	}
+
 	loading.value = true;
 
 	const result = await createWorkspace({
-		name: state.name,
+		name,
 		slug: state.slug,
 	});
 

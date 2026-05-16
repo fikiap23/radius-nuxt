@@ -17,24 +17,37 @@
 			class="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-2"
 			aria-label="App sections"
 		>
-			<UNavigationMenu
-				:items="appNavItems"
-				:collapsed="collapsed"
-				orientation="vertical"
-				class="app-sidebar-nav w-full"
-				:ui="{
-					root: 'gap-0.5',
-					link: collapsed
-						? 'justify-center rounded-xl px-2 py-2.5'
-						: 'gap-3 rounded-xl px-3 py-2.5',
-					linkLeadingIcon: 'size-[1.125rem]',
-				}"
-			/>
+			<ul class="flex flex-col gap-0.5">
+				<li
+					v-for="item in appNavItems"
+					:key="item.to"
+				>
+					<NuxtLink
+						:to="item.to!"
+						class="app-sidebar-nav-link"
+						:class="[
+							collapsed && 'app-sidebar-nav-link--collapsed',
+							isActive(item.to!) && 'app-sidebar-nav-link--active',
+						]"
+						:aria-current="isActive(item.to!) ? 'page' : undefined"
+					>
+						<UIcon
+							v-if="item.icon"
+							:name="item.icon"
+							class="size-[1.125rem] shrink-0"
+						/>
+						<span
+							v-if="!collapsed"
+							class="truncate"
+						>
+							{{ item.label }}
+						</span>
+					</NuxtLink>
+				</li>
+			</ul>
 		</nav>
 
-		<div
-			class="shrink-0 border-t border-muted p-2"
-		>
+		<div class="shrink-0 border-t border-muted p-2">
 			<UButton
 				:icon="collapsed ? 'i-lucide-panel-left-open' : 'i-lucide-panel-left-close'"
 				:label="collapsed ? undefined : 'Collapse sidebar'"
@@ -57,5 +70,13 @@ defineProps<{
 	collapsed?: boolean;
 }>();
 
+const route = useRoute();
 const { toggle } = useAppSidebar();
+
+function isActive(to: string) {
+	if (to === "/app") {
+		return route.path === "/app";
+	}
+	return route.path === to || route.path.startsWith(`${to}/`);
+}
 </script>

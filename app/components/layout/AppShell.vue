@@ -27,11 +27,10 @@
 			</aside>
 
 			<USlideover
-				v-if="$slots.sidebar"
+				v-if="$slots.sidebar && isMobileNav"
 				v-model:open="sidebarOpen"
 				side="left"
 				title="Navigation"
-				class="lg:hidden"
 			>
 				<template #body>
 					<div
@@ -82,6 +81,22 @@ withDefaults(
 const { layoutId, showSidebar, contentWidthClass } = useAppLayout();
 
 const sidebarOpen = defineModel<boolean>("sidebarOpen", { default: false });
+
+/** Avoid mounting slideover portal on desktop — closed overlay can block sidebar clicks. */
+const isMobileNav = ref(false);
+
+onMounted(() => {
+	const mq = window.matchMedia("(max-width: 1023px)");
+	const sync = () => {
+		isMobileNav.value = mq.matches;
+		if (!mq.matches) {
+			sidebarOpen.value = false;
+		}
+	};
+	sync();
+	mq.addEventListener("change", sync);
+	onUnmounted(() => mq.removeEventListener("change", sync));
+});
 const sidebarCollapsed = defineModel<boolean>("sidebarCollapsed", {
 	default: false,
 });

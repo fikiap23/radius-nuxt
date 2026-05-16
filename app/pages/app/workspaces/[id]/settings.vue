@@ -26,6 +26,7 @@
 
 		<template v-if="workspace">
 			<UTabs
+				v-model="activeTab"
 				:items="tabs"
 				class="w-full"
 			>
@@ -84,10 +85,29 @@
 						description="Send an invite by email with a role"
 						icon="i-lucide-user-plus"
 					>
-						<WorkspaceWorkspaceInviteForm
+						<div class="mb-4 flex flex-wrap gap-2">
+							<WorkspaceRoleBadge
+								v-for="role in roleLegend"
+								:key="role"
+								:role="role"
+							/>
+						</div>
+						<WorkspaceInviteForm
 							:workspace-id="workspace.id"
 							:disabled="!canInvite"
 						/>
+						<p
+							v-if="!canInvite"
+							class="mt-3 text-sm text-muted"
+						>
+							Only owners and admins can invite members.
+							Your role:
+							<WorkspaceRoleBadge
+								v-if="myRoleInWorkspace"
+								:role="myRoleInWorkspace"
+								class="ms-1 align-middle"
+							/>
+						</p>
 					</UiAppCard>
 
 					<UiAppCard
@@ -96,7 +116,7 @@
 						:description="`${members.length} people in this workspace`"
 						icon="i-lucide-users"
 					>
-						<WorkspaceWorkspaceMemberList
+						<WorkspaceMemberList
 							:members="members"
 							:my-role="myRoleInWorkspace"
 						/>
@@ -110,13 +130,16 @@
 <script setup lang="ts">
 import { canInviteMembers, canManageWorkspace } from "~/config/workspace-roles";
 import { APP_NAME } from "~/config/brand";
+import type { WorkspaceRole } from "~/types/workspace";
+
+const roleLegend: WorkspaceRole[] = ["owner", "admin", "member", "viewer"];
 
 const route = useRoute();
 const workspaceId = computed(() => route.params.id as string);
 
 const {
+	members: allMembers,
 	getWorkspaceById,
-	getMembersForWorkspace,
 	getMyRoleInWorkspace,
 	updateWorkspace,
 	setActiveWorkspace,
@@ -125,7 +148,9 @@ const {
 const toast = useToast();
 
 const workspace = computed(() => getWorkspaceById(workspaceId.value));
-const members = computed(() => getMembersForWorkspace(workspaceId.value));
+const members = computed(() =>
+	allMembers.value.filter(m => m.workspaceId === workspaceId.value),
+);
 const myRoleInWorkspace = computed(() =>
 	getMyRoleInWorkspace(workspaceId.value),
 );
@@ -151,9 +176,11 @@ onMounted(async () => {
 	}
 });
 
+const activeTab = ref("general");
+
 const tabs = [
-	{ label: "General", slot: "general", icon: "i-lucide-settings-2" },
-	{ label: "Members", slot: "members", icon: "i-lucide-users" },
+	{ label: "General", value: "general", slot: "general", icon: "i-lucide-settings-2" },
+	{ label: "Members", value: "members", slot: "members", icon: "i-lucide-users" },
 ];
 
 const generalForm = reactive({

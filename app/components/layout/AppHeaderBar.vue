@@ -21,7 +21,7 @@
 				@click="emit('open-sidebar')"
 			/>
 
-			<WorkspaceWorkspaceSwitcher class="min-w-0 shrink" />
+			<WorkspaceSwitcher class="relative z-0 min-w-0 shrink" />
 
 			<nav
 				v-if="!showSidebar"
@@ -68,6 +68,7 @@
 			<UDropdownMenu
 				:items="userMenuItems"
 				:content="{ align: 'end' }"
+				:modal="false"
 			>
 				<UButton
 					color="neutral"

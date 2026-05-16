@@ -1,34 +1,31 @@
 <template>
-	<div class="flex min-w-0 items-center">
-		<UDropdownMenu
-			:items="menuItems"
-			:content="{ align: 'start' }"
+	<UDropdownMenu
+		:items="menuItems"
+		:content="{ align: 'start' }"
+		:modal="false"
+	>
+		<UButton
+			color="neutral"
+			variant="ghost"
+			size="sm"
+			class="max-w-[11rem] gap-2 rounded-lg px-2 ring-1 ring-muted/80 hover:ring-primary/30 sm:max-w-xs"
+			:aria-label="activeWorkspace ? `Workspace: ${activeWorkspace.name}` : 'Select workspace'"
 		>
-			<UButton
-				color="neutral"
-				variant="ghost"
-				size="sm"
-				class="max-w-[11rem] gap-2 rounded-lg px-2 ring-1 ring-muted/80 hover:ring-primary/30 sm:max-w-xs"
-				:aria-label="activeWorkspace ? `Workspace: ${activeWorkspace.name}` : 'Select workspace'"
-			>
-				<WorkspaceWorkspaceAvatar
-					v-if="activeWorkspace"
-					:name="activeWorkspace.name"
-					:slug="activeWorkspace.slug"
-					size="xs"
-				/>
-				<span class="truncate text-sm font-medium text-default">
-					{{ activeWorkspace?.name ?? "Workspace" }}
-				</span>
-				<UIcon
-					name="i-lucide-chevrons-up-down"
-					class="size-4 shrink-0 text-muted"
-				/>
-			</UButton>
-		</UDropdownMenu>
-
-		<WorkspaceWorkspaceCreateModal v-model:open="createOpen" />
-	</div>
+			<WorkspaceAvatar
+				v-if="activeWorkspace"
+				:name="activeWorkspace.name"
+				:slug="activeWorkspace.slug"
+				size="xs"
+			/>
+			<span class="truncate text-sm font-medium text-default">
+				{{ activeWorkspace?.name ?? "Workspace" }}
+			</span>
+			<UIcon
+				name="i-lucide-chevrons-up-down"
+				class="size-4 shrink-0 text-muted"
+			/>
+		</UButton>
+	</UDropdownMenu>
 </template>
 
 <script setup lang="ts">
@@ -40,8 +37,8 @@ const {
 	setActiveWorkspace,
 } = useWorkspace();
 
+const { openCreateModal } = useWorkspaceCreateModal();
 const toast = useToast();
-const createOpen = ref(false);
 
 async function switchTo(id: string) {
 	if (id === activeWorkspace.value?.id) {
@@ -95,9 +92,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
 			{
 				label: "Create workspace",
 				icon: "i-lucide-plus",
-				onSelect: () => {
-					createOpen.value = true;
-				},
+				onSelect: openCreateModal,
 			},
 		],
 	];

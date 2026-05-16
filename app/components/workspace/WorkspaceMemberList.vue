@@ -42,7 +42,7 @@
 				</div>
 
 				<div class="flex flex-wrap items-center gap-2 sm:justify-end">
-					<WorkspaceWorkspaceRoleBadge :role="member.role" />
+					<WorkspaceRoleBadge :role="member.role" />
 
 					<USelect
 						v-if="canEdit && member.role !== 'owner'"
@@ -69,6 +69,7 @@
 		</ul>
 
 		<UModal
+			v-if="removeOpen"
 			v-model:open="removeOpen"
 			title="Remove member"
 			:description="removeTarget ? `Remove ${removeTarget.name} from this workspace?` : undefined"

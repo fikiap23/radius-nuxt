@@ -2,6 +2,10 @@
 export default defineNuxtConfig({
 	modules: ["@nuxt/eslint", "@nuxt/image", "@nuxt/ui", "@pinia/nuxt"],
 	devtools: { enabled: true },
+	// Avoid 404 on /_nuxt/builds/meta/dev.json during HMR (tab clicks, navigation).
+	experimental: {
+		appManifest: false,
+	},
 	css: ["~/assets/css/main.css"],
 	colorMode: {
 		classSuffix: "",

@@ -10,6 +10,7 @@ export function useWorkspace() {
 		activeMembers,
 		myRole,
 		hydrated,
+		members,
 	} = storeToRefs(store);
 
 	return {
@@ -19,6 +20,7 @@ export function useWorkspace() {
 		activeMembers,
 		myRole,
 		hydrated,
+		members,
 		hydrateFromStorage: store.hydrateFromStorage,
 		ensureActiveWorkspace: store.ensureActiveWorkspace,
 		getWorkspaceById: store.getWorkspaceById,

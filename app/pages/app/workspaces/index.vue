@@ -8,11 +8,11 @@
 				label="New workspace"
 				icon="i-lucide-plus"
 				size="sm"
-				@click="createOpen = true"
+				@click="openCreateModal"
 			/>
 		</UiAppPageIntro>
 
-		<UiUiEmptyState
+		<UiEmptyState
 			v-if="accessibleWorkspaces.length === 0"
 			icon="i-lucide-building-2"
 			title="No workspaces yet"
@@ -22,10 +22,10 @@
 				<UButton
 					label="Create workspace"
 					icon="i-lucide-plus"
-					@click="createOpen = true"
+					@click="openCreateModal"
 				/>
 			</template>
-		</UiUiEmptyState>
+		</UiEmptyState>
 
 		<div
 			v-else
@@ -39,7 +39,7 @@
 				@click="openWorkspace(ws.id)"
 			>
 				<div class="flex items-start gap-3">
-					<WorkspaceWorkspaceAvatar
+					<WorkspaceAvatar
 						:name="ws.name"
 						:slug="ws.slug"
 						size="md"
@@ -68,7 +68,7 @@
 					<span class="text-toned">
 						{{ memberCount(ws.id) }} members
 					</span>
-					<WorkspaceWorkspaceRoleBadge
+					<WorkspaceRoleBadge
 						v-if="getMyRoleInWorkspace(ws.id)"
 						:role="getMyRoleInWorkspace(ws.id)!"
 					/>
@@ -93,10 +93,6 @@
 			</button>
 		</div>
 
-		<WorkspaceWorkspaceCreateModal
-			v-model:open="createOpen"
-			@created="onCreated"
-		/>
 	</div>
 </template>
 
@@ -122,14 +118,11 @@ const {
 	getMyRoleInWorkspace,
 } = useWorkspace();
 
-const createOpen = ref(false);
+const { openCreateModal } = useWorkspaceCreateModal();
 
 async function openWorkspace(id: string) {
 	await setActiveWorkspace(id);
 	await navigateTo("/app");
 }
 
-function onCreated() {
-	createOpen.value = false;
-}
 </script>
