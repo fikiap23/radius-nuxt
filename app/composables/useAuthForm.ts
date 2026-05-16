@@ -1,5 +1,41 @@
+import type { OAuthProvider } from "~/types/auth";
+
 export function useAuthProviders() {
-	return [
+	const { loginWithOAuth } = useAuth();
+	const oauthLoading = ref<OAuthProvider | null>(null);
+
+	async function handleOAuth(provider: OAuthProvider) {
+		oauthLoading.value = provider;
+
+		try {
+			const result = await loginWithOAuth(provider);
+
+			if (!result.ok) {
+				useToast().add({
+					title: "Sign-in failed",
+					description: result.error,
+					color: "error",
+					icon: "i-lucide-circle-alert",
+				});
+				return;
+			}
+
+			await navigateTo("/app");
+		}
+		catch {
+			useToast().add({
+				title: "Sign-in failed",
+				description: "Something went wrong. Please try again.",
+				color: "error",
+				icon: "i-lucide-circle-alert",
+			});
+		}
+		finally {
+			oauthLoading.value = null;
+		}
+	}
+
+	return computed(() => [
 		{
 			label: "Google",
 			icon: "i-simple-icons-google",
@@ -7,7 +43,8 @@ export function useAuthProviders() {
 			variant: "soft" as const,
 			block: true,
 			class: "transition-transform hover:scale-[1.02] active:scale-[0.98]",
-			onClick: () => signInWithOAuth("google"),
+			loading: oauthLoading.value === "google",
+			onClick: () => handleOAuth("google"),
 		},
 		{
 			label: "GitHub",
@@ -16,13 +53,8 @@ export function useAuthProviders() {
 			variant: "soft" as const,
 			block: true,
 			class: "transition-transform hover:scale-[1.02] active:scale-[0.98]",
-			onClick: () => signInWithOAuth("github"),
+			loading: oauthLoading.value === "github",
+			onClick: () => handleOAuth("github"),
 		},
-	];
-}
-
-export function signInWithOAuth(provider: "google" | "github") {
-	if (import.meta.client) {
-		window.location.assign(`/api/auth/${provider}`);
-	}
+	]);
 }

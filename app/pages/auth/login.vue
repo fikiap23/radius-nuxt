@@ -20,6 +20,18 @@
 			}"
 			@submit="onSubmit"
 		>
+			<template
+				v-if="formError"
+				#validation
+			>
+				<UAlert
+					color="error"
+					variant="soft"
+					icon="i-lucide-circle-alert"
+					:title="formError"
+				/>
+			</template>
+
 			<template #password-hint>
 				<ULink
 					to="/auth/forgot-password"
@@ -48,10 +60,11 @@
 import * as z from "zod";
 import type { AuthFormField, FormSubmitEvent } from "@nuxt/ui";
 import { APP_NAME } from "~/config/brand";
-import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
+import { authFormUi } from "~/utils/auth-form-ui";
 
 definePageMeta({
 	layout: "auth",
+	middleware: "guest",
 });
 
 useSeoMeta({
@@ -59,8 +72,11 @@ useSeoMeta({
 	description: `Sign in to ${APP_NAME} with Google, GitHub, or email.`,
 });
 
+const route = useRoute();
 const toast = useToast();
+const { loginWithEmail } = useAuth();
 const loading = ref(false);
+const formError = ref<string | null>(null);
 const providers = useAuthProviders();
 
 const fields: AuthFormField[] = [
@@ -95,12 +111,21 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>;
 
-async function onSubmit(_event: FormSubmitEvent<Schema>) {
+async function onSubmit(event: FormSubmitEvent<Schema>) {
 	loading.value = true;
+	formError.value = null;
 
 	try {
-		// TODO: connect to login API (e.g. Better Auth, Nuxt Auth, or custom)
-		await new Promise(resolve => setTimeout(resolve, 800));
+		const result = await loginWithEmail(
+			event.data.email,
+			event.data.password,
+			event.data.remember,
+		);
+
+		if (!result.ok) {
+			formError.value = result.error;
+			return;
+		}
 
 		toast.add({
 			title: "You're in",
@@ -109,15 +134,14 @@ async function onSubmit(_event: FormSubmitEvent<Schema>) {
 			icon: "i-lucide-hand-metal",
 		});
 
-		await navigateTo("/");
+		const redirect = typeof route.query.redirect === "string"
+			? route.query.redirect
+			: "/app";
+
+		await navigateTo(redirect);
 	}
 	catch {
-		toast.add({
-			title: "Couldn't sign you in",
-			description: "Double-check your email and password.",
-			color: "error",
-			icon: "i-lucide-circle-alert",
-		});
+		formError.value = "Something went wrong. Please try again.";
 	}
 	finally {
 		loading.value = false;

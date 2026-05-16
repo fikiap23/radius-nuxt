@@ -21,10 +21,10 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 | Slice | Ringkasan | Status |
 |-------|-----------|--------|
 | S0 | Foundation & marketing | ✅ |
-| S1 | Auth (form & halaman) | 🟡 |
+| S1 | Auth (form & halaman) | ✅ |
 | S2–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default`, `AppShell`, theme (brand + font + color mode), token CSS, `AuthFormCard`, `useAuthForm`, `UiEmptyState`, `LandingKanbanMockup`, ilustrasi SVG fitur (`landing/illustrations/*`), mobile nav (`SiteHeader` + `USlideover`), skip link + focus ring global.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell`, theme (brand + font + color mode), token CSS, `AuthFormCard`, `useAuthForm`, `useAuth` + middleware `auth`/`guest`, `/app` stub, `AuthPasswordStrength`, `UiEmptyState`, `LandingKanbanMockup`, ilustrasi SVG fitur (`landing/illustrations/*`), mobile nav (`SiteHeader` + `USlideover`), skip link + focus ring global.
 
 ---
 
@@ -61,11 +61,11 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 | Sub-slice | Route / surface | Komponen / file | Status |
 |-----------|-----------------|-----------------|--------|
-| S1a | `/auth/login` | Form validasi, error state, loading | 🟡 |
-| S1b | `/auth/register` | Terms checkbox, strength hint | 🟡 |
-| S1c | `/auth/forgot-password` | Success / email sent state | 🟡 |
-| S1d | OAuth placeholder | Tombol Google/GitHub (disabled atau mock) | ⬜ |
-| S1e | Post-login redirect | Middleware `auth` → `/app` atau `/workspaces` | ⬜ |
+| S1a | `/auth/login` | Form validasi, error state, loading | ✅ |
+| S1b | `/auth/register` | Terms checkbox, strength hint | ✅ |
+| S1c | `/auth/forgot-password` | Success / email sent state | ✅ |
+| S1d | OAuth placeholder | Tombol Google/GitHub (mock → `/app`) | ✅ |
+| S1e | Post-login redirect | Middleware `auth` → `/app` | ✅ |
 
 **Acceptance:** User bisa submit form (mock OK); pesan error jelas; setelah “login” masuk ke shell app.
 
@@ -360,7 +360,7 @@ Urutan disarankan: **Sprint → Calendar/Timeline → Search → Issue tracking 
 
 ```
 S0  Foundation          ✅
-S1  Auth                 🟡
+S1  Auth                 ✅
 S2  App shell            ⬜
 S3  Workspace            ⬜
 S4  Dashboard            ⬜

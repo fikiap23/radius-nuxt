@@ -20,6 +20,37 @@
 			}"
 			@submit="onSubmit"
 		>
+			<template
+				v-if="formError"
+				#validation
+			>
+				<UAlert
+					color="error"
+					variant="soft"
+					icon="i-lucide-circle-alert"
+					:title="formError"
+				/>
+			</template>
+
+			<template #password-field="{ state: formState, field }">
+				<UFormField
+					:label="field.label"
+					:name="field.name"
+					:required="field.required"
+				>
+					<UInput
+						v-model="formState.password"
+						type="password"
+						:placeholder="field.placeholder"
+						:autocomplete="field.autocomplete"
+					/>
+					<AuthPasswordStrength
+						class="mt-2"
+						:password="formState.password ?? ''"
+					/>
+				</UFormField>
+			</template>
+
 			<template #footer>
 				<p class="text-center text-sm text-muted">
 					Already have an account?
@@ -30,23 +61,6 @@
 						Sign in
 					</ULink>
 				</p>
-				<p class="mt-4 text-center text-xs text-muted leading-relaxed">
-					By signing up, you agree to our
-					<ULink
-						to="/terms"
-						class="text-primary hover:underline underline-offset-4"
-					>
-						Terms
-					</ULink>
-					and
-					<ULink
-						to="/privacy"
-						class="text-primary hover:underline underline-offset-4"
-					>
-						Privacy Policy
-					</ULink>
-					.
-				</p>
 			</template>
 		</UAuthForm>
 	</AuthFormCard>
@@ -56,10 +70,11 @@
 import * as z from "zod";
 import type { AuthFormField, FormSubmitEvent } from "@nuxt/ui";
 import { APP_NAME } from "~/config/brand";
-import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
+import { authFormUi } from "~/utils/auth-form-ui";
 
 definePageMeta({
 	layout: "auth",
+	middleware: "guest",
 });
 
 useSeoMeta({
@@ -68,7 +83,9 @@ useSeoMeta({
 });
 
 const toast = useToast();
+const { registerWithEmail } = useAuth();
 const loading = ref(false);
+const formError = ref<string | null>(null);
 const providers = useAuthProviders();
 
 const fields: AuthFormField[] = [
@@ -104,6 +121,12 @@ const fields: AuthFormField[] = [
 		required: true,
 		autocomplete: "new-password",
 	},
+	{
+		name: "acceptTerms",
+		type: "checkbox",
+		label: "I agree to the Terms and Privacy Policy",
+		required: true,
+	},
 ];
 
 const schema = z
@@ -116,6 +139,9 @@ const schema = z
 			.regex(/[A-Z]/, "Include at least one uppercase letter")
 			.regex(/[0-9]/, "Include at least one number"),
 		confirmPassword: z.string(),
+		acceptTerms: z.literal(true, {
+			error: "You must accept the Terms and Privacy Policy",
+		}),
 	})
 	.refine(data => data.password === data.confirmPassword, {
 		message: "Passwords do not match",
@@ -126,27 +152,31 @@ type Schema = z.output<typeof schema>;
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
 	loading.value = true;
+	formError.value = null;
 
 	try {
-		// TODO: connect to register API (e.g. Better Auth, Nuxt Auth, or custom)
-		await new Promise(resolve => setTimeout(resolve, 800));
+		const result = await registerWithEmail({
+			name: event.data.name,
+			email: event.data.email,
+			password: event.data.password,
+		});
+
+		if (!result.ok) {
+			formError.value = result.error;
+			return;
+		}
 
 		toast.add({
-			title: "You're on the list",
+			title: "Welcome aboard",
 			description: `Nice to meet you, ${event.data.name}.`,
 			color: "success",
 			icon: "i-lucide-party-popper",
 		});
 
-		await navigateTo("/auth/login");
+		await navigateTo("/app");
 	}
 	catch {
-		toast.add({
-			title: "Something went wrong",
-			description: "Give it another shot in a moment.",
-			color: "error",
-			icon: "i-lucide-circle-alert",
-		});
+		formError.value = "Something went wrong. Give it another shot in a moment.";
 	}
 	finally {
 		loading.value = false;
