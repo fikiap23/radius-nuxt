@@ -86,49 +86,7 @@
 					</div>
 
 					<div class="relative z-0 w-full max-w-md justify-self-center lg:justify-self-end auth-in auth-in-delay-2">
-						<div class="landing-mockup w-full">
-							<div class="landing-mockup-bar">
-								<span class="landing-mockup-dot bg-error/60" />
-								<span class="landing-mockup-dot bg-warning/60" />
-								<span class="landing-mockup-dot bg-success/60" />
-								<span class="ms-auto text-xs text-muted">workspace — radius</span>
-							</div>
-							<div class="space-y-4 p-5 sm:p-6">
-								<div class="flex items-center justify-between gap-4">
-									<div class="space-y-1">
-										<p class="text-xs text-muted">
-											Today
-										</p>
-										<p class="font-display font-bold text-highlighted">
-											Sprint 12 · 68% complete
-										</p>
-									</div>
-									<UBadge
-										color="success"
-										variant="soft"
-										label="Live"
-									/>
-								</div>
-								<div class="landing-kanban">
-									<div
-										v-for="col in kanbanCols"
-										:key="col.label"
-										class="landing-kanban-col"
-									>
-										<p class="mb-2 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
-											{{ col.label }}
-										</p>
-										<div
-											v-for="card in col.cards"
-											:key="card"
-											class="landing-kanban-card mb-1.5 text-default"
-										>
-											{{ card }}
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+						<LandingKanbanMockup />
 					</div>
 				</div>
 			</div>
@@ -183,25 +141,42 @@
 						index === 0 && 'landing-bento-card--highlight sm:col-span-2 lg:col-span-2',
 					]"
 				>
-					<div class="flex items-start gap-4">
-						<span class="landing-feature-icon">
-							<UIcon
-								:name="feature.icon"
-								class="size-5"
-							/>
-						</span>
-						<div class="min-w-0 space-y-1">
-							<h3 class="font-display text-lg font-bold text-highlighted">
-								{{ feature.title }}
-							</h3>
-							<p class="text-xs font-medium text-primary">
-								{{ feature.description }}
+					<div
+						:class="[
+							'flex flex-col gap-4 min-w-0',
+							index === 0 && 'lg:grid lg:grid-cols-2 lg:gap-6 lg:items-center',
+						]"
+					>
+						<div class="space-y-4">
+							<div class="flex items-start gap-4">
+								<span class="landing-feature-icon">
+									<UIcon
+										:name="feature.icon"
+										class="size-5"
+									/>
+								</span>
+								<div class="min-w-0 space-y-1">
+									<h3 class="font-display text-lg font-bold text-highlighted">
+										{{ feature.title }}
+									</h3>
+									<p class="text-xs font-medium text-primary">
+										{{ feature.description }}
+									</p>
+								</div>
+							</div>
+							<p class="text-sm text-muted leading-relaxed">
+								{{ feature.body }}
 							</p>
 						</div>
-					</div>
-					<p class="text-sm text-muted leading-relaxed">
-						{{ feature.body }}
-					</p>
+						<div
+							:class="[
+								'landing-bento-illustration shrink-0',
+								index === 0 && 'landing-bento-illustration--lg',
+							]"
+						>
+							<component :is="landingFeatureIllustrations[feature.illustration]" />
+						</div>
+						</div>
 				</article>
 			</div>
 		</section>
@@ -450,6 +425,10 @@
 
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
+import {
+	landingFeatureIllustrations,
+	type LandingFeatureIllustrationId,
+} from "~/components/landing/landing-feature-illustrations";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "~/config/brand";
 
 definePageMeta({
@@ -476,48 +455,54 @@ const trustChips = [
 const logos = ["Northline", "Patchwork", "Orbit Labs", "Framestack", "Helio", "Summit Co"];
 const marqueeLogos = [...logos, ...logos];
 
-const kanbanCols = [
-	{ label: "Todo", cards: ["Mobile nav", "Docs"] },
-	{ label: "Doing", cards: ["API limits"] },
-	{ label: "Done", cards: ["Auth SSO"] },
-];
-
-const features = [
+const features: Array<{
+	title: string;
+	description: string;
+	body: string;
+	icon: string;
+	illustration: LandingFeatureIllustrationId;
+}> = [
 	{
 		title: "Workspaces & roles",
 		description: "Owner, Admin, Member, Viewer",
 		body: "Multi-workspace support with invites and permissions. Keep every team scoped and secure.",
 		icon: "i-lucide-building-2",
+		illustration: "workspace",
 	},
 	{
 		title: "Kanban boards",
 		description: "Drag, drop, ship",
 		body: "Realtime boards with custom columns, WIP limits, filters, and quick-create tasks — Trello meets Linear.",
 		icon: "i-lucide-kanban",
+		illustration: "kanban",
 	},
 	{
 		title: "Sprint planning",
 		description: "Goals, velocity, burndown",
 		body: "Plan sprints with goals and duration. Track velocity and burndown when Phase 2 lands.",
 		icon: "i-lucide-calendar-range",
+		illustration: "sprint",
 	},
 	{
 		title: "Rich task management",
 		description: "Priority, labels, subtasks",
 		body: "Assignees, due dates, checklists, attachments, comments, and activity logs on every issue.",
 		icon: "i-lucide-check-square",
+		illustration: "tasks",
 	},
 	{
 		title: "Issue tracking",
 		description: "Bug, feature, improvement",
 		body: "Typed issues with severity, reproduction steps, and links — built for engineering teams.",
 		icon: "i-lucide-bug",
+		illustration: "issues",
 	},
 	{
 		title: "Team collaboration",
 		description: "Mentions & notifications",
 		body: "Comments, @mentions, activity timelines, and in-app notifications keep everyone aligned.",
 		icon: "i-lucide-users",
+		illustration: "collaboration",
 	},
 ];
 

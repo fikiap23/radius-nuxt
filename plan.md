@@ -20,11 +20,11 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 
 | Slice | Ringkasan | Status |
 |-------|-----------|--------|
-| S0 | Foundation & marketing | 🟡 |
+| S0 | Foundation & marketing | ✅ |
 | S1 | Auth (form & halaman) | 🟡 |
 | S2–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default`, `AppShell`, theme (brand + font + color mode), token CSS, `AuthFormCard`, `useAuthForm`.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default`, `AppShell`, theme (brand + font + color mode), token CSS, `AuthFormCard`, `useAuthForm`, `UiEmptyState`, `LandingKanbanMockup`, ilustrasi SVG fitur (`landing/illustrations/*`), mobile nav (`SiteHeader` + `USlideover`), skip link + focus ring global.
 
 ---
 
@@ -41,7 +41,7 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 | Landing page | `/` + `layouts/landing.vue` | ✅ |
 | Legal pages | `/privacy`, `/terms`, `LegalPageShell` | ✅ |
 | Komponen layout marketing | `SiteHeader`, `SiteFooter`, `BrandLogo` | ✅ |
-| Empty states / ilustrasi landing | Section placeholder di index | 🟡 |
+| Empty states / ilustrasi landing | `UiEmptyState`, SVG bento + `LandingKanbanMockup` | ✅ |
 
 **Selesai slice ketika:** responsive OK, a11y dasar (focus, label), tidak ada regresi theme.
 
@@ -359,7 +359,7 @@ Urutan disarankan: **Sprint → Calendar/Timeline → Search → Issue tracking 
 ## Ringkasan urutan (cheat sheet)
 
 ```
-S0  Foundation          ✅🟡
+S0  Foundation          ✅
 S1  Auth                 🟡
 S2  App shell            ⬜
 S3  Workspace            ⬜
@@ -404,4 +404,4 @@ S17–S22 AI, automation, integrations, mobile, billing, enterprise
 
 ---
 
-*Terakhir diselaraskan dengan README.md — Development Roadmap Phase 1–3.*
+*Terakhir diselaraskan dengan README.md — Development Roadmap Phase 1–3. Phase 0 (S0) selesai — Mei 2026.*

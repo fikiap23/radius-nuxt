@@ -153,6 +153,16 @@
     @apply flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300;
   }
 
+  .landing-bento-illustration {
+    @apply relative overflow-hidden rounded-xl border border-muted/80 bg-muted/30 p-3;
+    aspect-ratio: 2 / 1;
+  }
+
+  .landing-bento-illustration--lg {
+    @apply min-h-36 sm:min-h-40 lg:min-h-44;
+    aspect-ratio: auto;
+  }
+
   .landing-bento-card:hover .landing-feature-icon {
     @apply scale-110;
   }
