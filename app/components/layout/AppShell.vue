@@ -1,5 +1,9 @@
 <template>
-	<div class="app-shell">
+	<div
+		class="app-shell"
+		:class="`app-shell--${layoutId}`"
+		:data-app-layout="layoutId"
+	>
 		<header
 			v-if="$slots.header"
 			class="app-shell__header shrink-0"
@@ -11,7 +15,7 @@
 
 		<div class="app-shell__body">
 			<aside
-				v-if="$slots.sidebar"
+				v-if="$slots.sidebar && showSidebar"
 				class="app-sidebar hidden lg:flex"
 				:class="sidebarCollapsed ? 'app-sidebar--collapsed' : 'app-sidebar--expanded'"
 				aria-label="Main navigation"
@@ -47,7 +51,7 @@
 					<slot name="pageHeader" />
 				</div>
 				<div class="app-shell__content">
-					<div class="mx-auto max-w-app">
+					<div :class="contentWidthClass">
 						<slot />
 					</div>
 				</div>
@@ -58,7 +62,7 @@
 			v-if="$slots.footer"
 			class="app-shell__footer shrink-0"
 		>
-			<div class="mx-auto max-w-app">
+			<div :class="contentWidthClass">
 				<slot name="footer" />
 			</div>
 		</footer>
@@ -74,6 +78,8 @@ withDefaults(
 		showPageHeader: false,
 	},
 );
+
+const { layoutId, showSidebar, contentWidthClass } = useAppLayout();
 
 const sidebarOpen = defineModel<boolean>("sidebarOpen", { default: false });
 const sidebarCollapsed = defineModel<boolean>("sidebarCollapsed", {

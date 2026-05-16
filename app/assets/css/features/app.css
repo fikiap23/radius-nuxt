@@ -43,6 +43,29 @@
     width: 4.5rem;
   }
 
+  /* Layout presets — driven by data-app-layout on .app-shell */
+  .app-shell--compact .app-sidebar--expanded {
+    width: 13rem;
+  }
+
+  .app-shell--compact .app-shell__content {
+    padding-block: calc(var(--spacing-page-y) * 0.75);
+  }
+
+  .app-shell--inset .app-shell__main {
+    @apply gap-3 p-3 sm:p-4;
+  }
+
+  .app-shell--inset .app-shell__content {
+    @apply rounded-xl border border-muted bg-elevated shadow-card;
+    padding-inline: var(--spacing-page-x);
+    padding-block: var(--spacing-page-y);
+  }
+
+  .app-shell--top-nav .app-header-bar__nav {
+    @apply hidden min-w-0 flex-1 lg:flex;
+  }
+
   .app-header-bar {
     @apply flex w-full min-h-14 items-center justify-between gap-4;
   }

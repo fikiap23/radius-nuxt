@@ -2,6 +2,7 @@
 	<div class="app-header-bar">
 		<div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
 			<UButton
+				v-if="showSidebar"
 				:icon="sidebarToggleIcon"
 				color="neutral"
 				variant="ghost"
@@ -20,7 +21,23 @@
 				@click="emit('open-sidebar')"
 			/>
 
-			<div class="hidden min-w-0 items-center gap-2 md:flex">
+			<nav
+				v-if="!showSidebar"
+				class="app-header-bar__nav min-w-0 flex-1"
+				aria-label="App sections"
+			>
+				<UNavigationMenu
+					:items="appNavItems"
+					orientation="horizontal"
+					class="w-full min-w-0"
+					:ui="{ link: 'px-2.5 py-1.5 text-sm' }"
+				/>
+			</nav>
+
+			<div
+				class="hidden min-w-0 items-center gap-2 md:flex"
+				:class="!showSidebar && 'lg:hidden'"
+			>
 				<span class="shrink-0 text-sm font-semibold text-toned">
 					{{ APP_NAME }}
 				</span>
@@ -79,6 +96,7 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
+import { appNavItems } from "~/config/app-nav";
 import { APP_NAME } from "~/config/brand";
 
 const emit = defineEmits<{
@@ -88,6 +106,7 @@ const emit = defineEmits<{
 const { user, logout } = useAuth();
 const { title, breadcrumbs } = useAppPageMeta();
 const { collapsed: sidebarCollapsed, toggle: toggleSidebar } = useAppSidebar();
+const { showSidebar, layoutId, presets, setLayout } = useAppLayout();
 
 const sidebarToggleIcon = computed(() =>
 	sidebarCollapsed.value
@@ -120,6 +139,17 @@ const userMenuItems = computed<DropdownMenuItem[][]>(() => [
 		},
 	],
 	[
+		{
+			label: "App layout",
+			icon: "i-lucide-layout-template",
+			children: presets.map(preset => ({
+				label: preset.label,
+				icon: preset.icon,
+				type: "checkbox",
+				checked: layoutId.value === preset.id,
+				onSelect: () => setLayout(preset.id),
+			})),
+		},
 		{
 			label: "Settings",
 			icon: "i-lucide-settings",

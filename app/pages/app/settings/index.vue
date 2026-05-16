@@ -25,6 +25,13 @@
 		</UiAppCard>
 
 		<UiAppCard
+			title="Layout"
+			description="Sidebar, header, and content area arrangement"
+		>
+			<LayoutAppLayoutPicker />
+		</UiAppCard>
+
+		<UiAppCard
 			title="Appearance"
 			description="Color mode, brand preset, and typography"
 		>

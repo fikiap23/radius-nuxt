@@ -2,14 +2,9 @@
 	<LayoutAppShell
 		v-model:sidebar-open="sidebarOpen"
 		v-model:sidebar-collapsed="sidebarCollapsed"
-		show-page-header
 	>
 		<template #header>
 			<LayoutAppHeaderBar @open-sidebar="sidebarOpen = true" />
-		</template>
-
-		<template #pageHeader>
-			<LayoutAppPageHeader />
 		</template>
 
 		<template #sidebar="{ collapsed }">
