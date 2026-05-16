@@ -1,0 +1,22 @@
+/**
+ * App shell — header & page chrome
+ */
+
+@layer components {
+  .app-header-bar {
+    @apply flex w-full min-h-14 items-center gap-3;
+  }
+
+  .app-page-header {
+    @apply space-y-1 border-b border-muted bg-default/40 py-5 sm:py-6;
+    padding-inline: var(--spacing-page-x);
+  }
+
+  .app-page-header__title {
+    @apply font-display text-2xl font-extrabold tracking-tight text-highlighted sm:text-3xl;
+  }
+
+  .app-page-header__description {
+    @apply max-w-2xl text-sm text-muted leading-relaxed;
+  }
+}

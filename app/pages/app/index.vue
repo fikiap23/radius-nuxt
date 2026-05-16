@@ -1,40 +1,42 @@
 <template>
 	<div class="space-y-6">
-		<div class="space-y-2">
-			<p class="text-label font-semibold uppercase text-primary">
-				Workspace
-			</p>
-			<h1 class="font-display text-3xl font-extrabold tracking-tight text-highlighted">
-				Welcome{{ user ? `, ${user.name}` : "" }}
-			</h1>
-			<p class="max-w-xl text-muted leading-relaxed">
-				You're signed in to {{ APP_NAME }}. The full dashboard with widgets
-				and project overview arrives in slice S4 — for now this is your app
-				home after authentication.
-			</p>
-		</div>
-
 		<UiAppCard
-			title="What's next"
-			description="Phase 1 continues with app shell navigation and workspaces."
+			title="Overview"
+			description="Workspace summary widgets arrive in slice S4."
 		>
-			<ul class="space-y-2 text-sm text-muted">
-				<li class="flex items-start gap-2">
-					<UIcon
-						name="i-lucide-check"
-						class="mt-0.5 size-4 shrink-0 text-primary"
-					/>
-					Authentication mock session is active (cookie-based).
-				</li>
-				<li class="flex items-start gap-2">
-					<UIcon
-						name="i-lucide-layout-dashboard"
-						class="mt-0.5 size-4 shrink-0 text-primary"
-					/>
-					S2 adds sidebar navigation and settings placeholder.
-				</li>
-			</ul>
+			<p class="text-sm text-muted leading-relaxed">
+				Welcome{{ user ? `, ${user.name}` : "" }}. Use the sidebar to explore
+				projects, your tasks, and settings. Navigation is client-side — no full
+				page reload between sections.
+			</p>
 		</UiAppCard>
+
+		<div class="grid gap-4 sm:grid-cols-2">
+			<UiAppCard
+				title="Projects"
+				description="Coming in S5"
+			>
+				<UButton
+					to="/app/projects"
+					label="View projects"
+					color="neutral"
+					variant="soft"
+					size="sm"
+				/>
+			</UiAppCard>
+			<UiAppCard
+				title="My tasks"
+				description="Coming in S15"
+			>
+				<UButton
+					to="/app/my-tasks"
+					label="View my tasks"
+					color="neutral"
+					variant="soft"
+					size="sm"
+				/>
+			</UiAppCard>
+		</div>
 	</div>
 </template>
 
@@ -44,6 +46,8 @@ import { APP_NAME } from "~/config/brand";
 definePageMeta({
 	layout: "app",
 	middleware: "auth",
+	appTitle: "Dashboard",
+	appDescription: "Workspace overview and quick links",
 });
 
 useSeoMeta({

@@ -1,5 +1,10 @@
 <template>
-	<div class="flex items-center gap-1">
+	<div
+		:class="[
+			'flex items-center',
+			compact ? 'gap-0' : 'gap-1.5 flex-wrap',
+		]"
+	>
 		<UButton
 			:icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
 			color="neutral"
@@ -9,33 +14,44 @@
 			@click="toggleColorMode"
 		/>
 
-		<USelect
-			:model-value="brand"
-			:items="brandOptions"
-			value-key="id"
-			label-key="label"
-			size="sm"
-			class="w-28"
-			aria-label="Change brand color"
-			@update:model-value="onBrandChange"
-		/>
+		<template v-if="!compact">
+			<USelect
+				:model-value="brand"
+				:items="brandOptions"
+				value-key="id"
+				label-key="label"
+				size="sm"
+				class="w-28"
+				aria-label="Change brand color"
+				@update:model-value="onBrandChange"
+			/>
 
-		<USelect
-			:model-value="font"
-			:items="fontOptions"
-			value-key="id"
-			label-key="label"
-			size="sm"
-			class="w-32"
-			aria-label="Change font preset"
-			@update:model-value="onFontChange"
-		/>
+			<USelect
+				:model-value="font"
+				:items="fontOptions"
+				value-key="id"
+				label-key="label"
+				size="sm"
+				class="w-32"
+				aria-label="Change font preset"
+				@update:model-value="onFontChange"
+			/>
+		</template>
 	</div>
 </template>
 
 <script setup lang="ts">
 import type { FontId } from "~/config/fonts";
 import type { BrandId } from "~/config/theme";
+
+withDefaults(
+	defineProps<{
+		compact?: boolean;
+	}>(),
+	{
+		compact: false,
+	},
+);
 
 const {
 	brand,

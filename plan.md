@@ -22,9 +22,10 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 |-------|-----------|--------|
 | S0 | Foundation & marketing | ✅ |
 | S1 | Auth (form & halaman) | ✅ |
-| S2–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
+| S2 | App shell & navigasi | ✅ |
+| S3–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell`, theme (brand + font + color mode), token CSS, `AuthFormCard`, `useAuthForm`, `useAuth` + middleware `auth`/`guest`, `/app` stub, `AuthPasswordStrength`, `UiEmptyState`, `LandingKanbanMockup`, ilustrasi SVG fitur (`landing/illustrations/*`), mobile nav (`SiteHeader` + `USlideover`), skip link + focus ring global.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app`, `/app/projects`, `/app/my-tasks`, `/app/settings`), theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
 
 ---
 
@@ -77,18 +78,19 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 **Depends on:** S1e
 
-| Item | Deliverable |
-|------|-------------|
-| Layout dashboard | Perluas `AppShell`: sidebar, top bar, content area |
-| Nav items | Dashboard, Projects, My Tasks, Settings (placeholder) |
-| Breadcrumb / page title slot | Header dinamis per halaman |
-| Mobile | Collapsible sidebar / drawer |
-| Route group | `app/pages/app/**` atau `(dashboard)/` |
+| Item | Deliverable | Status |
+|------|-------------|--------|
+| Layout dashboard | `AppShell` + `layouts/app.vue` — sidebar, top bar, content | ✅ |
+| Nav items | `app/config/app-nav.ts` — Dashboard, Projects, My Tasks, Settings | ✅ |
+| Breadcrumb / page title | `AppPageHeader` + `PageMeta.appTitle` | ✅ |
+| Mobile | `USlideover` + menu button (`lg:hidden`) | ✅ |
+| Route group | `app/pages/app/**` | ✅ |
 
-**Routes awal:**
+**Routes:**
 
-- `/app` → redirect dashboard
-- `/app/settings` → placeholder profil
+- `/app` — dashboard placeholder
+- `/app/projects`, `/app/my-tasks` — placeholder
+- `/app/settings` — profil mock (nama/email dari sesi)
 
 **Acceptance:** Navigasi antar halaman placeholder tanpa reload patah; active state sidebar benar.
 
@@ -361,7 +363,7 @@ Urutan disarankan: **Sprint → Calendar/Timeline → Search → Issue tracking 
 ```
 S0  Foundation          ✅
 S1  Auth                 ✅
-S2  App shell            ⬜
+S2  App shell            ✅
 S3  Workspace            ⬜
 S4  Dashboard            ⬜
 S5  Projects             ⬜
