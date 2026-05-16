@@ -12,6 +12,11 @@ export const appNavItems: NavigationMenuItem[] = [
 		to: "/app/projects",
 	},
 	{
+		label: "Workspaces",
+		icon: "i-lucide-building-2",
+		to: "/app/workspaces",
+	},
+	{
 		label: "My Tasks",
 		icon: "i-lucide-check-square",
 		to: "/app/my-tasks",

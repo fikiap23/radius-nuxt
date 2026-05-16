@@ -23,9 +23,10 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 | S0 | Foundation & marketing | ✅ |
 | S1 | Auth (form & halaman) | ✅ |
 | S2 | App shell & navigasi | ✅ |
-| S3–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
+| S3 | Workspace (multi-tenant UI) | ✅ |
+| S4–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app`, `/app/projects`, `/app/my-tasks`, `/app/settings`), theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app`, `/app/projects`, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, komponen workspace (badge, invite, members), theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
 
 ---
 
@@ -102,14 +103,14 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 **Depends on:** S2
 
-| Sub-slice | Deliverable |
-|-----------|-------------|
-| S3a | Workspace switcher di header (list mock) |
-| S3b | `/app/workspaces` — daftar workspace |
-| S3c | Modal/dialog buat workspace |
-| S3d | `/app/workspaces/[id]/settings` — tab General, Members |
-| S3e | Invite member (email + role select) |
-| S3f | Role badge: Owner, Admin, Member, Viewer |
+| Sub-slice | Deliverable | Status |
+|-----------|-------------|--------|
+| S3a | Workspace switcher di header (list mock) | ✅ |
+| S3b | `/app/workspaces` — daftar workspace | ✅ |
+| S3c | Modal/dialog buat workspace | ✅ |
+| S3d | `/app/workspaces/[id]/settings` — tab General, Members | ✅ |
+| S3e | Invite member (email + role select) | ✅ |
+| S3f | Role badge: Owner, Admin, Member, Viewer | ✅ |
 
 **Acceptance:** Ganti workspace mengubah konteks (mock store); invite flow UI lengkap tanpa API.
 
@@ -364,7 +365,7 @@ Urutan disarankan: **Sprint → Calendar/Timeline → Search → Issue tracking 
 S0  Foundation          ✅
 S1  Auth                 ✅
 S2  App shell            ✅
-S3  Workspace            ⬜
+S3  Workspace            ✅
 S4  Dashboard            ⬜
 S5  Projects             ⬜
 S6  Tasks (list)        ⬜

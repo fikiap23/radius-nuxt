@@ -47,11 +47,40 @@
 		</UiAppCard>
 
 		<UiAppCard
+			title="Workspace"
+			description="Members, roles, and organization settings"
+			icon="i-lucide-building-2"
+		>
+			<p class="text-sm text-muted">
+				Manage the active workspace, invite teammates, and configure roles.
+			</p>
+			<UButton
+				v-if="activeWorkspace"
+				:to="`/app/workspaces/${activeWorkspace.id}/settings`"
+				label="Manage workspace"
+				icon="i-lucide-arrow-right"
+				trailing
+				variant="soft"
+				size="sm"
+				class="mt-4"
+			/>
+			<UButton
+				v-else
+				to="/app/workspaces"
+				label="View workspaces"
+				icon="i-lucide-building-2"
+				variant="soft"
+				size="sm"
+				class="mt-4"
+			/>
+		</UiAppCard>
+
+		<UiAppCard
 			title="Preferences"
 			description="More settings in later slices"
 		>
 			<p class="text-sm text-muted">
-				Workspace and notification settings arrive with S3 and S9.
+				Notification settings arrive in S9.
 			</p>
 		</UiAppCard>
 	</div>
@@ -72,4 +101,5 @@ useSeoMeta({
 });
 
 const { user } = useAuth();
+const { activeWorkspace } = useWorkspace();
 </script>

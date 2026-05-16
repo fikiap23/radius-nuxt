@@ -21,6 +21,8 @@
 				@click="emit('open-sidebar')"
 			/>
 
+			<WorkspaceWorkspaceSwitcher class="min-w-0 shrink" />
+
 			<nav
 				v-if="!showSidebar"
 				class="app-header-bar__nav min-w-0 flex-1"

@@ -8,7 +8,7 @@
 						{{ greeting }}{{ firstName ? `, ${firstName}` : "" }}
 					</p>
 					<h1 class="app-welcome__title">
-						Your workspace is ready
+						{{ activeWorkspace?.name ?? "Your workspace" }}
 					</h1>
 					<p class="app-welcome__lead max-w-xl text-sm leading-relaxed text-toned sm:text-base">
 						Pick up where you left off — projects and tasks stay in sync as we
@@ -64,6 +64,12 @@
 					icon="i-lucide-list-checks"
 				/>
 				<UiAppQuickLink
+					to="/app/workspaces"
+					title="Workspaces"
+					:description="activeWorkspace ? `Active: ${activeWorkspace.name}` : 'Switch team context'"
+					icon="i-lucide-building-2"
+				/>
+				<UiAppQuickLink
 					to="/app/settings"
 					title="Settings"
 					description="Layout, theme, and profile"
@@ -84,12 +90,19 @@
 						name="i-lucide-check"
 						class="mt-0.5 size-4 shrink-0 text-primary"
 					/>
+					<span><strong class="font-medium text-highlighted">S3</strong> — workspaces, switcher, and member invites</span>
+				</li>
+				<li class="flex gap-2">
+					<UIcon
+						name="i-lucide-circle"
+						class="mt-0.5 size-4 shrink-0 text-muted"
+					/>
 					<span><strong class="font-medium text-highlighted">S4</strong> — dashboard widgets & activity feed</span>
 				</li>
 				<li class="flex gap-2">
 					<UIcon
-						name="i-lucide-check"
-						class="mt-0.5 size-4 shrink-0 text-primary"
+						name="i-lucide-circle"
+						class="mt-0.5 size-4 shrink-0 text-muted"
 					/>
 					<span><strong class="font-medium text-highlighted">S5</strong> — project list & kanban boards</span>
 				</li>
@@ -120,6 +133,7 @@ useSeoMeta({
 
 const { user } = useAuth();
 const { greeting } = useGreeting();
+const { activeWorkspace } = useWorkspace();
 
 const firstName = computed(() => {
 	const name = user.value?.name?.trim();
