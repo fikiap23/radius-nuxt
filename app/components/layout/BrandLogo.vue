@@ -15,7 +15,10 @@
 		>
 			R
 		</span>
-		<span :class="showTagline ? 'flex flex-col leading-tight' : ''">
+		<span
+			v-if="!collapsed"
+			:class="showTagline ? 'flex flex-col leading-tight' : ''"
+		>
 			<span :class="textSize">{{ APP_NAME }}</span>
 			<span
 				v-if="showTagline"
@@ -39,6 +42,7 @@ const props = withDefaults(
 		size?: "sm" | "md" | "lg";
 		showTagline?: boolean;
 		promo?: boolean;
+		collapsed?: boolean;
 		class?: string;
 	}>(),
 	{
@@ -46,6 +50,7 @@ const props = withDefaults(
 		size: "md",
 		showTagline: false,
 		promo: false,
+		collapsed: false,
 	},
 );
 

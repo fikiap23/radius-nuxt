@@ -1,8 +1,48 @@
 /**
- * App shell — header & page chrome
+ * App shell — header, sidebar & page chrome
  */
 
 @layer components {
+  .app-shell {
+    @apply flex h-dvh flex-col overflow-hidden bg-default text-default;
+  }
+
+  .app-shell__header {
+    @apply z-50 border-b border-muted bg-default/95 backdrop-blur-md;
+  }
+
+  .app-shell__body {
+    @apply flex min-h-0 flex-1 overflow-hidden;
+  }
+
+  .app-shell__main {
+    @apply flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden;
+  }
+
+  .app-shell__content {
+    @apply flex-1 overflow-y-auto overflow-x-hidden;
+    padding-inline: var(--spacing-page-x);
+    padding-block: var(--spacing-page-y);
+  }
+
+  .app-shell__footer {
+    @apply border-t border-muted bg-muted/30;
+    padding-inline: var(--spacing-page-x);
+    padding-block: 1.5rem;
+  }
+
+  .app-sidebar {
+    @apply shrink-0 flex-col border-e border-muted bg-elevated transition-[width] duration-200 ease-out;
+  }
+
+  .app-sidebar--expanded {
+    width: 16rem;
+  }
+
+  .app-sidebar--collapsed {
+    width: 4.5rem;
+  }
+
   .app-header-bar {
     @apply flex w-full min-h-14 items-center justify-between gap-4;
   }

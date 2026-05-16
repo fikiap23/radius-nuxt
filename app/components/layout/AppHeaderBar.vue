@@ -2,6 +2,15 @@
 	<div class="app-header-bar">
 		<div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
 			<UButton
+				:icon="sidebarCollapsed ? 'i-lucide-panel-left-open' : 'i-lucide-panel-left-close'"
+				color="neutral"
+				variant="ghost"
+				size="sm"
+				class="hidden shrink-0 lg:inline-flex"
+				:aria-label="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+				@click="toggleSidebar"
+			/>
+			<UButton
 				icon="i-lucide-menu"
 				color="neutral"
 				variant="ghost"
@@ -78,6 +87,7 @@ const emit = defineEmits<{
 
 const { user, logout } = useAuth();
 const { title, breadcrumbs } = useAppPageMeta();
+const { collapsed: sidebarCollapsed, toggle: toggleSidebar } = useAppSidebar();
 
 const userInitials = computed(() => {
 	if (!user.value?.name) {

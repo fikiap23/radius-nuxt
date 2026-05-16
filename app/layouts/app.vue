@@ -1,6 +1,7 @@
 <template>
 	<LayoutAppShell
 		v-model:sidebar-open="sidebarOpen"
+		v-model:sidebar-collapsed="sidebarCollapsed"
 		show-page-header
 	>
 		<template #header>
@@ -11,8 +12,8 @@
 			<LayoutAppPageHeader />
 		</template>
 
-		<template #sidebar>
-			<LayoutAppSidebar />
+		<template #sidebar="{ collapsed }">
+			<LayoutAppSidebar :collapsed="collapsed" />
 		</template>
 
 		<slot />
@@ -21,4 +22,5 @@
 
 <script setup lang="ts">
 const sidebarOpen = ref(false);
+const { collapsed: sidebarCollapsed } = useAppSidebar();
 </script>

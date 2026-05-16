@@ -1,22 +1,25 @@
 <template>
-	<div class="min-h-dvh flex flex-col bg-default text-default">
+	<div class="app-shell">
 		<header
 			v-if="$slots.header"
-			class="sticky top-0 z-50 shrink-0 border-b border-muted bg-default/90 backdrop-blur-md"
+			class="app-shell__header shrink-0"
 		>
-			<div class="mx-auto max-w-full px-page py-2">
+			<div class="px-page py-2">
 				<slot name="header" />
 			</div>
 		</header>
 
-		<div class="flex flex-1 min-h-0">
+		<div class="app-shell__body">
 			<aside
 				v-if="$slots.sidebar"
-				class="hidden w-64 shrink-0 border-e border-muted bg-elevated lg:block"
+				class="app-sidebar hidden lg:flex"
+				:class="sidebarCollapsed ? 'app-sidebar--collapsed' : 'app-sidebar--expanded'"
+				aria-label="Main navigation"
 			>
-				<div class="sticky top-[3.5rem] flex h-[calc(100dvh-3.5rem)] flex-col overflow-y-auto p-4">
-					<slot name="sidebar" />
-				</div>
+				<slot
+					name="sidebar"
+					:collapsed="sidebarCollapsed"
+				/>
 			</aside>
 
 			<USlideover
@@ -31,16 +34,19 @@
 						class="p-4"
 						@click="closeSidebarOnNavigate"
 					>
-						<slot name="sidebar" />
+						<slot
+							name="sidebar"
+							:collapsed="false"
+						/>
 					</div>
 				</template>
 			</USlideover>
 
-			<main class="flex min-w-0 flex-1 flex-col">
+			<main class="app-shell__main">
 				<div v-if="showPageHeader && $slots.pageHeader">
 					<slot name="pageHeader" />
 				</div>
-				<div class="flex-1 overflow-y-auto px-page py-page">
+				<div class="app-shell__content">
 					<div class="mx-auto max-w-app">
 						<slot />
 					</div>
@@ -50,7 +56,7 @@
 
 		<footer
 			v-if="$slots.footer"
-			class="border-t border-muted bg-muted/30 px-page py-6"
+			class="app-shell__footer shrink-0"
 		>
 			<div class="mx-auto max-w-app">
 				<slot name="footer" />
@@ -70,6 +76,9 @@ withDefaults(
 );
 
 const sidebarOpen = defineModel<boolean>("sidebarOpen", { default: false });
+const sidebarCollapsed = defineModel<boolean>("sidebarCollapsed", {
+	default: false,
+});
 
 function closeSidebarOnNavigate(event: MouseEvent) {
 	const target = event.target as HTMLElement | null;
@@ -78,5 +87,5 @@ function closeSidebarOnNavigate(event: MouseEvent) {
 	}
 }
 
-defineExpose({ sidebarOpen });
+defineExpose({ sidebarOpen, sidebarCollapsed });
 </script>
