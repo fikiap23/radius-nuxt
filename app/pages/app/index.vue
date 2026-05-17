@@ -1,5 +1,5 @@
 <template>
-	<div class="app-page space-y-8">
+	<div class="app-page app-page--wide space-y-8">
 		<section class="app-welcome">
 			<div class="app-welcome__glow" aria-hidden="true" />
 			<div class="app-welcome__inner">
@@ -11,8 +11,7 @@
 						{{ activeWorkspace?.name ?? "Your workspace" }}
 					</h1>
 					<p class="app-welcome__lead max-w-xl text-sm leading-relaxed text-toned sm:text-base">
-						Pick up where you left off — projects and tasks stay in sync as we
-						ship the next slices.
+						Workspace overview — projects, tasks, sprint, and team activity at a glance.
 					</p>
 				</div>
 				<UButton
@@ -28,93 +27,54 @@
 		<div class="grid gap-3 sm:grid-cols-3">
 			<UiAppStatPill
 				label="Active projects"
-				:value="3"
+				:value="summary.activeProjects"
 				icon="i-lucide-folder-kanban"
 				tone="primary"
 			/>
 			<UiAppStatPill
 				label="Open tasks"
-				:value="12"
+				:value="summary.openTasks"
 				icon="i-lucide-circle-check"
 			/>
 			<UiAppStatPill
 				label="Due this week"
-				:value="2"
+				:value="summary.dueThisWeek"
 				icon="i-lucide-calendar-clock"
 				tone="warning"
 			/>
 		</div>
 
-		<section class="space-y-3">
-			<h2 class="app-section-label">
-				Shortcuts
-			</h2>
-			<div class="grid gap-3 sm:grid-cols-2">
-				<UiAppQuickLink
-					to="/app/projects"
-					title="Projects"
-					description="Boards, lists, and workspace folders"
-					icon="i-lucide-folder-kanban"
-					tone="primary"
-				/>
-				<UiAppQuickLink
-					to="/app/my-tasks"
-					title="My tasks"
-					description="Everything assigned to you"
-					icon="i-lucide-list-checks"
-				/>
-				<UiAppQuickLink
-					to="/app/workspaces"
-					title="Workspaces"
-					:description="activeWorkspace ? `Active: ${activeWorkspace.name}` : 'Switch team context'"
-					icon="i-lucide-building-2"
-				/>
-				<UiAppQuickLink
-					to="/app/settings"
-					title="Settings"
-					description="Layout, theme, and profile"
-					icon="i-lucide-sliders-horizontal"
+		<section
+			class="dashboard-grid"
+			aria-label="Dashboard widgets"
+		>
+			<DashboardActiveProjects
+				:loading="loading"
+				:projects="projects"
+			/>
+			<DashboardTaskProgress
+				:loading="loading"
+				:task-progress="taskProgress"
+			/>
+			<DashboardSprintProgress
+				:loading="loading"
+				:sprint="sprint"
+			/>
+			<div class="dashboard-grid__wide">
+				<DashboardRecentActivity
+					:loading="loading"
+					:activities="activities"
 				/>
 			</div>
+			<DashboardAssignedTasks
+				:loading="loading"
+				:tasks="assignedTasks"
+			/>
+			<DashboardTeamWorkload
+				:loading="loading"
+				:members="teamWorkload"
+			/>
 		</section>
-
-		<UiAppCard
-			variant="muted"
-			icon="i-lucide-sparkles"
-			title="What’s next"
-			description="Preview of upcoming slices"
-		>
-			<ul class="space-y-2.5 text-sm text-toned">
-				<li class="flex gap-2">
-					<UIcon
-						name="i-lucide-check"
-						class="mt-0.5 size-4 shrink-0 text-primary"
-					/>
-					<span><strong class="font-medium text-highlighted">S3</strong> — workspaces, switcher, and member invites</span>
-				</li>
-				<li class="flex gap-2">
-					<UIcon
-						name="i-lucide-circle"
-						class="mt-0.5 size-4 shrink-0 text-muted"
-					/>
-					<span><strong class="font-medium text-highlighted">S4</strong> — dashboard widgets & activity feed</span>
-				</li>
-				<li class="flex gap-2">
-					<UIcon
-						name="i-lucide-circle"
-						class="mt-0.5 size-4 shrink-0 text-muted"
-					/>
-					<span><strong class="font-medium text-highlighted">S5</strong> — project list & kanban boards</span>
-				</li>
-				<li class="flex gap-2">
-					<UIcon
-						name="i-lucide-circle"
-						class="mt-0.5 size-4 shrink-0 text-muted"
-					/>
-					<span><strong class="font-medium text-highlighted">S15</strong> — personal task inbox</span>
-				</li>
-			</ul>
-		</UiAppCard>
 	</div>
 </template>
 
@@ -134,6 +94,16 @@ useSeoMeta({
 const { user } = useAuth();
 const { greeting } = useGreeting();
 const { activeWorkspace } = useWorkspace();
+const {
+	loading,
+	summary,
+	projects,
+	taskProgress,
+	activities,
+	sprint,
+	assignedTasks,
+	teamWorkload,
+} = useDashboard();
 
 const firstName = computed(() => {
 	const name = user.value?.name?.trim();

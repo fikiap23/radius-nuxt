@@ -24,9 +24,10 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 | S1 | Auth (form & halaman) | ✅ |
 | S2 | App shell & navigasi | ✅ |
 | S3 | Workspace (multi-tenant UI) | ✅ |
-| S4–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
+| S4 | Dashboard widgets | ✅ |
+| S5–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app`, `/app/projects`, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, komponen workspace (badge, invite, members), theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects`, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useDashboard` + dashboard widgets, komponen workspace (badge, invite, members), theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
 
 ---
 
@@ -89,7 +90,7 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 **Routes:**
 
-- `/app` — dashboard placeholder
+- `/app` — dashboard (6 widgets, mock per workspace)
 - `/app/projects`, `/app/my-tasks` — placeholder
 - `/app/settings` — profil mock (nama/email dari sesi)
 
@@ -122,16 +123,18 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 **Depends on:** S3
 
-| Widget (mock) | Komponen |
-|---------------|----------|
-| Active projects | Card list + link ke project |
-| Task progress | Progress bar / ring |
-| Recent activity | Timeline list |
-| Sprint progress | Mini chart placeholder |
-| Assigned to me | Task list singkat |
-| Team workload | Avatar stack + bar |
+| Widget (mock) | Komponen | Status |
+|---------------|----------|--------|
+| Active projects | `DashboardActiveProjects` | ✅ |
+| Task progress | `DashboardTaskProgress` | ✅ |
+| Recent activity | `DashboardRecentActivity` | ✅ |
+| Sprint progress | `DashboardSprintProgress` | ✅ |
+| Assigned to me | `DashboardAssignedTasks` | ✅ |
+| Team workload | `DashboardTeamWorkload` | ✅ |
 
-**Route:** `/app` atau `/app/dashboard`
+**Route:** `/app`
+
+**Data:** `useDashboard` + `app/data/dashboard-seed.ts` (per workspace; Design Lab = empty widgets)
 
 **Acceptance:** Grid responsive 1/2/3 kolom; skeleton loading; empty state per widget.
 
@@ -366,7 +369,7 @@ S0  Foundation          ✅
 S1  Auth                 ✅
 S2  App shell            ✅
 S3  Workspace            ✅
-S4  Dashboard            ⬜
+S4  Dashboard            ✅
 S5  Projects             ⬜
 S6  Tasks (list)        ⬜
 S7  Kanban board         ⬜
