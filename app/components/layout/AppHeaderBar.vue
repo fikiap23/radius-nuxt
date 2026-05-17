@@ -29,7 +29,7 @@
 				aria-label="App sections"
 			>
 				<UNavigationMenu
-					:items="appNavItems"
+					:items="appNavMenuItems"
 					orientation="horizontal"
 					class="w-full min-w-0"
 					:ui="{ link: 'px-2.5 py-1.5 text-sm' }"
@@ -99,7 +99,7 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
-import { appNavItems } from "~/config/app-nav";
+import { appNavMenuItems } from "~/config/app-nav";
 import { APP_NAME } from "~/config/brand";
 
 const emit = defineEmits<{

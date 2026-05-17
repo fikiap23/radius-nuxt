@@ -23,18 +23,17 @@
 					:key="item.to"
 				>
 					<NuxtLink
-						:to="item.to!"
+						:to="item.to"
 						class="app-sidebar-nav-link"
 						:class="[
 							collapsed && 'app-sidebar-nav-link--collapsed',
-							isActive(item.to!) && 'app-sidebar-nav-link--active',
+							isActive(item.to) && 'app-sidebar-nav-link--active',
 						]"
-						:aria-current="isActive(item.to!) ? 'page' : undefined"
+						:aria-current="isActive(item.to) ? 'page' : undefined"
 					>
 						<UIcon
-							v-if="item.icon"
 							:name="item.icon"
-							class="size-[1.125rem] shrink-0"
+							class="size-4.5 shrink-0"
 						/>
 						<span
 							v-if="!collapsed"

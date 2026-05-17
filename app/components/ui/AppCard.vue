@@ -21,7 +21,7 @@
 				>
 					<UIcon
 						:name="icon"
-						class="size-[1.125rem]"
+						class="size-4.5"
 					/>
 				</span>
 				<div class="min-w-0 space-y-1">

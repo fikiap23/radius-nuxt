@@ -174,7 +174,7 @@
   }
 
   .app-welcome__glow {
-    @apply pointer-events-none absolute -end-16 -top-16 size-48 rounded-full opacity-60 blur-3xl;
+    @apply pointer-events-none absolute -inset-e-16 -top-16 size-48 rounded-full opacity-60 blur-3xl;
     background: color-mix(in oklab, var(--ui-color-primary-400) 35%, transparent);
   }
 

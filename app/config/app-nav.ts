@@ -1,6 +1,13 @@
 import type { NavigationMenuItem } from "@nuxt/ui";
 
-export const appNavItems: NavigationMenuItem[] = [
+/** Sidebar / header nav entries — `to` is always a path string in this app. */
+export interface AppNavItem {
+	label: string;
+	icon: string;
+	to: string;
+}
+
+export const appNavItems = [
 	{
 		label: "Dashboard",
 		icon: "i-lucide-layout-dashboard",
@@ -26,4 +33,7 @@ export const appNavItems: NavigationMenuItem[] = [
 		icon: "i-lucide-settings",
 		to: "/app/settings",
 	},
-];
+] as const satisfies readonly AppNavItem[];
+
+/** For `UNavigationMenu` which expects the broader Nuxt UI item type. */
+export const appNavMenuItems: NavigationMenuItem[] = [...appNavItems];

@@ -8,7 +8,7 @@
 			color="neutral"
 			variant="ghost"
 			size="sm"
-			class="max-w-[11rem] gap-2 rounded-lg px-2 ring-1 ring-muted/80 hover:ring-primary/30 sm:max-w-xs"
+			class="max-w-44 gap-2 rounded-lg px-2 ring-1 ring-muted/80 hover:ring-primary/30 sm:max-w-xs"
 			:aria-label="activeWorkspace ? `Workspace: ${activeWorkspace.name}` : 'Select workspace'"
 		>
 			<WorkspaceAvatar
