@@ -19,7 +19,7 @@
 				:key="project.id"
 			>
 				<NuxtLink
-					:to="`/app/projects`"
+					:to="`/app/projects/${project.id}/board`"
 					class="dashboard-project-row group"
 				>
 					<span

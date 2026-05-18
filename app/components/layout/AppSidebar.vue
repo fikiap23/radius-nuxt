@@ -44,6 +44,33 @@
 					</NuxtLink>
 				</li>
 			</ul>
+
+			<div
+				v-if="!collapsed && favoriteProjects.length > 0"
+				class="mt-4 border-t border-muted/60 pt-4"
+			>
+				<p class="mb-2 px-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+					Favorites
+				</p>
+				<ul class="space-y-0.5">
+					<li
+						v-for="project in favoriteProjects"
+						:key="project.id"
+					>
+						<NuxtLink
+							:to="`/app/projects/${project.id}/board`"
+							class="app-sidebar__project-link"
+							:class="isProjectActive(project.id) && 'app-sidebar__project-link--active'"
+						>
+							<UIcon
+								:name="project.icon"
+								class="size-3.5 shrink-0"
+							/>
+							<span class="truncate">{{ project.name }}</span>
+						</NuxtLink>
+					</li>
+				</ul>
+			</div>
 		</nav>
 
 		<div class="shrink-0 border-t border-muted p-2">
@@ -71,6 +98,11 @@ defineProps<{
 
 const route = useRoute();
 const { toggle } = useAppSidebar();
+const { favoriteProjects } = useProject();
+
+function isProjectActive(projectId: string) {
+	return route.path.startsWith(`/app/projects/${projectId}`);
+}
 
 function isActive(to: string) {
 	if (to === "/app") {

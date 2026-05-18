@@ -1,5 +1,10 @@
 import { getDashboardSnapshot } from "~/data/dashboard-seed";
-import type { DashboardSnapshot, DashboardSummary } from "~/types/dashboard";
+import type {
+	DashboardActiveProject,
+	DashboardSnapshot,
+	DashboardSummary,
+} from "~/types/dashboard";
+import { isProjectArchived } from "~/utils/project";
 
 const MOCK_DELAY_MS = 480;
 
@@ -28,6 +33,38 @@ function buildSummary(snapshot: DashboardSnapshot): DashboardSummary {
 	};
 }
 
+function projectsFromStore(workspaceId: string | null): DashboardActiveProject[] | null {
+	if (!workspaceId) {
+		return null;
+	}
+	const store = useProjectStore();
+	const list = store.projectsForWorkspace(workspaceId).filter(
+		p => !isProjectArchived(p.archivedAt) && p.status === "active",
+	);
+	if (list.length === 0) {
+		return null;
+	}
+	return list.map(p => ({
+		id: p.id,
+		name: p.name,
+		icon: p.icon,
+		status: p.status,
+		openTasks: p.openTasks,
+		progress: p.progress,
+	}));
+}
+
+function mergeSnapshot(
+	workspaceId: string | null,
+	base: DashboardSnapshot,
+): DashboardSnapshot {
+	const storeProjects = projectsFromStore(workspaceId);
+	if (!storeProjects) {
+		return base;
+	}
+	return { ...base, projects: storeProjects };
+}
+
 export function useDashboard() {
 	const { activeWorkspaceId } = useWorkspace();
 	const loading = ref(true);
@@ -42,7 +79,8 @@ export function useDashboard() {
 		if (token !== loadToken) {
 			return;
 		}
-		snapshot.value = getDashboardSnapshot(workspaceId);
+		const base = getDashboardSnapshot(workspaceId);
+		snapshot.value = mergeSnapshot(workspaceId, base);
 		loading.value = false;
 	}
 
@@ -52,6 +90,18 @@ export function useDashboard() {
 			void refresh(id);
 		},
 		{ immediate: true },
+	);
+
+	const projectStore = useProjectStore();
+	watch(
+		() => projectStore.projects,
+		() => {
+			if (!projectStore.hydrated) {
+				return;
+			}
+			void refresh(activeWorkspaceId.value);
+		},
+		{ deep: true },
 	);
 
 	const summary = computed(() => buildSummary(snapshot.value));

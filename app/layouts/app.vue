@@ -14,8 +14,12 @@
 		<slot />
 
 		<WorkspaceCreateModal
-			v-if="createOpen"
-			v-model:open="createOpen"
+			v-if="workspaceCreateOpen"
+			v-model:open="workspaceCreateOpen"
+		/>
+		<ProjectCreateModal
+			v-if="projectCreateOpen"
+			v-model:open="projectCreateOpen"
 		/>
 	</LayoutAppShell>
 </template>
@@ -23,5 +27,6 @@
 <script setup lang="ts">
 const sidebarOpen = ref(false);
 const { collapsed: sidebarCollapsed } = useAppSidebar();
-const { createOpen } = useWorkspaceCreateModal();
+const { createOpen: workspaceCreateOpen } = useWorkspaceCreateModal();
+const { createOpen: projectCreateOpen } = useProjectCreateModal();
 </script>

@@ -387,4 +387,154 @@
   .app-quick-link:hover .app-quick-link__arrow {
     @apply translate-x-0.5 -translate-y-0.5 opacity-100 text-primary;
   }
+
+  /* Project management (S5) */
+  .project-cover {
+    @apply relative isolate overflow-hidden bg-muted;
+    background-image: linear-gradient(
+      135deg,
+      var(--project-cover-from),
+      var(--project-cover-to)
+    );
+  }
+
+  .project-cover--emerald {
+    --project-cover-from: color-mix(in oklab, var(--ui-color-success-500) 70%, transparent);
+    --project-cover-to: color-mix(in oklab, var(--ui-color-primary-500) 45%, transparent);
+  }
+
+  .project-cover--ocean {
+    --project-cover-from: color-mix(in oklab, var(--ui-color-primary-500) 65%, transparent);
+    --project-cover-to: color-mix(in oklab, var(--ui-color-info-500) 50%, transparent);
+  }
+
+  .project-cover--sunset {
+    --project-cover-from: color-mix(in oklab, var(--ui-color-warning-500) 60%, transparent);
+    --project-cover-to: color-mix(in oklab, var(--ui-color-error-400) 40%, transparent);
+  }
+
+  .project-cover--violet {
+    --project-cover-from: color-mix(in oklab, var(--ui-color-primary-600) 55%, transparent);
+    --project-cover-to: color-mix(in oklab, var(--ui-color-secondary-500, var(--ui-color-primary-400)) 50%, transparent);
+  }
+
+  .project-cover--rose {
+    --project-cover-from: color-mix(in oklab, var(--ui-color-error-400) 50%, transparent);
+    --project-cover-to: color-mix(in oklab, var(--ui-color-warning-400) 45%, transparent);
+  }
+
+  .project-cover--slate {
+    --project-cover-from: color-mix(in oklab, var(--ui-border-muted) 90%, transparent);
+    --project-cover-to: color-mix(in oklab, var(--ui-color-neutral-500) 35%, transparent);
+  }
+
+  .project-cover--sm {
+    @apply size-10 shrink-0;
+  }
+
+  .project-cover--md {
+    @apply size-12 shrink-0;
+  }
+
+  .project-cover--lg {
+    @apply size-16 shrink-0;
+  }
+
+  .project-cover--banner {
+    @apply h-24 w-full;
+  }
+
+  .project-cover--rounded-md {
+    @apply rounded-md;
+  }
+
+  .project-cover--rounded-lg {
+    @apply rounded-lg;
+  }
+
+  .project-cover--rounded-xl {
+    @apply rounded-xl;
+  }
+
+  .project-icon {
+    @apply inline-flex items-center justify-center rounded-xl bg-default/90 text-primary shadow-sm backdrop-blur-sm;
+  }
+
+  .project-icon--sm {
+    @apply size-7 text-sm;
+  }
+
+  .project-icon--md {
+    @apply size-9 text-base;
+  }
+
+  .project-icon--lg {
+    @apply size-12 text-lg;
+  }
+
+  .project-card__cover-inner {
+    @apply flex h-full items-end justify-between p-3;
+  }
+
+  .project-card__favorite {
+    @apply opacity-0 transition-opacity group-hover:opacity-100;
+  }
+
+  .project-card:hover .project-card__favorite,
+  .project-card:focus-within .project-card__favorite {
+    @apply opacity-100;
+  }
+
+  .project-list-row {
+    @apply flex items-center gap-4 px-4 py-3 no-underline transition-colors hover:bg-muted/30;
+  }
+
+  .project-cover-picker {
+    @apply h-10 rounded-lg border-2 border-transparent transition-[border-color,transform];
+    background-image: linear-gradient(
+      135deg,
+      var(--project-cover-from),
+      var(--project-cover-to)
+    );
+  }
+
+  .project-cover-picker--active {
+    @apply border-primary scale-105;
+  }
+
+  .project-shell__back {
+    @apply inline-flex items-center gap-1.5 text-sm font-medium text-muted no-underline transition-colors hover:text-default;
+  }
+
+  .project-shell__hero {
+    @apply flex flex-col gap-4 lg:flex-row lg:items-end;
+  }
+
+  .project-shell__cover {
+    @apply w-full shrink-0 lg:w-48;
+  }
+
+  .project-shell__cover-icon {
+    @apply absolute bottom-3 start-3;
+  }
+
+  .project-shell__tabs {
+    @apply flex flex-wrap gap-1 border-b border-muted;
+  }
+
+  .project-shell__tab {
+    @apply inline-flex items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-muted no-underline transition-colors hover:text-default;
+  }
+
+  .project-shell__tab--active {
+    @apply border-primary text-primary;
+  }
+
+  .app-sidebar__project-link {
+    @apply flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-toned no-underline transition-colors hover:bg-accented/60 hover:text-default;
+  }
+
+  .app-sidebar__project-link--active {
+    @apply bg-primary/10 text-primary;
+  }
 }

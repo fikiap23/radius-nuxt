@@ -25,9 +25,10 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 | S2 | App shell & navigasi | ✅ |
 | S3 | Workspace (multi-tenant UI) | ✅ |
 | S4 | Dashboard widgets | ✅ |
-| S5–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
+| S5 | Project management (CRUD & daftar) | ✅ |
+| S6–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects`, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useDashboard` + dashboard widgets, komponen workspace (badge, invite, members), theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects` CRUD + filter, `/app/projects/[id]` shell board/list/settings, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useProject` + project store mock, `useDashboard` + dashboard widgets, komponen workspace & project, theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
 
 ---
 
@@ -146,13 +147,13 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 **Depends on:** S4
 
-| Sub-slice | Deliverable |
-|-----------|-------------|
-| S5a | `/app/projects` — grid/list project + filter (status, favorite) |
-| S5b | Create project modal (nama, icon, cover, status) |
-| S5c | Project detail shell `/app/projects/[projectId]` |
-| S5d | Sidebar project: archive, favorite toggle |
-| S5e | Project settings page (icon, cover, status, archive) |
+| Sub-slice | Deliverable | Status |
+|-----------|-------------|--------|
+| S5a | `/app/projects` — grid/list project + filter (status, favorite) | ✅ |
+| S5b | Create project modal (nama, icon, cover, status) | ✅ |
+| S5c | Project detail shell `/app/projects/[projectId]` | ✅ |
+| S5d | Sidebar project: archive, favorite toggle | ✅ |
+| S5e | Project settings page (icon, cover, status, archive) | ✅ |
 
 **Acceptance:** Buka project → masuk shell dengan tab navigasi ke view (Board/List nanti).
 
@@ -370,7 +371,7 @@ S1  Auth                 ✅
 S2  App shell            ✅
 S3  Workspace            ✅
 S4  Dashboard            ✅
-S5  Projects             ⬜
+S5  Projects             ✅
 S6  Tasks (list)        ⬜
 S7  Kanban board         ⬜
 S8  Comments             ⬜
