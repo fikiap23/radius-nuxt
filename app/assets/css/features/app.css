@@ -512,18 +512,67 @@
     @apply shrink-0;
   }
 
-  /* Task drawer — wider panel, full-width fields */
+  /* Task drawer — resizable width via --task-slideover-width */
   .task-slideover__panel {
-    @apply w-full max-w-2xl;
+    width: var(--task-slideover-width, 42rem) !important;
+    max-width: 92vw !important;
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .task-slideover__shell {
+    @apply relative flex h-full min-h-0 flex-col;
+  }
+
+  .task-slideover-resize {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 30;
+    width: 0.75rem;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    transform: translateX(-50%);
+    cursor: col-resize;
+    touch-action: none;
+    background: transparent;
+    transition: background-color 0.15s ease;
+  }
+
+  .task-slideover-resize::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 50%;
+    width: 1px;
+    transform: translateX(-50%);
+    background: transparent;
+    transition: background-color 0.15s ease;
+  }
+
+  .task-slideover-resize:hover::after,
+  .task-slideover-resize--active::after {
+    background: color-mix(in oklab, var(--ui-color-primary-500) 55%, transparent);
+  }
+
+  .task-slideover-resize:hover,
+  .task-slideover-resize--active {
+    background: color-mix(in oklab, var(--ui-color-primary-500) 12%, transparent);
   }
 
   .task-slideover__body {
-    @apply w-full min-w-0;
+    @apply w-full min-w-0 flex-1 overflow-y-auto p-4 sm:p-6;
   }
 
-  .task-slideover__header,
+  .task-slideover__header {
+    @apply relative flex shrink-0 items-start gap-1.5 border-b border-muted p-4 sm:px-6;
+    min-height: var(--ui-header-height);
+  }
+
   .task-slideover__footer {
-    @apply w-full;
+    @apply flex shrink-0 items-center gap-1.5 border-t border-muted p-4 sm:px-6;
   }
 
   .task-drawer-form {

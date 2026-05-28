@@ -2,12 +2,44 @@
 	<USlideover
 		v-model:open="open"
 		side="right"
-		:title="isCreateMode ? 'New task' : 'Task details'"
-		:description="isCreateMode ? 'Add a task to this project.' : undefined"
 		:ui="slideoverUi"
 	>
-		<template #body>
-			<UForm
+		<template #content="{ close }">
+			<div class="task-slideover__shell">
+				<button
+					type="button"
+					class="task-slideover-resize"
+					:class="isResizing && 'task-slideover-resize--active'"
+					aria-label="Resize panel"
+					@click.prevent
+					@pointerdown="startResize"
+					@dblclick.prevent="resetWidth"
+				/>
+
+				<header class="task-slideover__header">
+					<div class="min-w-0 pe-10">
+						<h2 class="text-highlighted font-semibold">
+							{{ drawerTitle }}
+						</h2>
+						<p
+							v-if="drawerDescription"
+							class="mt-1 text-sm text-muted"
+						>
+							{{ drawerDescription }}
+						</p>
+					</div>
+					<UButton
+						icon="i-lucide-x"
+						color="neutral"
+						variant="ghost"
+						aria-label="Close"
+						class="absolute end-4 top-4"
+						@click="close"
+					/>
+				</header>
+
+				<div class="task-slideover__body">
+					<UForm
 				id="task-drawer-form"
 				:state="form"
 				:loading-auto="false"
@@ -142,37 +174,39 @@
 					icon="i-lucide-circle-alert"
 					:title="error"
 				/>
-			</UForm>
-		</template>
+					</UForm>
+				</div>
 
-		<template #footer="{ close }">
-			<UButton
-				v-if="!isCreateMode && activeTaskId"
-				type="button"
-				label="Delete"
-				icon="i-lucide-trash-2"
-				color="error"
-				variant="ghost"
-				size="sm"
-				:loading="deleting"
-				@click="onDelete"
-			/>
-			<div class="ms-auto flex gap-2">
-				<UButton
-					type="button"
-					label="Cancel"
-					color="neutral"
-					variant="outline"
-					@click="close"
-				/>
-				<UButton
-					type="button"
-					:label="isCreateMode ? 'Create task' : 'Save changes'"
-					:loading="saving"
-					:disabled="saving"
-					icon="i-lucide-check"
-					@click="saveTask"
-				/>
+				<footer class="task-slideover__footer">
+					<UButton
+						v-if="!isCreateMode && activeTaskId"
+						type="button"
+						label="Delete"
+						icon="i-lucide-trash-2"
+						color="error"
+						variant="ghost"
+						size="sm"
+						:loading="deleting"
+						@click="onDelete"
+					/>
+					<div class="ms-auto flex gap-2">
+						<UButton
+							type="button"
+							label="Cancel"
+							color="neutral"
+							variant="outline"
+							@click="close"
+						/>
+						<UButton
+							type="button"
+							:label="isCreateMode ? 'Create task' : 'Save changes'"
+							:loading="saving"
+							:disabled="saving"
+							icon="i-lucide-check"
+							@click="saveTask"
+						/>
+					</div>
+				</footer>
 			</div>
 		</template>
 	</USlideover>
@@ -200,11 +234,10 @@ import {
 	taskAssigneeToSelectValue,
 } from "~/utils/task";
 
+const { widthPx, isResizing, startResize, resetWidth } = useTaskDrawerWidth();
+
 const slideoverUi = {
 	content: "task-slideover__panel",
-	body: "task-slideover__body",
-	header: "task-slideover__header",
-	footer: "task-slideover__footer",
 };
 
 const {
@@ -216,6 +249,14 @@ const {
 	isReady,
 	closeDrawer,
 } = useTaskDrawer();
+
+const drawerTitle = computed(() =>
+	isCreateMode.value ? "New task" : "Task details",
+);
+
+const drawerDescription = computed(() =>
+	isCreateMode.value ? "Add a task to this project." : null,
+);
 
 const {
 	getTaskById,
@@ -326,6 +367,25 @@ function hydrateForm() {
 	}
 	loadTask(task);
 }
+
+watch(
+	() => [open.value, widthPx.value] as const,
+	([isOpen, width]) => {
+		if (!import.meta.client) {
+			return;
+		}
+		if (isOpen) {
+			document.documentElement.style.setProperty(
+				"--task-slideover-width",
+				`${width}px`,
+			);
+		}
+		else {
+			document.documentElement.style.removeProperty("--task-slideover-width");
+		}
+	},
+	{ immediate: true },
+);
 
 watch(
 	() => [open.value, activeTaskId.value, isCreateMode.value, isReady.value] as const,
