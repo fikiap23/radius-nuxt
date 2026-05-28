@@ -68,44 +68,10 @@
 					label="Due date"
 					name="dueAt"
 				>
-					<div class="flex w-full items-stretch gap-2">
-						<UPopover
-							v-model:open="dueDatePopoverOpen"
-							:content="{ align: 'start', side: 'bottom', sideOffset: 4 }"
-							class="min-w-0 flex-1"
-						>
-							<div class="w-full">
-								<UButton
-									type="button"
-									color="neutral"
-									variant="outline"
-									icon="i-lucide-calendar"
-									trailing-icon="i-lucide-chevron-down"
-									class="w-full justify-between font-normal"
-								>
-									<span :class="dueDate ? 'text-default' : 'text-muted'">
-										{{ dueDateLabel }}
-									</span>
-								</UButton>
-							</div>
-							<template #content>
-								<UCalendar
-									v-model="dueDate"
-									class="p-2"
-									@update:model-value="onDueDatePicked"
-								/>
-							</template>
-						</UPopover>
-						<UButton
-							v-if="dueDate"
-							type="button"
-							color="neutral"
-							variant="ghost"
-							icon="i-lucide-x"
-							aria-label="Clear due date"
-							@click="clearDueDate"
-						/>
-					</div>
+					<TaskDueDatePicker
+						v-model="dueDate"
+						v-model:open="dueDatePopoverOpen"
+					/>
 				</UFormField>
 
 				<UFormField
@@ -220,7 +186,6 @@ import type {
 } from "~/types/task";
 import {
 	calendarDateFromIso,
-	formatCalendarDateLabel,
 	isoFromCalendarDate,
 	taskAssigneeFromSelectValue,
 	taskAssigneeToSelectValue,
@@ -262,18 +227,6 @@ const attachmentUploading = ref(false);
 const attachmentRemovingId = ref<string | null>(null);
 const dueDate = shallowRef<CalendarDate | null>(null);
 const dueDatePopoverOpen = ref(false);
-
-const dueDateLabel = computed(() =>
-	dueDate.value ? formatCalendarDateLabel(dueDate.value) : "No due date",
-);
-
-function onDueDatePicked() {
-	dueDatePopoverOpen.value = false;
-}
-
-function clearDueDate() {
-	dueDate.value = null;
-}
 
 const form = reactive({
 	title: "",
