@@ -8,6 +8,7 @@
 				:placeholder="placeholder"
 				:disabled="disabled"
 				:mention-members="members"
+				:show-help="false"
 				min-height="5.5rem"
 			/>
 		</ClientOnly>

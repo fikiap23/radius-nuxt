@@ -620,7 +620,11 @@
   }
 
   .rich-text-editor {
-    @apply overflow-hidden rounded-lg border border-muted bg-default;
+    @apply overflow-hidden rounded-lg border border-muted bg-elevated transition-[border-color,box-shadow];
+  }
+
+  .rich-text-editor:focus-within {
+    @apply border-primary/60 shadow-[inset_0_0_0_1px] shadow-primary/25;
   }
 
   .rich-text-editor--disabled {
@@ -628,11 +632,39 @@
   }
 
   .rich-text-editor__toolbar {
-    @apply flex flex-wrap gap-0.5 border-b border-muted bg-muted/20 px-2 py-1.5;
+    @apply flex flex-wrap items-center gap-1 border-b border-muted/80 bg-muted/15 px-2 py-1.5;
+  }
+
+  .rich-text-editor__toolbar-group {
+    @apply flex items-center gap-0.5;
+  }
+
+  .rich-text-editor__toolbar-sep {
+    @apply mx-0.5 h-4 w-px shrink-0 self-center bg-muted;
+  }
+
+  .rich-text-editor__icon-btn {
+    @apply shrink-0;
+  }
+
+  .rich-text-editor__footer {
+    @apply w-full border-t border-muted/50 px-3 py-1.5 text-end text-xs text-muted transition-colors hover:text-default disabled:pointer-events-none disabled:opacity-50;
   }
 
   .rich-text-editor__content {
-    @apply px-3 py-2;
+    @apply bg-default px-3 py-2.5;
+  }
+
+  .rich-text-help-table {
+    @apply space-y-1.5;
+  }
+
+  .rich-text-help-table li {
+    @apply flex items-center justify-between gap-4 text-toned;
+  }
+
+  .rich-text-help-table kbd {
+    @apply inline-flex shrink-0 items-center gap-0.5 rounded border border-muted bg-muted/40 px-1.5 py-0.5 font-mono text-[0.65rem] text-muted;
   }
 
   .rich-text-editor__prose {
@@ -643,8 +675,44 @@
     @apply my-1.5 first:mt-0 last:mb-0;
   }
 
+  .rich-text-editor__prose :where(h1) {
+    @apply mt-3 mb-2 text-xl font-bold text-highlighted;
+  }
+
   .rich-text-editor__prose :where(h2) {
-    @apply mt-3 mb-1.5 text-base font-semibold text-highlighted;
+    @apply mt-3 mb-1.5 text-lg font-semibold text-highlighted;
+  }
+
+  .rich-text-editor__prose :where(h3) {
+    @apply mt-2.5 mb-1 text-base font-semibold text-highlighted;
+  }
+
+  .rich-text-editor__prose :where(h4) {
+    @apply mt-2 mb-1 text-sm font-semibold text-highlighted;
+  }
+
+  .rich-text-editor__prose :where(h5) {
+    @apply mt-2 mb-0.5 text-sm font-medium text-highlighted;
+  }
+
+  .rich-text-editor__prose :where(h6) {
+    @apply mt-1.5 mb-0.5 text-xs font-medium uppercase tracking-wide text-muted;
+  }
+
+  .rich-text-editor__prose :where(code) {
+    @apply rounded bg-muted px-1 py-0.5 font-mono text-xs text-highlighted;
+  }
+
+  .rich-text-editor__prose :where(pre) {
+    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted/40 p-3;
+  }
+
+  .rich-text-editor__prose :where(pre code) {
+    @apply bg-transparent p-0 text-xs;
+  }
+
+  .rich-text-editor__prose :where(hr) {
+    @apply my-4 border-muted;
   }
 
   .rich-text-editor__prose :where(ul, ol) {
@@ -689,8 +757,44 @@
     @apply my-1.5 first:mt-0 last:mb-0;
   }
 
-  .rich-text-content :where(h2, h3) {
-    @apply font-semibold text-highlighted;
+  .rich-text-content :where(h1) {
+    @apply mt-3 mb-2 text-xl font-bold text-highlighted;
+  }
+
+  .rich-text-content :where(h2) {
+    @apply mt-3 mb-1.5 text-lg font-semibold text-highlighted;
+  }
+
+  .rich-text-content :where(h3) {
+    @apply mt-2 mb-1 text-base font-semibold text-highlighted;
+  }
+
+  .rich-text-content :where(h4) {
+    @apply mt-2 mb-1 text-sm font-semibold text-highlighted;
+  }
+
+  .rich-text-content :where(h5) {
+    @apply mt-2 mb-0.5 text-sm font-medium text-highlighted;
+  }
+
+  .rich-text-content :where(h6) {
+    @apply mt-1.5 mb-0.5 text-xs font-medium uppercase tracking-wide text-muted;
+  }
+
+  .rich-text-content :where(code) {
+    @apply rounded bg-muted px-1 py-0.5 font-mono text-xs;
+  }
+
+  .rich-text-content :where(pre) {
+    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted/40 p-3 text-xs;
+  }
+
+  .rich-text-content :where(pre code) {
+    @apply bg-transparent p-0;
+  }
+
+  .rich-text-content :where(hr) {
+    @apply my-4 border-muted;
   }
 
   .rich-text-content :where(ul, ol) {

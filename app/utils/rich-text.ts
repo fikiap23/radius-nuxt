@@ -13,11 +13,16 @@ const ALLOWED_TAGS = new Set([
 	"ol",
 	"li",
 	"a",
+	"h1",
 	"h2",
 	"h3",
+	"h4",
+	"h5",
+	"h6",
 	"blockquote",
 	"code",
 	"pre",
+	"hr",
 	"span",
 ]);
 

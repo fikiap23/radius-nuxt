@@ -12,44 +12,164 @@
 			role="toolbar"
 			aria-label="Formatting"
 		>
-			<UButton
-				v-for="action in toolbarActions"
-				:key="action.name"
-				:icon="action.icon"
-				:color="action.active?.() ? 'primary' : 'neutral'"
-				:variant="action.active?.() ? 'soft' : 'ghost'"
-				size="xs"
-				:disabled="disabled"
-				:aria-label="action.label"
-				:aria-pressed="action.active?.()"
-				@click="action.run()"
+			<div class="rich-text-editor__toolbar-group">
+				<UDropdownMenu
+					:items="styleMenuItems"
+					:content="{ align: 'start' }"
+					:modal="false"
+				>
+					<UButton
+						icon="i-lucide-type"
+						:aria-label="`Text style: ${styleLabel}`"
+						color="neutral"
+						variant="ghost"
+						size="xs"
+						square
+						:disabled="disabled"
+						class="rich-text-editor__icon-btn"
+					/>
+				</UDropdownMenu>
+			</div>
+
+			<span
+				class="rich-text-editor__toolbar-sep"
+				aria-hidden="true"
 			/>
-			<UButton
-				v-if="showLink"
-				icon="i-lucide-link"
-				:color="editor.isActive('link') ? 'primary' : 'neutral'"
-				:variant="editor.isActive('link') ? 'soft' : 'ghost'"
-				size="xs"
-				:disabled="disabled"
-				aria-label="Link"
-				@click="toggleLink"
+
+			<div class="rich-text-editor__toolbar-group">
+				<UButton
+					icon="i-lucide-bold"
+					aria-label="Bold"
+					color="neutral"
+					:variant="isActive('bold') ? 'soft' : 'ghost'"
+					size="xs"
+					square
+					:disabled="disabled"
+					class="rich-text-editor__icon-btn"
+					@click="run('bold')"
+				/>
+				<UButton
+					icon="i-lucide-italic"
+					aria-label="Italic"
+					color="neutral"
+					:variant="isActive('italic') ? 'soft' : 'ghost'"
+					size="xs"
+					square
+					:disabled="disabled"
+					class="rich-text-editor__icon-btn"
+					@click="run('italic')"
+				/>
+
+				<UDropdownMenu
+					:items="moreMenuItems"
+					:content="{ align: 'start' }"
+					:modal="false"
+				>
+					<UButton
+						icon="i-lucide-ellipsis"
+						aria-label="More formatting"
+						color="neutral"
+						variant="ghost"
+						size="xs"
+						square
+						:disabled="disabled"
+						class="rich-text-editor__icon-btn"
+					/>
+				</UDropdownMenu>
+			</div>
+
+			<span
+				class="rich-text-editor__toolbar-sep"
+				aria-hidden="true"
 			/>
+
+			<div class="rich-text-editor__toolbar-group">
+				<UDropdownMenu
+					:items="listMenuItems"
+					:content="{ align: 'start' }"
+					:modal="false"
+				>
+					<UButton
+						icon="i-lucide-list"
+						aria-label="Lists"
+						color="neutral"
+						:variant="listActive ? 'soft' : 'ghost'"
+						size="xs"
+						square
+						:disabled="disabled"
+						class="rich-text-editor__icon-btn"
+					/>
+				</UDropdownMenu>
+
+				<UButton
+					icon="i-lucide-link"
+					aria-label="Link"
+					color="neutral"
+					:variant="isActive('link') ? 'soft' : 'ghost'"
+					size="xs"
+					square
+					:disabled="disabled"
+					class="rich-text-editor__icon-btn"
+					@click="toggleLink"
+				/>
+
+				<UDropdownMenu
+					v-if="variant === 'default'"
+					:items="insertMenuItems"
+					:content="{ align: 'start' }"
+					:modal="false"
+				>
+					<UButton
+						icon="i-lucide-plus"
+						aria-label="Insert"
+						color="neutral"
+						variant="ghost"
+						size="xs"
+						square
+						:disabled="disabled"
+						class="rich-text-editor__icon-btn"
+					/>
+				</UDropdownMenu>
+			</div>
 		</div>
 
 		<EditorContent
 			:editor="editor"
 			class="rich-text-editor__content"
 		/>
+
+		<button
+			v-if="showHelp && variant === 'default'"
+			type="button"
+			class="rich-text-editor__footer"
+			:disabled="disabled"
+			@click="helpOpen = true"
+		>
+			Formatting help
+		</button>
+
+		<RichTextFormattingHelp v-model:open="helpOpen" />
 	</div>
 </template>
 
 <script setup lang="ts">
+import type { Extensions } from "@tiptap/core";
+import type { DropdownMenuItem } from "@nuxt/ui";
 import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
+import Underline from "@tiptap/extension-underline";
 import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor } from "@tiptap/vue-3";
+import type { RichTextActionName } from "~/composables/useRichTextEditorActions";
+import {
+	currentTextStyleLabel,
+	isRichTextActionActive,
+	isRichTextActionDisabled,
+	runRichTextAction,
+} from "~/composables/useRichTextEditorActions";
 import type { WorkspaceMember } from "~/types/workspace";
+import { RichTextTrelloKeymap } from "~/utils/rich-text-keymap";
 import {
 	emptyRichTextDocument,
 	isRichTextEmpty,
@@ -65,6 +185,7 @@ const props = withDefaults(
 		disabled?: boolean;
 		mentionMembers?: WorkspaceMember[];
 		minHeight?: string;
+		showHelp?: boolean;
 	}>(),
 	{
 		placeholder: "Write something…",
@@ -72,36 +193,46 @@ const props = withDefaults(
 		disabled: false,
 		mentionMembers: () => [],
 		minHeight: "7rem",
+		showHelp: true,
 	},
 );
 
-const mentionSuggestion = props.mentionMembers.length > 0
-	? useTipTapMentionSuggestion(() => props.mentionMembers)
-	: null;
+const helpOpen = ref(false);
 
-const showLink = computed(() => props.variant === "default");
+const mentionSuggestion = useTipTapMentionSuggestion(
+	() => props.mentionMembers,
+);
 
-function buildExtensions() {
-	const extensions = [
+const fullHeadings = computed(() => props.variant === "default");
+
+function buildExtensions(): Extensions {
+	const isDefault = props.variant === "default";
+
+	const extensions: Extensions = [
 		StarterKit.configure({
-			heading: props.variant === "default" ? { levels: [2, 3] } : false,
-			blockquote: props.variant === "default",
-			codeBlock: props.variant === "default",
+			heading: { levels: isDefault ? [1, 2, 3, 4, 5, 6] : [3] },
+			blockquote: isDefault ? {} : false,
+			codeBlock: isDefault ? {} : false,
+			horizontalRule: isDefault ? {} : false,
 		}),
+		Underline,
 		Placeholder.configure({
 			placeholder: props.placeholder,
 		}),
 		Link.configure({
 			openOnClick: false,
+			autolink: true,
+			linkOnPaste: true,
 			HTMLAttributes: {
 				class: "rich-text-content__link",
 				rel: "noopener noreferrer",
 				target: "_blank",
 			},
 		}),
+		RichTextTrelloKeymap,
 	];
 
-	if (mentionSuggestion?.value) {
+	if (props.mentionMembers.length > 0) {
 		extensions.push(
 			Mention.configure({
 				HTMLAttributes: {
@@ -140,78 +271,137 @@ const editor = useEditor({
 		const html = sanitizeRichTextHtml(instance.getHTML());
 		model.value = isRichTextEmpty(html) ? "" : html;
 	},
+	onSelectionUpdate: () => {
+		selectionTick.value += 1;
+	},
+	onTransaction: () => {
+		selectionTick.value += 1;
+	},
 });
 
-const toolbarActions = computed(() => {
-	const actions = [
-		{
-			name: "bold",
-			label: "Bold",
-			icon: "i-lucide-bold",
-			run: () => editor.value?.chain().focus().toggleBold().run(),
-			active: () => editor.value?.isActive("bold") ?? false,
-		},
-		{
-			name: "italic",
-			label: "Italic",
-			icon: "i-lucide-italic",
-			run: () => editor.value?.chain().focus().toggleItalic().run(),
-			active: () => editor.value?.isActive("italic") ?? false,
-		},
+/** Bump to refresh active style label in toolbar */
+const selectionTick = ref(0);
+
+const styleLabel = computed(() => {
+	selectionTick.value;
+	if (!editor.value) {
+		return "Normal text";
+	}
+	return currentTextStyleLabel(editor.value, fullHeadings.value);
+});
+
+const listActive = computed(() => {
+	selectionTick.value;
+	return (
+		isActive("bullet")
+		|| isActive("ordered")
+	);
+});
+
+function isActive(name: RichTextActionName) {
+	if (!editor.value) {
+		return false;
+	}
+	return isRichTextActionActive(editor.value, name);
+}
+
+function run(name: RichTextActionName) {
+	if (!editor.value) {
+		return;
+	}
+	runRichTextAction(editor.value, name);
+}
+
+function menuItem(
+	label: string,
+	action: RichTextActionName,
+	options?: { kbds?: string[]; disabled?: boolean },
+): DropdownMenuItem {
+	return {
+		label,
+		type: "checkbox",
+		checked: isActive(action),
+		kbds: options?.kbds,
+		disabled: options?.disabled,
+		onSelect: () => run(action),
+	};
+}
+
+const styleMenuItems = computed((): DropdownMenuItem[][] => {
+	selectionTick.value;
+
+	const items: DropdownMenuItem[] = [
+		menuItem("Normal text", "paragraph", { kbds: ["Ctrl", "Alt", "0"] }),
 	];
 
-	if (props.variant === "default") {
-		actions.push(
-			{
-				name: "strike",
-				label: "Strikethrough",
-				icon: "i-lucide-strikethrough",
-				run: () => editor.value?.chain().focus().toggleStrike().run(),
-				active: () => editor.value?.isActive("strike") ?? false,
-			},
-			{
-				name: "h2",
-				label: "Heading",
-				icon: "i-lucide-heading-2",
-				run: () =>
-					editor.value?.chain().focus().toggleHeading({ level: 2 }).run(),
-				active: () => editor.value?.isActive("heading", { level: 2 }) ?? false,
-			},
-			{
-				name: "bullet",
-				label: "Bullet list",
-				icon: "i-lucide-list",
-				run: () => editor.value?.chain().focus().toggleBulletList().run(),
-				active: () => editor.value?.isActive("bulletList") ?? false,
-			},
-			{
-				name: "ordered",
-				label: "Numbered list",
-				icon: "i-lucide-list-ordered",
-				run: () => editor.value?.chain().focus().toggleOrderedList().run(),
-				active: () => editor.value?.isActive("orderedList") ?? false,
-			},
-			{
-				name: "quote",
-				label: "Quote",
-				icon: "i-lucide-text-quote",
-				run: () => editor.value?.chain().focus().toggleBlockquote().run(),
-				active: () => editor.value?.isActive("blockquote") ?? false,
-			},
+	if (fullHeadings.value) {
+		items.push(
+			menuItem("Heading 1", "h1", { kbds: ["Ctrl", "Alt", "1"] }),
+			menuItem("Heading 2", "h2", { kbds: ["Ctrl", "Alt", "2"] }),
+			menuItem("Heading 3", "h3", { kbds: ["Ctrl", "Alt", "3"] }),
+			menuItem("Heading 4", "h4", { kbds: ["Ctrl", "Alt", "4"] }),
+			menuItem("Heading 5", "h5", { kbds: ["Ctrl", "Alt", "5"] }),
+			menuItem("Heading 6", "h6", { kbds: ["Ctrl", "Alt", "6"] }),
 		);
 	}
 	else {
-		actions.push({
-			name: "bullet",
-			label: "Bullet list",
-			icon: "i-lucide-list",
-			run: () => editor.value?.chain().focus().toggleBulletList().run(),
-			active: () => editor.value?.isActive("bulletList") ?? false,
-		});
+		items.push(
+			menuItem("Small heading", "h3", { kbds: ["Ctrl", "Alt", "3"] }),
+		);
 	}
 
-	return actions;
+	return [items];
 });
+
+const moreMenuItems = computed((): DropdownMenuItem[][] => {
+	const row: DropdownMenuItem[] = [
+		menuItem("Underline", "underline", { kbds: ["Ctrl", "U"] }),
+		menuItem("Strikethrough", "strike", { kbds: ["Ctrl", "Shift", "S"] }),
+		menuItem("Inline code", "code", { kbds: ["Ctrl", "E"] }),
+	];
+
+	if (fullHeadings.value) {
+		row.push(
+			menuItem("Quote", "quote"),
+			menuItem("Code block", "codeBlock"),
+			menuItem("Divider", "hr"),
+		);
+	}
+
+	row.push(
+		{
+			label: "Remove link",
+			icon: "i-lucide-unlink",
+			disabled: !editor.value || isRichTextActionDisabled(editor.value, "unlink"),
+			onSelect: () => run("unlink"),
+		},
+		{
+			label: "Clear formatting",
+			icon: "i-lucide-remove-formatting",
+			onSelect: () => run("clear"),
+		},
+	);
+
+	return [row];
+});
+
+const listMenuItems = computed((): DropdownMenuItem[][] => {
+	selectionTick.value;
+	return [
+		[
+			menuItem("Bullet list", "bullet", { kbds: ["Ctrl", "Shift", "8"] }),
+			menuItem("Numbered list", "ordered", { kbds: ["Ctrl", "Shift", "7"] }),
+		],
+	];
+});
+
+const insertMenuItems = computed((): DropdownMenuItem[][] => [
+	[
+		menuItem("Quote", "quote"),
+		menuItem("Code block", "codeBlock"),
+		menuItem("Divider", "hr"),
+	],
+]);
 
 watch(
 	() => model.value,
@@ -242,7 +432,8 @@ function toggleLink() {
 		editor.value.chain().focus().unsetLink().run();
 		return;
 	}
-	const href = window.prompt("Link URL");
+	const previous = editor.value.getAttributes("link").href as string | undefined;
+	const href = window.prompt("Link URL", previous ?? "https://");
 	if (!href?.trim()) {
 		return;
 	}
