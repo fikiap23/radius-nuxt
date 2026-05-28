@@ -1,21 +1,17 @@
 <template>
-	<UModal
+	<USlideover
 		v-model:open="open"
-		scrollable
+		side="right"
 		:title="isCreateMode ? 'New task' : 'Task details'"
 		:description="isCreateMode ? 'Add a task to this project.' : undefined"
-		:ui="{
-			content: 'w-full max-w-2xl',
-			body: 'max-h-[min(60dvh,560px)] overflow-y-auto',
-			footer: 'justify-between gap-2',
-		}"
+		:ui="slideoverUi"
 	>
 		<template #body>
 			<UForm
 				id="task-drawer-form"
 				:state="form"
 				:loading-auto="false"
-				class="space-y-5"
+				class="task-drawer-form space-y-5"
 			>
 				<UFormField
 					label="Title"
@@ -26,6 +22,7 @@
 						v-model="form.title"
 						placeholder="Task title"
 						autocomplete="off"
+						class="w-full"
 					/>
 				</UFormField>
 
@@ -37,6 +34,7 @@
 						v-model="form.description"
 						placeholder="Add details…"
 						:rows="4"
+						class="w-full"
 					/>
 				</UFormField>
 
@@ -49,6 +47,7 @@
 							v-model="form.status"
 							:items="TASK_STATUS_OPTIONS"
 							value-key="value"
+							class="w-full"
 						/>
 					</UFormField>
 
@@ -60,6 +59,7 @@
 							v-model="form.priority"
 							:items="TASK_PRIORITY_OPTIONS"
 							value-key="value"
+							class="w-full"
 						/>
 					</UFormField>
 				</div>
@@ -71,6 +71,7 @@
 					<UInput
 						v-model="form.dueDate"
 						type="date"
+						class="w-full"
 					/>
 				</UFormField>
 
@@ -83,6 +84,7 @@
 						:items="assigneeItems"
 						value-key="value"
 						placeholder="Unassigned"
+						class="w-full"
 					/>
 				</UFormField>
 
@@ -105,6 +107,8 @@
 				</UFormField>
 
 				<template v-if="!isCreateMode && activeTaskId">
+					<USeparator />
+
 					<TaskSubtasks
 						:items="form.subtasks"
 						@update="onSubtasksUpdate"
@@ -163,7 +167,7 @@
 				/>
 			</div>
 		</template>
-	</UModal>
+	</USlideover>
 </template>
 
 <script setup lang="ts">
@@ -186,6 +190,13 @@ import {
 	taskAssigneeFromSelectValue,
 	taskAssigneeToSelectValue,
 } from "~/utils/task";
+
+const slideoverUi = {
+	content: "task-slideover__panel",
+	body: "task-slideover__body",
+	header: "task-slideover__header",
+	footer: "task-slideover__footer",
+};
 
 const {
 	open,

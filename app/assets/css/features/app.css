@@ -496,6 +496,28 @@
     @apply shrink-0;
   }
 
+  /* Task drawer — wider panel, full-width fields */
+  .task-slideover__panel {
+    @apply w-full max-w-2xl;
+  }
+
+  .task-slideover__body {
+    @apply w-full min-w-0;
+  }
+
+  .task-slideover__header,
+  .task-slideover__footer {
+    @apply w-full;
+  }
+
+  .task-drawer-form {
+    @apply w-full max-w-none;
+  }
+
+  .task-drawer-form :deep([data-slot="root"]) {
+    @apply w-full max-w-none;
+  }
+
   .project-cover-picker {
     @apply h-10 rounded-lg border-2 border-transparent transition-[border-color,transform];
     background-image: linear-gradient(
