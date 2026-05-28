@@ -705,8 +705,7 @@
 
   .rich-text-editor__prose :where(pre.rich-text-code-block),
   .rich-text-editor__prose :where(pre:has(> code)) {
-    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted p-3 font-mono text-[0.8125rem] leading-relaxed;
-    color: var(--ui-color-success-600);
+    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted p-3 font-mono text-[0.8125rem] leading-relaxed text-highlighted;
     tab-size: 2;
   }
 
@@ -718,11 +717,6 @@
     padding: 0;
     font: inherit;
     color: inherit;
-  }
-
-  .dark .rich-text-editor__prose :where(pre.rich-text-code-block),
-  .dark .rich-text-editor__prose :where(pre:has(> code)) {
-    color: var(--ui-color-success-400);
   }
 
   .rich-text-editor__prose :where(hr) {
@@ -801,8 +795,7 @@
 
   .rich-text-content :where(pre.rich-text-code-block),
   .rich-text-content :where(pre:has(> code)) {
-    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted p-3 font-mono text-[0.8125rem] leading-relaxed;
-    color: var(--ui-color-success-600);
+    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted p-3 font-mono text-[0.8125rem] leading-relaxed text-highlighted;
     tab-size: 2;
   }
 
@@ -814,11 +807,6 @@
     padding: 0;
     font: inherit;
     color: inherit;
-  }
-
-  .dark .rich-text-content :where(pre.rich-text-code-block),
-  .dark .rich-text-content :where(pre:has(> code)) {
-    color: var(--ui-color-success-400);
   }
 
   .rich-text-content :where(hr) {

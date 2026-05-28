@@ -217,7 +217,12 @@ function buildExtensions(): Extensions {
 			},
 			codeBlock: isDefault
 				? {
-						HTMLAttributes: { class: "rich-text-code-block" },
+						HTMLAttributes: {
+							class: "rich-text-code-block",
+							spellcheck: "false",
+							autocorrect: "off",
+							autocapitalize: "off",
+						},
 					}
 				: false,
 			horizontalRule: isDefault ? {} : false,
