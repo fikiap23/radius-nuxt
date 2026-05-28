@@ -23,6 +23,56 @@ export function defaultProjectCover(): ProjectCoverPreset {
 	return "ocean";
 }
 
+export const PROJECT_COVER_IMAGE_MAX_BYTES = 512_000;
+
+const PROJECT_COVER_IMAGE_TYPES = new Set([
+	"image/jpeg",
+	"image/png",
+	"image/webp",
+	"image/gif",
+]);
+
+export async function readProjectCoverImageFile(
+	file: File,
+): Promise<{ ok: true; dataUrl: string } | { ok: false; error: string }> {
+	if (!PROJECT_COVER_IMAGE_TYPES.has(file.type)) {
+		return { ok: false, error: "Use JPEG, PNG, WebP, or GIF." };
+	}
+	if (file.size > PROJECT_COVER_IMAGE_MAX_BYTES) {
+		return { ok: false, error: "Image must be under 500 KB." };
+	}
+
+	return new Promise(resolve => {
+		const reader = new FileReader();
+		reader.onload = () => {
+			const result = reader.result;
+			if (typeof result === "string") {
+				resolve({ ok: true, dataUrl: result });
+				return;
+			}
+			resolve({ ok: false, error: "Could not read image." });
+		};
+		reader.onerror = () => {
+			resolve({ ok: false, error: "Could not read image." });
+		};
+		reader.readAsDataURL(file);
+	});
+}
+
+export function isValidProjectCoverImageUrl(value: string) {
+	const trimmed = value.trim();
+	if (!trimmed) {
+		return false;
+	}
+	try {
+		const url = new URL(trimmed);
+		return url.protocol === "http:" || url.protocol === "https:";
+	}
+	catch {
+		return trimmed.startsWith("data:image/");
+	}
+}
+
 export function projectStatusLabel(status: ProjectStatus) {
 	switch (status) {
 		case "on_hold":

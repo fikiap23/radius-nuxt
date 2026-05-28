@@ -5,6 +5,7 @@
 	>
 		<ProjectCover
 			:cover="project.cover"
+			:cover-image-url="project.coverImageUrl"
 			size="sm"
 		>
 			<ProjectIcon

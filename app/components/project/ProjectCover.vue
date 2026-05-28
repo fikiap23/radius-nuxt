@@ -5,9 +5,15 @@
 			`project-cover--${cover}`,
 			sizeClass,
 			roundedClass,
+			coverImageUrl && 'project-cover--has-image',
 		]"
 		aria-hidden="true"
 	>
+		<div
+			v-if="coverImageUrl"
+			class="project-cover__image"
+			:style="{ backgroundImage: `url(${coverImageUrl})` }"
+		/>
 		<slot />
 	</div>
 </template>
@@ -18,10 +24,12 @@ import type { ProjectCoverPreset } from "~/types/project";
 const props = withDefaults(
 	defineProps<{
 		cover: ProjectCoverPreset;
+		coverImageUrl?: string | null;
 		size?: "sm" | "md" | "lg" | "banner";
 		rounded?: "md" | "lg" | "xl" | "none";
 	}>(),
 	{
+		coverImageUrl: null,
 		size: "md",
 		rounded: "lg",
 	},

@@ -52,7 +52,10 @@ export const useProjectStore = defineStore("project", () => {
 	function hydrateFromStorage() {
 		const persisted = readPersistedState();
 		if (persisted?.projects?.length) {
-			projects.value = persisted.projects;
+			projects.value = persisted.projects.map(project => ({
+				...project,
+				coverImageUrl: project.coverImageUrl ?? null,
+			}));
 		}
 		hydrated.value = true;
 	}
@@ -85,6 +88,7 @@ export const useProjectStore = defineStore("project", () => {
 			name,
 			icon: payload.icon ?? defaultProjectIcon(name),
 			cover: payload.cover ?? defaultProjectCover(),
+			coverImageUrl: payload.coverImageUrl ?? null,
 			status: payload.status ?? "active",
 			isFavorite: false,
 			archivedAt: null,

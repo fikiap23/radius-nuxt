@@ -39,21 +39,12 @@
 				label="Cover"
 				name="cover"
 			>
-				<div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
-					<button
-						v-for="preset in PROJECT_COVER_PRESETS"
-						:key="preset.id"
-						type="button"
-						class="project-cover-picker"
-						:class="[
-							`project-cover--${preset.id}`,
-							form.cover === preset.id && 'project-cover-picker--active',
-						]"
-						:aria-label="preset.label"
-						:aria-pressed="form.cover === preset.id"
-						@click="form.cover = preset.id"
-					/>
-				</div>
+				<ProjectCoverField
+					v-model:cover="form.cover"
+					v-model:cover-image-url="form.coverImageUrl"
+					:preview-name="form.name"
+					:preview-icon="form.icon"
+				/>
 			</UFormField>
 
 			<UFormField
@@ -116,11 +107,7 @@
 
 <script setup lang="ts">
 import { APP_NAME } from "~/config/brand";
-import {
-	PROJECT_COVER_PRESETS,
-	PROJECT_ICON_OPTIONS,
-	PROJECT_STATUS_OPTIONS,
-} from "~/config/project";
+import { PROJECT_ICON_OPTIONS, PROJECT_STATUS_OPTIONS } from "~/config/project";
 import type { ProjectCoverPreset, ProjectStatus } from "~/types/project";
 
 const route = useRoute();
@@ -145,6 +132,7 @@ const form = reactive({
 	name: "",
 	icon: "",
 	cover: "ocean" as ProjectCoverPreset,
+	coverImageUrl: null as string | null,
 	status: "active" as ProjectStatus,
 });
 
@@ -161,6 +149,7 @@ watch(
 		form.name = p.name;
 		form.icon = p.icon;
 		form.cover = p.cover;
+		form.coverImageUrl = p.coverImageUrl;
 		form.status = p.status;
 	},
 	{ immediate: true },
@@ -182,6 +171,7 @@ async function onSave() {
 		name,
 		icon: form.icon,
 		cover: form.cover,
+		coverImageUrl: form.coverImageUrl,
 		status: form.status,
 	});
 	saving.value = false;

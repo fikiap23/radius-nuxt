@@ -47,21 +47,12 @@
 					label="Cover"
 					name="cover"
 				>
-					<div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
-						<button
-							v-for="preset in PROJECT_COVER_PRESETS"
-							:key="preset.id"
-							type="button"
-							class="project-cover-picker"
-							:class="[
-								`project-cover--${preset.id}`,
-								state.cover === preset.id && 'project-cover-picker--active',
-							]"
-							:aria-label="preset.label"
-							:aria-pressed="state.cover === preset.id"
-							@click="state.cover = preset.id"
-						/>
-					</div>
+					<ProjectCoverField
+						v-model:cover="state.cover"
+						v-model:cover-image-url="state.coverImageUrl"
+						:preview-name="state.name"
+						:preview-icon="state.icon"
+					/>
 				</UFormField>
 
 				<UFormField
@@ -104,11 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-	PROJECT_COVER_PRESETS,
-	PROJECT_ICON_OPTIONS,
-	PROJECT_STATUS_OPTIONS,
-} from "~/config/project";
+import { PROJECT_ICON_OPTIONS, PROJECT_STATUS_OPTIONS } from "~/config/project";
 import type { ProjectCoverPreset, ProjectStatus } from "~/types/project";
 import { defaultProjectCover, defaultProjectIcon } from "~/utils/project";
 
@@ -129,6 +116,7 @@ const state = reactive({
 	name: "",
 	icon: PROJECT_ICON_OPTIONS[0]!.value,
 	cover: defaultProjectCover() as ProjectCoverPreset,
+	coverImageUrl: null as string | null,
 	status: "active" as ProjectStatus,
 });
 
@@ -137,6 +125,7 @@ watch(open, isOpen => {
 		state.name = "";
 		state.icon = PROJECT_ICON_OPTIONS[0]!.value;
 		state.cover = defaultProjectCover();
+		state.coverImageUrl = null;
 		state.status = "active";
 		error.value = null;
 	}
@@ -171,6 +160,7 @@ async function onSubmit(event: Event) {
 		name,
 		icon: state.icon,
 		cover: state.cover,
+		coverImageUrl: state.coverImageUrl,
 		status: state.status,
 	});
 

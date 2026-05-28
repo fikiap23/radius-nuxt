@@ -5,6 +5,7 @@
 	>
 		<ProjectCover
 			:cover="project.cover"
+			:cover-image-url="project.coverImageUrl"
 			size="banner"
 			rounded="none"
 			class="relative"

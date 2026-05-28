@@ -397,6 +397,22 @@
     );
   }
 
+  .project-cover--has-image {
+    background-image: none;
+  }
+
+  .project-cover__image {
+    @apply absolute inset-0 z-0 bg-cover bg-center;
+  }
+
+  .project-cover--has-image > :not(.project-cover__image) {
+    @apply relative z-[1];
+  }
+
+  .project-cover-field__preview {
+    @apply h-24;
+  }
+
   .project-cover--emerald {
     --project-cover-from: color-mix(in oklab, var(--ui-color-success-500) 70%, transparent);
     --project-cover-to: color-mix(in oklab, var(--ui-color-primary-500) 45%, transparent);
@@ -531,28 +547,48 @@
     @apply border-primary scale-105;
   }
 
+  .project-shell__header {
+    @apply space-y-5 sm:space-y-6;
+  }
+
   .project-shell__back {
     @apply inline-flex items-center gap-1.5 text-sm font-medium text-muted no-underline transition-colors hover:text-default;
   }
 
   .project-shell__hero {
-    @apply flex flex-col gap-4 lg:flex-row lg:items-end;
+    @apply flex flex-col gap-5 sm:gap-6 lg:flex-row lg:items-start lg:gap-8;
   }
 
   .project-shell__cover {
-    @apply w-full shrink-0 lg:w-48;
+    @apply w-full shrink-0 lg:w-56;
+  }
+
+  .project-shell__cover.project-cover--banner {
+    @apply h-28 sm:h-32;
   }
 
   .project-shell__cover-icon {
-    @apply absolute bottom-3 start-3;
+    @apply absolute bottom-4 start-4;
+  }
+
+  .project-shell__hero-main {
+    @apply flex min-w-0 flex-1 flex-col gap-5 sm:gap-6;
+  }
+
+  .project-shell__hero-text {
+    @apply min-w-0;
+  }
+
+  .project-shell__actions {
+    @apply flex flex-wrap items-center gap-2.5;
   }
 
   .project-shell__tabs {
-    @apply flex flex-wrap gap-1 border-b border-muted;
+    @apply -mb-px flex flex-wrap gap-2 border-b border-muted pt-2 sm:pt-3;
   }
 
   .project-shell__tab {
-    @apply inline-flex items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-muted no-underline transition-colors hover:text-default;
+    @apply inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted no-underline transition-colors hover:text-default;
   }
 
   .project-shell__tab--active {

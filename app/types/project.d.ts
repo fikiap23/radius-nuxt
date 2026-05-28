@@ -14,6 +14,8 @@ export interface Project {
 	name: string;
 	icon: string;
 	cover: ProjectCoverPreset;
+	/** Data URL or remote URL for custom cover background */
+	coverImageUrl: string | null;
 	status: ProjectStatus;
 	isFavorite: boolean;
 	archivedAt: string | null;
@@ -27,6 +29,7 @@ export interface CreateProjectPayload {
 	name: string;
 	icon?: string;
 	cover?: ProjectCoverPreset;
+	coverImageUrl?: string | null;
 	status?: ProjectStatus;
 }
 
@@ -34,6 +37,7 @@ export interface UpdateProjectPayload {
 	name?: string;
 	icon?: string;
 	cover?: ProjectCoverPreset;
+	coverImageUrl?: string | null;
 	status?: ProjectStatus;
 	isFavorite?: boolean;
 }

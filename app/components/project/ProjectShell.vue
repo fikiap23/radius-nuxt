@@ -1,25 +1,24 @@
 <template>
 	<div
 		v-if="project && hasAccess"
-		class="project-shell space-y-6"
+		class="project-shell space-y-8"
 	>
 		<header class="project-shell__header">
-			<div class="flex flex-wrap items-start gap-4">
-				<NuxtLink
-					to="/app/projects"
-					class="project-shell__back"
-				>
-					<UIcon
-						name="i-lucide-arrow-left"
-						class="size-4"
-					/>
-					Projects
-				</NuxtLink>
-			</div>
+			<NuxtLink
+				to="/app/projects"
+				class="project-shell__back"
+			>
+				<UIcon
+					name="i-lucide-arrow-left"
+					class="size-4"
+				/>
+				Projects
+			</NuxtLink>
 
 			<div class="project-shell__hero">
 				<ProjectCover
 					:cover="project.cover"
+					:cover-image-url="project.coverImageUrl"
 					size="banner"
 					rounded="xl"
 					class="project-shell__cover"
@@ -31,63 +30,65 @@
 					/>
 				</ProjectCover>
 
-				<div class="min-w-0 flex-1 space-y-2">
-					<div class="flex flex-wrap items-center gap-2">
-						<h1 class="font-display text-2xl font-bold text-highlighted">
-							{{ project.name }}
-						</h1>
-						<ProjectStatusBadge :status="project.status" />
-						<UBadge
-							v-if="isArchived"
-							label="Archived"
+				<div class="project-shell__hero-main">
+					<div class="project-shell__hero-text">
+						<div class="flex flex-wrap items-center gap-2.5">
+							<h1 class="font-display text-2xl font-bold text-highlighted sm:text-3xl">
+								{{ project.name }}
+							</h1>
+							<ProjectStatusBadge :status="project.status" />
+							<UBadge
+								v-if="isArchived"
+								label="Archived"
+								color="neutral"
+								variant="subtle"
+								size="xs"
+							/>
+						</div>
+						<p class="mt-2 text-sm text-muted">
+							{{ project.openTasks }} open tasks · {{ project.progress }}% complete
+						</p>
+					</div>
+
+					<div class="project-shell__actions">
+						<UButton
+							:icon="project.isFavorite ? 'i-lucide-star' : 'i-lucide-star'"
+							:color="project.isFavorite ? 'warning' : 'neutral'"
+							:variant="project.isFavorite ? 'soft' : 'outline'"
+							size="sm"
+							:label="project.isFavorite ? 'Favorited' : 'Favorite'"
+							:loading="favoriteLoading"
+							@click="onToggleFavorite"
+						/>
+						<UButton
+							v-if="!isArchived"
+							label="Archive"
+							icon="i-lucide-archive"
 							color="neutral"
-							variant="subtle"
-							size="xs"
+							variant="outline"
+							size="sm"
+							:loading="archiveLoading"
+							@click="onArchive"
+						/>
+						<UButton
+							v-else
+							label="Restore"
+							icon="i-lucide-archive-restore"
+							color="neutral"
+							variant="outline"
+							size="sm"
+							:loading="archiveLoading"
+							@click="onUnarchive"
+						/>
+						<UButton
+							label="Settings"
+							icon="i-lucide-settings"
+							color="neutral"
+							variant="ghost"
+							size="sm"
+							:to="`/app/projects/${project.id}/settings`"
 						/>
 					</div>
-					<p class="text-sm text-muted">
-						{{ project.openTasks }} open tasks · {{ project.progress }}% complete
-					</p>
-				</div>
-
-				<div class="flex flex-wrap items-center gap-2">
-					<UButton
-						:icon="project.isFavorite ? 'i-lucide-star' : 'i-lucide-star'"
-						:color="project.isFavorite ? 'warning' : 'neutral'"
-						:variant="project.isFavorite ? 'soft' : 'outline'"
-						size="sm"
-						:label="project.isFavorite ? 'Favorited' : 'Favorite'"
-						:loading="favoriteLoading"
-						@click="onToggleFavorite"
-					/>
-					<UButton
-						v-if="!isArchived"
-						label="Archive"
-						icon="i-lucide-archive"
-						color="neutral"
-						variant="outline"
-						size="sm"
-						:loading="archiveLoading"
-						@click="onArchive"
-					/>
-					<UButton
-						v-else
-						label="Restore"
-						icon="i-lucide-archive-restore"
-						color="neutral"
-						variant="outline"
-						size="sm"
-						:loading="archiveLoading"
-						@click="onUnarchive"
-					/>
-					<UButton
-						label="Settings"
-						icon="i-lucide-settings"
-						color="neutral"
-						variant="ghost"
-						size="sm"
-						:to="`/app/projects/${project.id}/settings`"
-					/>
 				</div>
 			</div>
 
