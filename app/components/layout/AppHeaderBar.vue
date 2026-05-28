@@ -63,6 +63,7 @@
 		</div>
 
 		<div class="flex shrink-0 items-center gap-2 sm:gap-3">
+			<NotificationBell />
 			<LayoutThemeToggle compact />
 
 			<UDropdownMenu

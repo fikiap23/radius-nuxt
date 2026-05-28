@@ -29,9 +29,10 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 | S6 | Task management (list, drawer) | ✅ |
 | S7 | Kanban board | ✅ |
 | S8 | Komentar & kolaborasi dasar | ✅ |
-| S9–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
+| S9 | Notification (in-app) | ✅ |
+| S10–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects` CRUD + filter, `/app/projects/[id]` shell board/list/settings, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useProject` + project store mock, `useTask` + task store mock (list CRUD, drawer, filters, komentar @mention), `useBoard` + board store (kolom, WIP, drag-drop), `useDashboard` + dashboard widgets, komponen workspace, project, task & board, theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects` CRUD + filter, `/app/projects/[id]` shell board/list/settings, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useProject` + project store mock, `useTask` + task store mock (list CRUD, drawer, filters, komentar @mention), `useNotification` + notification store (bell, panel, deep link), `useBoard` + board store (kolom, WIP, drag-drop), `useDashboard` + dashboard widgets, komponen workspace, project, task & board, theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
 
 ---
 
@@ -231,12 +232,14 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 **Depends on:** S2, S8
 
-| Item | Deliverable |
-|------|-------------|
-| Bell icon + badge count | Header `AppShell` |
-| Panel/dropdown daftar notifikasi | Mark read, filter |
-| Halaman `/app/notifications` | Full list + pagination mock |
-| Link ke task/project | Deep link dari notifikasi |
+| Item | Deliverable | Status |
+|------|-------------|--------|
+| Bell icon + badge count | Header `AppHeaderBar` | ✅ |
+| Panel/dropdown daftar notifikasi | Mark read, filter all/unread | ✅ |
+| Halaman `/app/notifications` | Full list + pagination mock | ✅ |
+| Link ke task/project | Deep link + task drawer | ✅ |
+
+**Data:** `useNotificationStore` + `notifications-seed.ts`, persist `radius-notification-state`; mention → notif dari `createComment`
 
 **Acceptance:** Klik notifikasi membuka konteks yang benar; unread count konsisten (mock store).
 
@@ -384,7 +387,7 @@ S5  Projects             ✅
 S6  Tasks (list)        ✅
 S7  Kanban board         ✅
 S8  Comments             ✅
-S9  Notifications        ⬜
+S9  Notifications        ✅
 S10 MVP hardening        ⬜
 ─── Phase 2 ───
 S11 Sprint

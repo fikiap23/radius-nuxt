@@ -335,6 +335,35 @@ export const useTaskStore = defineStore("task", () => {
 		});
 		persist();
 
+		if (import.meta.client && comment.mentionIds.length) {
+			const workspaceStore = useWorkspaceStore();
+			const notificationStore = useNotificationStore();
+			const members = workspaceStore.getMembersForWorkspace(task.workspaceId);
+			const authorMember = payload.authorId
+				? members.find(m => m.id === payload.authorId)
+				: null;
+			const authorEmail = authorMember?.email.toLowerCase();
+
+			for (const memberId of comment.mentionIds) {
+				const mentioned = members.find(m => m.id === memberId);
+				if (!mentioned?.email) {
+					continue;
+				}
+				if (authorEmail && mentioned.email.toLowerCase() === authorEmail) {
+					continue;
+				}
+				notificationStore.notifyMention({
+					recipientEmail: mentioned.email,
+					workspaceId: task.workspaceId,
+					authorName: comment.authorName,
+					taskTitle: task.title,
+					bodyPreview: commentBodyPreview(body),
+					taskId: task.id,
+					projectId: task.projectId,
+				});
+			}
+		}
+
 		return { ok: true as const, comment };
 	}
 

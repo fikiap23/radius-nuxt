@@ -566,6 +566,59 @@
     @apply whitespace-pre-wrap break-words;
   }
 
+  .notification-panel {
+    @apply flex max-h-[min(70vh,26rem)] flex-col overflow-hidden;
+  }
+
+  .notification-panel__header {
+    @apply flex items-center justify-between gap-2 border-b border-muted px-4 py-3;
+  }
+
+  .notification-panel__body {
+    @apply flex min-h-0 flex-1 flex-col overflow-hidden;
+  }
+
+  .notification-panel__footer {
+    @apply border-t border-muted p-2;
+  }
+
+  .notification-list--scrollable {
+    @apply flex min-h-0 flex-1 flex-col overflow-hidden;
+  }
+
+  .notification-list__toolbar {
+    @apply flex flex-wrap items-center justify-between gap-2 border-b border-muted px-3 py-2;
+  }
+
+  .notification-list__content--scrollable {
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .notification-item {
+    @apply flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30;
+  }
+
+  .notification-item--unread {
+    @apply bg-primary/5;
+  }
+
+  .notification-item__icon {
+    @apply flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted;
+  }
+
+  .notification-item__icon--unread {
+    @apply bg-primary/15 text-primary;
+  }
+
+  .notification-item__dot {
+    @apply mt-2 size-2 shrink-0 rounded-full bg-primary;
+  }
+
+  .notification-page__pagination {
+    @apply flex flex-col gap-3 border-t border-muted px-4 py-3 sm:flex-row sm:items-center sm:justify-between;
+  }
+
   .project-cover-picker {
     @apply h-10 rounded-lg border-2 border-transparent transition-[border-color,transform];
     background-image: linear-gradient(
