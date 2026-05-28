@@ -13,10 +13,10 @@
 				{{ task.title }}
 			</span>
 			<span
-				v-if="task.description"
+				v-if="descriptionPreview"
 				class="mt-0.5 block truncate text-xs text-muted"
 			>
-				{{ task.description }}
+				{{ descriptionPreview }}
 			</span>
 		</span>
 
@@ -46,6 +46,7 @@
 
 <script setup lang="ts">
 import type { Task } from "~/types/task";
+import { richTextToPlain } from "~/utils/rich-text";
 import { formatTaskDueDate } from "~/utils/task";
 
 const props = defineProps<{
@@ -58,6 +59,11 @@ const emit = defineEmits<{
 }>();
 
 const dueText = computed(() => formatTaskDueDate(props.task.dueAt));
+
+const descriptionPreview = computed(() => {
+	const text = richTextToPlain(props.task.description);
+	return text || null;
+});
 
 const isOverdue = computed(() => {
 	if (!props.task.dueAt || props.task.status === "done") {

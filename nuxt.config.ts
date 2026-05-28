@@ -13,6 +13,18 @@ export default defineNuxtConfig({
 		fallback: "dark",
 	},
 	compatibilityDate: "2025-07-15",
+	vite: {
+		optimizeDeps: {
+			include: [
+				"@tiptap/vue-3",
+				"@tiptap/starter-kit",
+				"@tiptap/extension-placeholder",
+				"@tiptap/extension-link",
+				"@tiptap/extension-mention",
+				"@tiptap/suggestion",
+			],
+		},
+	},
 	eslint: {
 		config: {
 			stylistic: {

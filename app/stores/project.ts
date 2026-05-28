@@ -54,6 +54,7 @@ export const useProjectStore = defineStore("project", () => {
 		if (persisted?.projects?.length) {
 			projects.value = persisted.projects.map(project => ({
 				...project,
+				description: project.description ?? "",
 				coverImageUrl: project.coverImageUrl ?? null,
 			}));
 		}
@@ -86,6 +87,7 @@ export const useProjectStore = defineStore("project", () => {
 			id: createProjectId(),
 			workspaceId,
 			name,
+			description: payload.description?.trim() ?? "",
 			icon: payload.icon ?? defaultProjectIcon(name),
 			cover: payload.cover ?? defaultProjectCover(),
 			coverImageUrl: payload.coverImageUrl ?? null,

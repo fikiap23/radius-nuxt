@@ -1,3 +1,5 @@
+import { isRichTextHtml, richTextToPlain } from "~/utils/rich-text";
+
 /** Stored mention format: @[Display Name](memberId) */
 export const COMMENT_MENTION_REGEX = /@\[([^\]]+)\]\(([^)]+)\)/g;
 
@@ -34,6 +36,22 @@ export function extractMentionIds(body: string): string[] {
 	for (const match of body.matchAll(COMMENT_MENTION_REGEX)) {
 		ids.add(match[2]!);
 	}
+	return [...ids];
+}
+
+export function extractMentionIdsFromBody(body: string): string[] {
+	const ids = new Set<string>(extractMentionIds(body));
+
+	if (import.meta.client && isRichTextHtml(body)) {
+		const doc = new DOMParser().parseFromString(body, "text/html");
+		for (const el of doc.querySelectorAll("[data-mention-id]")) {
+			const id = el.getAttribute("data-mention-id");
+			if (id) {
+				ids.add(id);
+			}
+		}
+	}
+
 	return [...ids];
 }
 
@@ -84,7 +102,13 @@ export function insertMentionToken(
 }
 
 export function commentBodyPreview(body: string, maxLength = 80) {
-	const plain = body.replace(COMMENT_MENTION_REGEX, (_, name: string) => `@${name}`);
+	let plain = body;
+	if (isRichTextHtml(body)) {
+		plain = richTextToPlain(body);
+	}
+	else {
+		plain = body.replace(COMMENT_MENTION_REGEX, (_, name: string) => `@${name}`);
+	}
 	if (plain.length <= maxLength) {
 		return plain;
 	}

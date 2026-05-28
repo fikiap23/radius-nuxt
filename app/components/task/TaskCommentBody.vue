@@ -1,5 +1,13 @@
 <template>
-	<p class="task-comment-body text-sm leading-relaxed text-default">
+	<UiRichTextContent
+		v-if="isRichTextHtml(body)"
+		:content="body"
+		class="task-comment-body"
+	/>
+	<p
+		v-else
+		class="task-comment-body text-sm leading-relaxed text-default"
+	>
 		<template
 			v-for="(segment, index) in segments"
 			:key="index"
@@ -18,6 +26,7 @@
 
 <script setup lang="ts">
 import { parseCommentBody } from "~/utils/comment";
+import { isRichTextHtml } from "~/utils/rich-text";
 
 const props = defineProps<{
 	body: string;

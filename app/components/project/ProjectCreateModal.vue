@@ -26,6 +26,20 @@
 				</UFormField>
 
 				<UFormField
+					label="Description"
+					name="description"
+				>
+					<ClientOnly>
+						<UiRichTextEditor
+							v-model="state.description"
+							placeholder="Goals, scope, or links for this project…"
+							variant="compact"
+							min-height="6rem"
+						/>
+					</ClientOnly>
+				</UFormField>
+
+				<UFormField
 					label="Icon"
 					name="icon"
 				>
@@ -114,6 +128,7 @@ const error = ref<string | null>(null);
 
 const state = reactive({
 	name: "",
+	description: "",
 	icon: PROJECT_ICON_OPTIONS[0]!.value,
 	cover: defaultProjectCover() as ProjectCoverPreset,
 	coverImageUrl: null as string | null,
@@ -123,6 +138,7 @@ const state = reactive({
 watch(open, isOpen => {
 	if (!isOpen) {
 		state.name = "";
+		state.description = "";
 		state.icon = PROJECT_ICON_OPTIONS[0]!.value;
 		state.cover = defaultProjectCover();
 		state.coverImageUrl = null;
@@ -158,6 +174,7 @@ async function onSubmit(event: Event) {
 
 	const result = await createProject(workspaceId, {
 		name,
+		description: state.description,
 		icon: state.icon,
 		cover: state.cover,
 		coverImageUrl: state.coverImageUrl,

@@ -13,7 +13,8 @@ import type {
 	UpdateTaskCommentPayload,
 	UpdateTaskPayload,
 } from "~/types/task";
-import { commentBodyPreview, extractMentionIds } from "~/utils/comment";
+import { commentBodyPreview, extractMentionIdsFromBody } from "~/utils/comment";
+import { isRichTextEmpty } from "~/utils/rich-text";
 import {
 	computeProjectTaskStats,
 	createTaskChildId,
@@ -80,7 +81,8 @@ export const useTaskStore = defineStore("task", () => {
 		if (persisted?.comments?.length) {
 			comments.value = persisted.comments.map(comment => ({
 				...comment,
-				mentionIds: comment.mentionIds ?? extractMentionIds(comment.body),
+				mentionIds:
+					comment.mentionIds ?? extractMentionIdsFromBody(comment.body),
 			}));
 		}
 		hydrated.value = true;
@@ -311,7 +313,7 @@ export const useTaskStore = defineStore("task", () => {
 		}
 
 		const body = payload.body.trim();
-		if (!body) {
+		if (isRichTextEmpty(body)) {
 			return { ok: false as const, error: "Comment cannot be empty." };
 		}
 
@@ -322,7 +324,7 @@ export const useTaskStore = defineStore("task", () => {
 			authorId: payload.authorId ?? null,
 			authorName: payload.authorName.trim() || "Unknown",
 			body,
-			mentionIds: extractMentionIds(body),
+			mentionIds: extractMentionIdsFromBody(body),
 			createdAt: timestamp,
 			updatedAt: timestamp,
 		};
@@ -375,7 +377,7 @@ export const useTaskStore = defineStore("task", () => {
 		}
 
 		const body = payload.body.trim();
-		if (!body) {
+		if (isRichTextEmpty(body)) {
 			return { ok: false as const, error: "Comment cannot be empty." };
 		}
 
@@ -383,7 +385,7 @@ export const useTaskStore = defineStore("task", () => {
 		const updated: TaskComment = {
 			...current,
 			body,
-			mentionIds: extractMentionIds(body),
+			mentionIds: extractMentionIdsFromBody(body),
 			updatedAt: new Date().toISOString(),
 		};
 

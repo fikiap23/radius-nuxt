@@ -619,6 +619,130 @@
     @apply flex flex-col gap-3 border-t border-muted px-4 py-3 sm:flex-row sm:items-center sm:justify-between;
   }
 
+  .rich-text-editor {
+    @apply overflow-hidden rounded-lg border border-muted bg-default;
+  }
+
+  .rich-text-editor--disabled {
+    @apply opacity-60 pointer-events-none;
+  }
+
+  .rich-text-editor__toolbar {
+    @apply flex flex-wrap gap-0.5 border-b border-muted bg-muted/20 px-2 py-1.5;
+  }
+
+  .rich-text-editor__content {
+    @apply px-3 py-2;
+  }
+
+  .rich-text-editor__prose {
+    @apply text-sm leading-relaxed text-default;
+  }
+
+  .rich-text-editor__prose :where(p) {
+    @apply my-1.5 first:mt-0 last:mb-0;
+  }
+
+  .rich-text-editor__prose :where(h2) {
+    @apply mt-3 mb-1.5 text-base font-semibold text-highlighted;
+  }
+
+  .rich-text-editor__prose :where(ul, ol) {
+    @apply my-2 ps-6;
+    list-style-position: outside;
+  }
+
+  .rich-text-editor__prose :where(ul) {
+    list-style-type: disc;
+  }
+
+  .rich-text-editor__prose :where(ol) {
+    list-style-type: decimal;
+  }
+
+  .rich-text-editor__prose :where(li) {
+    display: list-item;
+  }
+
+  .rich-text-editor__prose :where(li)::marker {
+    color: var(--ui-text-toned);
+  }
+
+  .rich-text-editor__prose :where(li p) {
+    @apply my-0;
+  }
+
+  .rich-text-editor__prose :where(blockquote) {
+    @apply my-2 border-s-2 border-primary/40 ps-3 text-muted italic;
+  }
+
+  .rich-text-editor__prose :where(p.is-editor-empty:first-child::before) {
+    @apply pointer-events-none float-start h-0 text-muted;
+    content: attr(data-placeholder);
+  }
+
+  .rich-text-content {
+    @apply text-sm leading-relaxed text-default;
+  }
+
+  .rich-text-content :where(p) {
+    @apply my-1.5 first:mt-0 last:mb-0;
+  }
+
+  .rich-text-content :where(h2, h3) {
+    @apply font-semibold text-highlighted;
+  }
+
+  .rich-text-content :where(ul, ol) {
+    @apply my-2 ps-6;
+    list-style-position: outside;
+  }
+
+  .rich-text-content :where(ul) {
+    list-style-type: disc;
+  }
+
+  .rich-text-content :where(ol) {
+    list-style-type: decimal;
+  }
+
+  .rich-text-content :where(li) {
+    display: list-item;
+  }
+
+  .rich-text-content :where(li)::marker {
+    color: var(--ui-text-toned);
+  }
+
+  .rich-text-content :where(li p) {
+    @apply my-0;
+  }
+
+  .rich-text-content :where(blockquote) {
+    @apply my-2 border-s-2 border-primary/40 ps-3 text-muted italic;
+  }
+
+  .rich-text-content__link {
+    @apply text-primary underline underline-offset-2;
+  }
+
+  .rich-text-mention,
+  .task-comment-body :where(.rich-text-mention) {
+    @apply font-medium text-primary;
+  }
+
+  .tiptap-mention-popup {
+    @apply min-w-[14rem] overflow-hidden rounded-lg border border-muted bg-elevated py-1 shadow-lg;
+  }
+
+  .tiptap-mention-popup__item {
+    @apply flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm transition-colors hover:bg-muted/50;
+  }
+
+  .tiptap-mention-popup__item--active {
+    @apply bg-primary/10;
+  }
+
   .project-cover-picker {
     @apply h-10 rounded-lg border-2 border-transparent transition-[border-color,transform];
     background-image: linear-gradient(

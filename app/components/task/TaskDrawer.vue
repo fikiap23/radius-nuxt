@@ -30,12 +30,13 @@
 					label="Description"
 					name="description"
 				>
-					<UTextarea
-						v-model="form.description"
-						placeholder="Add details…"
-						:rows="4"
-						class="w-full"
-					/>
+					<ClientOnly>
+						<UiRichTextEditor
+							v-model="form.description"
+							placeholder="Add details…"
+							min-height="9rem"
+						/>
+					</ClientOnly>
 				</UFormField>
 
 				<div class="grid gap-4 sm:grid-cols-2">

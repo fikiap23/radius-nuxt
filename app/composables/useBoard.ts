@@ -1,6 +1,7 @@
 import type { BoardColumn, BoardFilters } from "~/types/board";
 import type { Task } from "~/types/task";
 import { isBoardWipExceeded, resolveTaskColumnId } from "~/utils/board";
+import { richTextToPlain } from "~/utils/rich-text";
 
 const defaultBoardFilters = (): BoardFilters => ({
 	assigneeId: "all",
@@ -28,7 +29,7 @@ function applyBoardFilters(tasks: Task[], filters: BoardFilters) {
 		list = list.filter(
 			t =>
 				t.title.toLowerCase().includes(q)
-				|| t.description.toLowerCase().includes(q),
+				|| richTextToPlain(t.description).toLowerCase().includes(q),
 		);
 	}
 

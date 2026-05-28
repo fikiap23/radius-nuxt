@@ -1,5 +1,6 @@
 import { TASK_LABEL_PRESETS } from "~/config/task";
 import type { TaskListFilters } from "~/types/task";
+import { richTextToPlain } from "~/utils/rich-text";
 
 const defaultFilters = (): TaskListFilters => ({
 	status: "all",
@@ -70,7 +71,7 @@ export function useTaskList(projectId: MaybeRefOrGetter<string>) {
 			list = list.filter(
 				t =>
 					t.title.toLowerCase().includes(q)
-					|| t.description.toLowerCase().includes(q),
+					|| richTextToPlain(t.description).toLowerCase().includes(q),
 			);
 		}
 

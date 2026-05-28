@@ -18,6 +18,20 @@
 			</UFormField>
 
 			<UFormField
+				label="Description"
+				name="description"
+			>
+				<ClientOnly>
+					<UiRichTextEditor
+						v-model="form.description"
+						placeholder="Describe this project…"
+						variant="compact"
+						min-height="7rem"
+					/>
+				</ClientOnly>
+			</UFormField>
+
+			<UFormField
 				label="Icon"
 				name="icon"
 			>
@@ -130,6 +144,7 @@ useSeoMeta({
 
 const form = reactive({
 	name: "",
+	description: "",
 	icon: "",
 	cover: "ocean" as ProjectCoverPreset,
 	coverImageUrl: null as string | null,
@@ -147,6 +162,7 @@ watch(
 			return;
 		}
 		form.name = p.name;
+		form.description = p.description ?? "";
 		form.icon = p.icon;
 		form.cover = p.cover;
 		form.coverImageUrl = p.coverImageUrl;
@@ -169,6 +185,7 @@ async function onSave() {
 	saving.value = true;
 	const result = await updateProject(project.value.id, {
 		name,
+		description: form.description,
 		icon: form.icon,
 		cover: form.cover,
 		coverImageUrl: form.coverImageUrl,

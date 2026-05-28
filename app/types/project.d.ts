@@ -12,6 +12,8 @@ export interface Project {
 	id: string;
 	workspaceId: string;
 	name: string;
+	/** HTML from rich text editor */
+	description: string;
 	icon: string;
 	cover: ProjectCoverPreset;
 	/** Data URL or remote URL for custom cover background */
@@ -27,6 +29,7 @@ export interface Project {
 
 export interface CreateProjectPayload {
 	name: string;
+	description?: string;
 	icon?: string;
 	cover?: ProjectCoverPreset;
 	coverImageUrl?: string | null;
@@ -35,6 +38,7 @@ export interface CreateProjectPayload {
 
 export interface UpdateProjectPayload {
 	name?: string;
+	description?: string;
 	icon?: string;
 	cover?: ProjectCoverPreset;
 	coverImageUrl?: string | null;
