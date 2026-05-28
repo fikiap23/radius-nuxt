@@ -21,6 +21,7 @@
 			v-if="projectCreateOpen"
 			v-model:open="projectCreateOpen"
 		/>
+		<TaskDrawer />
 	</LayoutAppShell>
 </template>
 

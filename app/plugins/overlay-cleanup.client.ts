@@ -1,6 +1,7 @@
 /**
  * Reka UI dialogs can leave body scroll/pointer locks after close.
- * Reset on navigation so the app shell (sidebar) stays interactive.
+ * Do not remove overlay nodes from the DOM — Vue/Reka still patch them and
+ * that causes "insertBefore" on null errors.
  */
 export default defineNuxtPlugin(() => {
 	const router = useRouter();

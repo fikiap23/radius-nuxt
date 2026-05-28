@@ -1,6 +1,6 @@
 <template>
 	<NuxtLink
-		:to="`/app/projects/${project.id}/board`"
+		:to="`/app/projects/${project.id}/list`"
 		class="project-card app-card app-card--surface app-card--interactive group block overflow-hidden no-underline"
 	>
 		<ProjectCover

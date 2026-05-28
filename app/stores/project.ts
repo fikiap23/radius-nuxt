@@ -171,6 +171,34 @@ export const useProjectStore = defineStore("project", () => {
 		return { ok: true as const, project: updated };
 	}
 
+	function syncTaskMetrics(
+		projectId: string,
+		metrics: { openTasks: number; progress: number },
+	) {
+		const index = projects.value.findIndex(p => p.id === projectId);
+		if (index === -1) {
+			return;
+		}
+		const current = projects.value[index]!;
+		if (
+			current.openTasks === metrics.openTasks
+			&& current.progress === metrics.progress
+		) {
+			return;
+		}
+		projects.value = projects.value.map(p =>
+			p.id === projectId
+				? {
+						...p,
+						openTasks: metrics.openTasks,
+						progress: metrics.progress,
+						updatedAt: new Date().toISOString(),
+					}
+				: p,
+		);
+		persist();
+	}
+
 	async function deleteProject(id: string) {
 		await delay(200);
 		const exists = projects.value.some(p => p.id === id);
@@ -194,5 +222,6 @@ export const useProjectStore = defineStore("project", () => {
 		archiveProject,
 		unarchiveProject,
 		deleteProject,
+		syncTaskMetrics,
 	};
 });

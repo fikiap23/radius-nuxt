@@ -1,0 +1,449 @@
+<template>
+	<UModal
+		v-model:open="open"
+		scrollable
+		:title="isCreateMode ? 'New task' : 'Task details'"
+		:description="isCreateMode ? 'Add a task to this project.' : undefined"
+		:ui="{
+			content: 'w-full max-w-2xl',
+			body: 'max-h-[min(60dvh,560px)] overflow-y-auto',
+			footer: 'justify-between gap-2',
+		}"
+	>
+		<template #body>
+			<UForm
+				id="task-drawer-form"
+				:state="form"
+				:loading-auto="false"
+				class="space-y-5"
+			>
+				<UFormField
+					label="Title"
+					name="title"
+					required
+				>
+					<UInput
+						v-model="form.title"
+						placeholder="Task title"
+						autocomplete="off"
+					/>
+				</UFormField>
+
+				<UFormField
+					label="Description"
+					name="description"
+				>
+					<UTextarea
+						v-model="form.description"
+						placeholder="Add details…"
+						:rows="4"
+					/>
+				</UFormField>
+
+				<div class="grid gap-4 sm:grid-cols-2">
+					<UFormField
+						label="Status"
+						name="status"
+					>
+						<USelect
+							v-model="form.status"
+							:items="TASK_STATUS_OPTIONS"
+							value-key="value"
+						/>
+					</UFormField>
+
+					<UFormField
+						label="Priority"
+						name="priority"
+					>
+						<USelect
+							v-model="form.priority"
+							:items="TASK_PRIORITY_OPTIONS"
+							value-key="value"
+						/>
+					</UFormField>
+				</div>
+
+				<UFormField
+					label="Due date"
+					name="dueAt"
+				>
+					<UInput
+						v-model="form.dueDate"
+						type="date"
+					/>
+				</UFormField>
+
+				<UFormField
+					label="Assignee"
+					name="assigneeId"
+				>
+					<USelect
+						v-model="form.assigneeId"
+						:items="assigneeItems"
+						value-key="value"
+						placeholder="Unassigned"
+					/>
+				</UFormField>
+
+				<UFormField
+					label="Labels"
+					name="labelIds"
+				>
+					<div class="flex flex-wrap gap-2">
+						<UButton
+							v-for="label in TASK_LABEL_PRESETS"
+							:key="label.id"
+							:label="label.name"
+							:color="form.labelIds.includes(label.id) ? label.color : 'neutral'"
+							:variant="form.labelIds.includes(label.id) ? 'soft' : 'outline'"
+							size="xs"
+							type="button"
+							@click="toggleLabel(label.id)"
+						/>
+					</div>
+				</UFormField>
+
+				<template v-if="!isCreateMode && activeTaskId">
+					<TaskSubtasks
+						:items="form.subtasks"
+						@update="onSubtasksUpdate"
+					/>
+					<TaskChecklist
+						:items="form.checklist"
+						@update="onChecklistUpdate"
+					/>
+					<TaskAttachments
+						:items="form.attachments"
+						:uploading="attachmentUploading"
+						:removing-id="attachmentRemovingId"
+						@upload="onUpload"
+						@remove="onRemoveAttachment"
+					/>
+					<TaskActivityLog :entries="activityEntries" />
+				</template>
+
+				<UAlert
+					v-if="error"
+					color="error"
+					variant="soft"
+					icon="i-lucide-circle-alert"
+					:title="error"
+				/>
+			</UForm>
+		</template>
+
+		<template #footer="{ close }">
+			<UButton
+				v-if="!isCreateMode && activeTaskId"
+				type="button"
+				label="Delete"
+				icon="i-lucide-trash-2"
+				color="error"
+				variant="ghost"
+				size="sm"
+				:loading="deleting"
+				@click="onDelete"
+			/>
+			<div class="ms-auto flex gap-2">
+				<UButton
+					type="button"
+					label="Cancel"
+					color="neutral"
+					variant="outline"
+					@click="close"
+				/>
+				<UButton
+					type="button"
+					:label="isCreateMode ? 'Create task' : 'Save changes'"
+					:loading="saving"
+					:disabled="saving"
+					icon="i-lucide-check"
+					@click="saveTask"
+				/>
+			</div>
+		</template>
+	</UModal>
+</template>
+
+<script setup lang="ts">
+import {
+	TASK_LABEL_PRESETS,
+	TASK_PRIORITY_OPTIONS,
+	TASK_STATUS_OPTIONS,
+	TASK_UNASSIGNED_VALUE,
+} from "~/config/task";
+import type {
+	Task,
+	TaskChecklistItem,
+	TaskPriority,
+	TaskStatus,
+	TaskSubtask,
+} from "~/types/task";
+import {
+	dueAtFromDateInput,
+	isoDateInputValue,
+	taskAssigneeFromSelectValue,
+	taskAssigneeToSelectValue,
+} from "~/utils/task";
+
+const {
+	open,
+	activeTaskId,
+	isCreateMode,
+	projectId,
+	workspaceId,
+	isReady,
+	closeDrawer,
+} = useTaskDrawer();
+
+const {
+	getTaskById,
+	activitiesForTask,
+	createTask,
+	updateTask,
+	deleteTask,
+	addAttachment,
+	removeAttachment,
+} = useTask();
+const { activeMembers } = useWorkspace();
+const toast = useToast();
+
+const saving = ref(false);
+const deleting = ref(false);
+const error = ref<string | null>(null);
+const attachmentUploading = ref(false);
+const attachmentRemovingId = ref<string | null>(null);
+
+const form = reactive({
+	title: "",
+	description: "",
+	status: "todo" as TaskStatus,
+	priority: "medium" as TaskPriority,
+	dueDate: "",
+	assigneeId: TASK_UNASSIGNED_VALUE,
+	labelIds: [] as string[],
+	subtasks: [] as TaskSubtask[],
+	checklist: [] as TaskChecklistItem[],
+	attachments: [] as Task["attachments"],
+});
+
+const activityEntries = computed(() =>
+	activeTaskId.value ? activitiesForTask(activeTaskId.value) : [],
+);
+
+const assigneeItems = computed(() => [
+	{ label: "Unassigned", value: TASK_UNASSIGNED_VALUE },
+	...activeMembers.value
+		.filter(m => m.status === "active")
+		.map(m => ({ label: m.name, value: m.id })),
+]);
+
+function resetForm() {
+	form.title = "";
+	form.description = "";
+	form.status = "todo";
+	form.priority = "medium";
+	form.dueDate = "";
+	form.assigneeId = TASK_UNASSIGNED_VALUE;
+	form.labelIds = [];
+	form.subtasks = [];
+	form.checklist = [];
+	form.attachments = [];
+	error.value = null;
+}
+
+function loadTask(task: Task) {
+	form.title = task.title;
+	form.description = task.description;
+	form.status = task.status;
+	form.priority = task.priority;
+	form.dueDate = isoDateInputValue(task.dueAt);
+	form.assigneeId = taskAssigneeToSelectValue(task.assigneeId);
+	form.labelIds = [...task.labelIds];
+	form.subtasks = [...task.subtasks];
+	form.checklist = [...task.checklist];
+	form.attachments = [...task.attachments];
+}
+
+function hydrateForm() {
+	error.value = null;
+	if (isCreateMode.value) {
+		resetForm();
+		return;
+	}
+	if (!activeTaskId.value) {
+		resetForm();
+		return;
+	}
+	const task = getTaskById(activeTaskId.value);
+	if (!task) {
+		error.value = "Task not found.";
+		resetForm();
+		return;
+	}
+	loadTask(task);
+}
+
+watch(
+	() => [open.value, activeTaskId.value, isCreateMode.value, isReady.value] as const,
+	([isOpen, , , ready]) => {
+		if (isOpen && ready) {
+			nextTick(() => hydrateForm());
+		}
+		else if (!isOpen) {
+			resetForm();
+			saving.value = false;
+		}
+	},
+);
+
+function toggleLabel(labelId: string) {
+	if (form.labelIds.includes(labelId)) {
+		form.labelIds = form.labelIds.filter(id => id !== labelId);
+	}
+	else {
+		form.labelIds = [...form.labelIds, labelId];
+	}
+}
+
+async function saveTask() {
+	if (saving.value) {
+		return;
+	}
+
+	error.value = null;
+
+	const title = form.title.trim();
+	if (!title) {
+		error.value = "Task title is required.";
+		return;
+	}
+
+	if (!projectId.value || !workspaceId.value) {
+		error.value = "Project context is missing.";
+		return;
+	}
+
+	const payload = {
+		title,
+		description: form.description,
+		status: form.status,
+		priority: form.priority,
+		dueAt: dueAtFromDateInput(form.dueDate),
+		labelIds: form.labelIds,
+		assigneeId: taskAssigneeFromSelectValue(form.assigneeId),
+	};
+
+	saving.value = true;
+
+	try {
+		if (isCreateMode.value) {
+			const result = await createTask(
+				projectId.value,
+				workspaceId.value,
+				payload,
+			);
+			if (!result.ok) {
+				error.value = result.error;
+				return;
+			}
+			toast.add({
+				title: "Task created",
+				color: "success",
+				icon: "i-lucide-plus-circle",
+			});
+			closeDrawer();
+			return;
+		}
+
+		if (!activeTaskId.value) {
+			return;
+		}
+
+		const result = await updateTask(activeTaskId.value, {
+			...payload,
+			subtasks: form.subtasks,
+			checklist: form.checklist,
+			attachments: form.attachments,
+		});
+
+		if (!result.ok) {
+			error.value = result.error;
+			return;
+		}
+
+		toast.add({
+			title: "Task saved",
+			color: "success",
+			icon: "i-lucide-check",
+		});
+	}
+	finally {
+		saving.value = false;
+	}
+}
+
+async function onSubtasksUpdate(items: TaskSubtask[]) {
+	form.subtasks = items;
+	if (!activeTaskId.value) {
+		return;
+	}
+	await updateTask(activeTaskId.value, { subtasks: items });
+}
+
+async function onChecklistUpdate(items: TaskChecklistItem[]) {
+	form.checklist = items;
+	if (!activeTaskId.value) {
+		return;
+	}
+	await updateTask(activeTaskId.value, { checklist: items });
+}
+
+async function onUpload(file: File) {
+	if (!activeTaskId.value) {
+		return;
+	}
+	attachmentUploading.value = true;
+	const result = await addAttachment(activeTaskId.value, file);
+	attachmentUploading.value = false;
+	if (!result.ok) {
+		toast.add({ title: result.error, color: "error" });
+		return;
+	}
+	form.attachments = result.task.attachments;
+}
+
+async function onRemoveAttachment(attachmentId: string) {
+	if (!activeTaskId.value) {
+		return;
+	}
+	attachmentRemovingId.value = attachmentId;
+	const result = await removeAttachment(activeTaskId.value, attachmentId);
+	attachmentRemovingId.value = null;
+	if (!result.ok) {
+		toast.add({ title: result.error, color: "error" });
+		return;
+	}
+	form.attachments = result.task.attachments;
+}
+
+async function onDelete() {
+	if (!activeTaskId.value) {
+		return;
+	}
+	deleting.value = true;
+	const result = await deleteTask(activeTaskId.value);
+	deleting.value = false;
+	if (!result.ok) {
+		toast.add({ title: result.error, color: "error" });
+		return;
+	}
+	toast.add({
+		title: "Task deleted",
+		color: "success",
+		icon: "i-lucide-trash-2",
+	});
+	closeDrawer();
+}
+</script>

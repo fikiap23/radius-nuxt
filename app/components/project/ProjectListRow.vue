@@ -1,6 +1,6 @@
 <template>
 	<NuxtLink
-		:to="`/app/projects/${project.id}/board`"
+		:to="`/app/projects/${project.id}/list`"
 		class="project-list-row group"
 	>
 		<ProjectCover

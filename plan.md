@@ -26,9 +26,10 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 | S3 | Workspace (multi-tenant UI) | ✅ |
 | S4 | Dashboard widgets | ✅ |
 | S5 | Project management (CRUD & daftar) | ✅ |
-| S6–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
+| S6 | Task management (list, drawer) | ✅ |
+| S7–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects` CRUD + filter, `/app/projects/[id]` shell board/list/settings, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useProject` + project store mock, `useDashboard` + dashboard widgets, komponen workspace & project, theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects` CRUD + filter, `/app/projects/[id]` shell board/list/settings, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useProject` + project store mock, `useTask` + task store mock (list CRUD, drawer, filters), `useDashboard` + dashboard widgets, komponen workspace, project & task, theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
 
 ---
 
@@ -165,16 +166,18 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 **Depends on:** S5c
 
-| Sub-slice | Deliverable |
-|-----------|-------------|
-| S6a | Task drawer/modal: create & edit |
-| S6b | Field: title, description, priority, due date, labels, assignee |
-| S6c | Subtasks + checklist (UI list, checkbox) |
-| S6d | Attachments (upload UI, list file mock) |
-| S6e | Status: Backlog, Todo, In Progress, Review, Done |
-| S6f | Activity log panel (read-only list) |
+| Sub-slice | Deliverable | Status |
+|-----------|-------------|--------|
+| S6a | Task drawer/modal: create & edit | ✅ |
+| S6b | Field: title, description, priority, due date, labels, assignee | ✅ |
+| S6c | Subtasks + checklist (UI list, checkbox) | ✅ |
+| S6d | Attachments (upload UI, list file mock) | ✅ |
+| S6e | Status: Backlog, Todo, In Progress, Review, Done | ✅ |
+| S6f | Activity log panel (read-only list) | ✅ |
 
 **View pertama:** **List view** di `/app/projects/[id]/list`
+
+**Data:** `useTask` + `app/data/tasks-seed.ts` + `app/stores/task.ts` (persist localStorage; sync `openTasks` / `progress` ke project)
 
 **Acceptance:** CRUD task di list; filter status/assignee/label di toolbar.
 
@@ -372,7 +375,7 @@ S2  App shell            ✅
 S3  Workspace            ✅
 S4  Dashboard            ✅
 S5  Projects             ✅
-S6  Tasks (list)        ⬜
+S6  Tasks (list)        ✅
 S7  Kanban board         ⬜
 S8  Comments             ⬜
 S9  Notifications        ⬜
