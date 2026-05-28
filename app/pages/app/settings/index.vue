@@ -77,10 +77,10 @@
 
 		<UiAppCard
 			title="Preferences"
-			description="More settings in later slices"
+			description="More settings coming soon"
 		>
 			<p class="text-sm text-muted">
-				Notification settings arrive in S9.
+				Notification settings are on the roadmap.
 			</p>
 		</UiAppCard>
 	</div>

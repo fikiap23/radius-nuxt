@@ -25,7 +25,7 @@ export const appLayoutPresets: AppLayoutPreset[] = [
 	{
 		id: "classic",
 		label: "Classic",
-		description: "Sidebar kiri, konten terpusat dengan lebar nyaman.",
+		description: "Left sidebar with a comfortable, centered content width.",
 		icon: "i-lucide-panel-left",
 		sidebar: true,
 		contentWidth: "default",
@@ -33,7 +33,7 @@ export const appLayoutPresets: AppLayoutPreset[] = [
 	{
 		id: "compact",
 		label: "Compact",
-		description: "Sidebar lebih ramping dan padding halaman lebih rapat.",
+		description: "A slimmer sidebar and tighter page padding.",
 		icon: "i-lucide-rows-3",
 		sidebar: true,
 		contentWidth: "default",
@@ -41,7 +41,7 @@ export const appLayoutPresets: AppLayoutPreset[] = [
 	{
 		id: "wide",
 		label: "Wide",
-		description: "Sidebar tetap; area konten memakai lebar penuh.",
+		description: "Keeps the sidebar; content uses the full available width.",
 		icon: "i-lucide-maximize-2",
 		sidebar: true,
 		contentWidth: "wide",
@@ -49,7 +49,7 @@ export const appLayoutPresets: AppLayoutPreset[] = [
 	{
 		id: "top-nav",
 		label: "Top navigation",
-		description: "Navigasi horizontal di header; tanpa sidebar desktop.",
+		description: "Horizontal navigation in the header; no desktop sidebar.",
 		icon: "i-lucide-layout-template",
 		sidebar: false,
 		contentWidth: "default",
@@ -57,7 +57,7 @@ export const appLayoutPresets: AppLayoutPreset[] = [
 	{
 		id: "inset",
 		label: "Inset panel",
-		description: "Konten dalam panel terangkat dengan margin di sekitar area utama.",
+		description: "Content in a raised panel with margin around the main area.",
 		icon: "i-lucide-square-dashed-bottom",
 		sidebar: true,
 		contentWidth: "default",

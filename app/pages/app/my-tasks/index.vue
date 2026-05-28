@@ -1,7 +1,7 @@
 <template>
 	<LayoutAppPlaceholderPage
 		title="My tasks"
-		description="Your personal inbox across every project — slice S15"
+		description="Your personal inbox across every project — coming soon"
 		icon="i-lucide-list-checks"
 	>
 		Tasks assigned to you will show up here with due dates, project context,

@@ -1,13 +1,13 @@
 <template>
 	<UiAppCard
 		title="Board view"
-		description="Kanban columns and drag-and-drop arrive in S7"
+		description="Kanban columns and drag-and-drop — coming soon"
 		icon="i-lucide-kanban"
 	>
 		<UiEmptyState
 			icon="i-lucide-kanban-square"
 			title="Board coming soon"
-			description="You'll move tasks across columns with drag and drop in the next slice."
+			description="You'll move tasks across columns with drag and drop soon."
 		/>
 	</UiAppCard>
 </template>

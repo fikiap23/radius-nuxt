@@ -4,7 +4,7 @@
 			v-if="showHint"
 			class="text-sm text-muted"
 		>
-			Pilih cara sidebar dan area konten ditampilkan. Preferensi disimpan di perangkat ini.
+			Choose how the sidebar and content area are shown. Your preference is saved on this device.
 		</p>
 
 		<div
