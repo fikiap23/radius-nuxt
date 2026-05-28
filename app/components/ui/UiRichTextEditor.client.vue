@@ -169,6 +169,7 @@ import {
 	runRichTextAction,
 } from "~/composables/useRichTextEditorActions";
 import type { WorkspaceMember } from "~/types/workspace";
+import { createRichTextCodeBlockExtension } from "~/utils/rich-text-lowlight";
 import { RichTextTrelloKeymap } from "~/utils/rich-text-keymap";
 import {
 	emptyRichTextDocument,
@@ -215,18 +216,10 @@ function buildExtensions(): Extensions {
 			code: {
 				HTMLAttributes: { class: "rich-text-inline-code" },
 			},
-			codeBlock: isDefault
-				? {
-						HTMLAttributes: {
-							class: "rich-text-code-block",
-							spellcheck: "false",
-							autocorrect: "off",
-							autocapitalize: "off",
-						},
-					}
-				: false,
+			codeBlock: false,
 			horizontalRule: isDefault ? {} : false,
 		}),
+		...(isDefault ? [createRichTextCodeBlockExtension()] : []),
 		Underline,
 		Placeholder.configure({
 			placeholder: props.placeholder,
@@ -407,11 +400,45 @@ const listMenuItems = computed((): DropdownMenuItem[][] => {
 	];
 });
 
+const codeBlockLanguages = [
+	{ label: "Auto-detect", lang: "" },
+	{ label: "TypeScript", lang: "typescript" },
+	{ label: "JavaScript", lang: "javascript" },
+	{ label: "JSON", lang: "json" },
+	{ label: "CSS", lang: "css" },
+	{ label: "HTML", lang: "xml" },
+	{ label: "Bash", lang: "bash" },
+] as const;
+
+function insertCodeBlock(language: string) {
+	if (!editor.value) {
+		return;
+	}
+	const chain = editor.value.chain().focus();
+	if (editor.value.isActive("codeBlock")) {
+		chain.updateAttributes("codeBlock", {
+			language: language || null,
+		}).run();
+	}
+	else {
+		chain.setCodeBlock({ language: language || undefined }).run();
+	}
+}
+
 const insertMenuItems = computed((): DropdownMenuItem[][] => [
 	[
 		menuItem("Quote", "quote"),
-		menuItem("Code block", "codeBlock"),
 		menuItem("Divider", "hr"),
+		{
+			label: "Code block",
+			icon: "i-lucide-code-xml",
+			children: [
+				codeBlockLanguages.map(({ label, lang }) => ({
+					label,
+					onSelect: () => insertCodeBlock(lang),
+				})),
+			],
+		},
 	],
 ]);
 

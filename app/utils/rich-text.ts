@@ -34,7 +34,8 @@ const ALLOWED_ATTRS: Record<string, Set<string>> = {
 	pre: new Set(["class"]),
 };
 
-const RICH_TEXT_CLASS_RE = /^(rich-text-|is-editor-empty)/;
+const RICH_TEXT_CLASS_RE
+	= /^(rich-text-|is-editor-empty|hljs-|language-)/;
 
 function isAllowedClassAttr(value: string) {
 	return value

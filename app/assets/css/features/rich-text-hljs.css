@@ -1,0 +1,87 @@
+/**
+ * Syntax highlighting (lowlight / highlight.js) inside rich text.
+ * Scoped to editor + rendered content only.
+ */
+@layer components {
+  .rich-text-editor__prose :where(pre.rich-text-code-block code),
+  .rich-text-editor__prose :where(pre:has(> code)),
+  .rich-text-content :where(pre.rich-text-code-block code),
+  .rich-text-content :where(pre:has(> code)) {
+    .hljs-comment,
+    .hljs-quote {
+      color: var(--rich-text-hljs-comment);
+    }
+
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-built_in,
+    .hljs-name {
+      color: var(--rich-text-hljs-keyword);
+    }
+
+    .hljs-string,
+    .hljs-regexp,
+    .hljs-symbol,
+    .hljs-bullet {
+      color: var(--rich-text-hljs-string);
+    }
+
+    .hljs-number,
+    .hljs-literal {
+      color: var(--rich-text-hljs-number);
+    }
+
+    .hljs-title,
+    .hljs-title.function_,
+    .hljs-function .hljs-title {
+      color: var(--rich-text-hljs-function);
+    }
+
+    .hljs-type,
+    .hljs-class .hljs-title,
+    .hljs-attr {
+      color: var(--rich-text-hljs-type);
+    }
+
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-params {
+      color: var(--rich-text-hljs-variable);
+    }
+
+    .hljs-meta,
+    .hljs-link {
+      color: var(--rich-text-hljs-meta);
+    }
+
+    .hljs-emphasis {
+      font-style: italic;
+    }
+
+    .hljs-strong {
+      font-weight: 600;
+    }
+  }
+
+  :root {
+    --rich-text-hljs-comment: #8b949e;
+    --rich-text-hljs-keyword: #ff7b72;
+    --rich-text-hljs-string: #a5d6ff;
+    --rich-text-hljs-number: #79c0ff;
+    --rich-text-hljs-function: #d2a8ff;
+    --rich-text-hljs-type: #ffa657;
+    --rich-text-hljs-variable: #e6edf3;
+    --rich-text-hljs-meta: #7ee787;
+  }
+
+  .light {
+    --rich-text-hljs-comment: #6e7781;
+    --rich-text-hljs-keyword: #cf222e;
+    --rich-text-hljs-string: #0a3069;
+    --rich-text-hljs-number: #0550ae;
+    --rich-text-hljs-function: #8250df;
+    --rich-text-hljs-type: #953800;
+    --rich-text-hljs-variable: #24292f;
+    --rich-text-hljs-meta: #116329;
+  }
+}
