@@ -28,9 +28,10 @@ Dokumen ini mendefinisikan **urutan pengerjaan UI (slicing)** berdasarkan [READM
 | S5 | Project management (CRUD & daftar) | ✅ |
 | S6 | Task management (list, drawer) | ✅ |
 | S7 | Kanban board | ✅ |
-| S8–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
+| S8 | Komentar & kolaborasi dasar | ✅ |
+| S9–S16 | Fitur produk (MVP → lanjutan) | ⬜ |
 
-**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects` CRUD + filter, `/app/projects/[id]` shell board/list/settings, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useProject` + project store mock, `useTask` + task store mock (list CRUD, drawer, filters), `useBoard` + board store (kolom, WIP, drag-drop), `useDashboard` + dashboard widgets, komponen workspace, project, task & board, theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
+**Sudah ada di repo:** landing (`/`), legal (`/privacy`, `/terms`), halaman auth (login/register/forgot), layout `auth` / `landing` / `default` / `app`, `AppShell` (sidebar + mobile slideover), `AppSidebar`, `AppPageHeader`, `app-nav`, halaman app (`/app` dashboard widgets, `/app/projects` CRUD + filter, `/app/projects/[id]` shell board/list/settings, `/app/my-tasks`, `/app/settings`, `/app/workspaces`, `/app/workspaces/[id]/settings`), `WorkspaceSwitcher` di header, `useWorkspace` + store mock, `useProject` + project store mock, `useTask` + task store mock (list CRUD, drawer, filters, komentar @mention), `useBoard` + board store (kolom, WIP, drag-drop), `useDashboard` + dashboard widgets, komponen workspace, project, task & board, theme, token CSS, `useAuth` + middleware, `AuthPasswordStrength`, komponen landing S0, mobile nav marketing.
 
 ---
 
@@ -212,11 +213,13 @@ Urutan: **Auth → Workspace → Dashboard → Project → Task → Kanban → C
 
 **Depends on:** S6a (task drawer)
 
-| Item | Deliverable |
-|------|-------------|
-| Comment thread | Di task drawer |
-| @mention | Autocomplete user mock |
-| Rich text ringan | Markdown atau TipTap ringan (opsional fase 1) |
+| Item | Deliverable | Status |
+|------|-------------|--------|
+| Comment thread | Di task drawer | ✅ |
+| @mention | Autocomplete user mock (anggota workspace aktif) | ✅ |
+| Rich text ringan | Plain text + token `@[Name](id)` (TipTap menyusul) | ✅ |
+
+**Data:** komentar di `useTaskStore` + `comments-seed.ts`, persist `radius-task-state`
 
 **Acceptance:** Tambah/edit/hapus komentar (mock); mention men-styling `@user`.
 
@@ -380,7 +383,7 @@ S4  Dashboard            ✅
 S5  Projects             ✅
 S6  Tasks (list)        ✅
 S7  Kanban board         ✅
-S8  Comments             ⬜
+S8  Comments             ✅
 S9  Notifications        ⬜
 S10 MVP hardening        ⬜
 ─── Phase 2 ───

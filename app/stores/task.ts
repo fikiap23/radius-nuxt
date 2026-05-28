@@ -1,14 +1,19 @@
+import { SEED_TASK_COMMENTS } from "~/data/comments-seed";
 import { SEED_TASK_ACTIVITIES, SEED_TASKS } from "~/data/tasks-seed";
 import type {
+	CreateTaskCommentPayload,
 	CreateTaskPayload,
 	Task,
 	TaskActivityEntry,
 	TaskAttachment,
 	TaskChecklistItem,
+	TaskComment,
 	TaskPersistedState,
 	TaskSubtask,
+	UpdateTaskCommentPayload,
 	UpdateTaskPayload,
 } from "~/types/task";
+import { commentBodyPreview, extractMentionIds } from "~/utils/comment";
 import {
 	computeProjectTaskStats,
 	createTaskChildId,
@@ -50,12 +55,14 @@ function writePersistedState(state: TaskPersistedState) {
 export const useTaskStore = defineStore("task", () => {
 	const tasks = ref<Task[]>([...SEED_TASKS]);
 	const activities = ref<TaskActivityEntry[]>([...SEED_TASK_ACTIVITIES]);
+	const comments = ref<TaskComment[]>([...SEED_TASK_COMMENTS]);
 	const hydrated = ref(false);
 
 	function persist() {
 		writePersistedState({
 			tasks: tasks.value,
 			activities: activities.value,
+			comments: comments.value,
 		});
 	}
 
@@ -69,6 +76,12 @@ export const useTaskStore = defineStore("task", () => {
 		}
 		if (persisted?.activities?.length) {
 			activities.value = persisted.activities;
+		}
+		if (persisted?.comments?.length) {
+			comments.value = persisted.comments.map(comment => ({
+				...comment,
+				mentionIds: comment.mentionIds ?? extractMentionIds(comment.body),
+			}));
 		}
 		hydrated.value = true;
 	}
@@ -88,6 +101,19 @@ export const useTaskStore = defineStore("task", () => {
 				(a, b) =>
 					new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
 			);
+	}
+
+	function commentsForTask(taskId: string) {
+		return [...comments.value]
+			.filter(c => c.taskId === taskId)
+			.sort(
+				(a, b) =>
+					new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+			);
+	}
+
+	function getCommentById(id: string) {
+		return comments.value.find(c => c.id === id) ?? null;
 	}
 
 	function logActivity(
@@ -222,6 +248,7 @@ export const useTaskStore = defineStore("task", () => {
 		}
 		tasks.value = tasks.value.filter(t => t.id !== id);
 		activities.value = activities.value.filter(a => a.taskId !== id);
+		comments.value = comments.value.filter(c => c.taskId !== id);
 		persist();
 		syncProjectStats(task.projectId);
 		return { ok: true as const };
@@ -276,6 +303,78 @@ export const useTaskStore = defineStore("task", () => {
 		return result;
 	}
 
+	async function createComment(taskId: string, payload: CreateTaskCommentPayload) {
+		await delay(200);
+		const task = getTaskById(taskId);
+		if (!task) {
+			return { ok: false as const, error: "Task not found." };
+		}
+
+		const body = payload.body.trim();
+		if (!body) {
+			return { ok: false as const, error: "Comment cannot be empty." };
+		}
+
+		const timestamp = new Date().toISOString();
+		const comment: TaskComment = {
+			id: createTaskChildId("cmt"),
+			taskId,
+			authorId: payload.authorId ?? null,
+			authorName: payload.authorName.trim() || "Unknown",
+			body,
+			mentionIds: extractMentionIds(body),
+			createdAt: timestamp,
+			updatedAt: timestamp,
+		};
+
+		comments.value = [...comments.value, comment];
+		logActivity(taskId, {
+			title: "Comment added",
+			description: commentBodyPreview(body),
+			icon: "i-lucide-message-square",
+		});
+		persist();
+
+		return { ok: true as const, comment };
+	}
+
+	async function updateComment(id: string, payload: UpdateTaskCommentPayload) {
+		await delay(200);
+		const index = comments.value.findIndex(c => c.id === id);
+		if (index === -1) {
+			return { ok: false as const, error: "Comment not found." };
+		}
+
+		const body = payload.body.trim();
+		if (!body) {
+			return { ok: false as const, error: "Comment cannot be empty." };
+		}
+
+		const current = comments.value[index]!;
+		const updated: TaskComment = {
+			...current,
+			body,
+			mentionIds: extractMentionIds(body),
+			updatedAt: new Date().toISOString(),
+		};
+
+		comments.value = comments.value.map(c => (c.id === id ? updated : c));
+		persist();
+
+		return { ok: true as const, comment: updated };
+	}
+
+	async function deleteComment(id: string) {
+		await delay(200);
+		const comment = getCommentById(id);
+		if (!comment) {
+			return { ok: false as const, error: "Comment not found." };
+		}
+		comments.value = comments.value.filter(c => c.id !== id);
+		persist();
+		return { ok: true as const };
+	}
+
 	function patchListField<K extends "subtasks" | "checklist">(
 		taskId: string,
 		field: K,
@@ -291,14 +390,20 @@ export const useTaskStore = defineStore("task", () => {
 	return {
 		tasks,
 		activities,
+		comments,
 		hydrated,
 		hydrateFromStorage,
 		getTaskById,
 		tasksForProject,
 		activitiesForTask,
+		commentsForTask,
+		getCommentById,
 		createTask,
 		updateTask,
 		deleteTask,
+		createComment,
+		updateComment,
+		deleteComment,
 		addAttachment,
 		removeAttachment,
 		patchListField,

@@ -10,19 +10,24 @@ const defaultFilters = (): TaskListFilters => ({
 
 export function useTask() {
 	const store = useTaskStore();
-	const { tasks, activities, hydrated } = storeToRefs(store);
+	const { tasks, activities, comments, hydrated } = storeToRefs(store);
 
 	return {
 		tasks,
 		activities,
+		comments,
 		hydrated,
 		labelPresets: TASK_LABEL_PRESETS,
 		getTaskById: store.getTaskById,
 		tasksForProject: store.tasksForProject,
 		activitiesForTask: store.activitiesForTask,
+		commentsForTask: store.commentsForTask,
 		createTask: store.createTask,
 		updateTask: store.updateTask,
 		deleteTask: store.deleteTask,
+		createComment: store.createComment,
+		updateComment: store.updateComment,
+		deleteComment: store.deleteComment,
 		addAttachment: store.addAttachment,
 		removeAttachment: store.removeAttachment,
 		patchListField: store.patchListField,

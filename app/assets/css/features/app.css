@@ -534,6 +534,38 @@
     @apply w-full max-w-none;
   }
 
+  .task-comment-composer__input {
+    @apply rounded-lg border border-muted bg-default px-3 py-2 text-sm text-default shadow-sm outline-none transition-colors;
+    @apply placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20;
+    @apply disabled:cursor-not-allowed disabled:opacity-60;
+    min-height: 4.5rem;
+    resize: vertical;
+  }
+
+  .task-comment-mention-menu {
+    @apply absolute start-0 end-0 top-full z-20 mt-1 max-h-48 overflow-y-auto rounded-lg border border-muted bg-elevated py-1 shadow-lg;
+  }
+
+  .task-comment-mention-menu__item {
+    @apply flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm transition-colors hover:bg-muted/50;
+  }
+
+  .task-comment-mention-menu__item--active {
+    @apply bg-primary/10;
+  }
+
+  .task-comment {
+    @apply flex gap-3;
+  }
+
+  .task-comment-mention {
+    @apply font-medium text-primary;
+  }
+
+  .task-comment-body {
+    @apply whitespace-pre-wrap break-words;
+  }
+
   .project-cover-picker {
     @apply h-10 rounded-lg border-2 border-transparent transition-[border-color,transform];
     background-image: linear-gradient(

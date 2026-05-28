@@ -123,6 +123,14 @@
 						@upload="onUpload"
 						@remove="onRemoveAttachment"
 					/>
+					<TaskComments
+						v-if="activeTaskId"
+						:task-id="activeTaskId"
+						:comments="commentEntries"
+						:members="mentionMembers"
+						:current-author-id="currentAuthor.authorId"
+						:current-author-name="currentAuthor.authorName"
+					/>
 					<TaskActivityLog :entries="activityEntries" />
 				</template>
 
@@ -211,6 +219,7 @@ const {
 const {
 	getTaskById,
 	activitiesForTask,
+	commentsForTask,
 	createTask,
 	updateTask,
 	deleteTask,
@@ -218,6 +227,7 @@ const {
 	removeAttachment,
 } = useTask();
 const { activeMembers } = useWorkspace();
+const { user } = useAuth();
 const toast = useToast();
 
 const saving = ref(false);
@@ -243,6 +253,25 @@ const form = reactive({
 const activityEntries = computed(() =>
 	activeTaskId.value ? activitiesForTask(activeTaskId.value) : [],
 );
+
+const commentEntries = computed(() =>
+	activeTaskId.value ? commentsForTask(activeTaskId.value) : [],
+);
+
+const mentionMembers = computed(() =>
+	activeMembers.value.filter(m => m.status === "active"),
+);
+
+const currentAuthor = computed(() => {
+	const authUser = user.value;
+	const member = authUser
+		? mentionMembers.value.find(m => m.email === authUser.email)
+		: null;
+	return {
+		authorId: member?.id ?? null,
+		authorName: member?.name ?? authUser?.name ?? "You",
+	};
+});
 
 const assigneeItems = computed(() => [
 	{ label: "Unassigned", value: TASK_UNASSIGNED_VALUE },

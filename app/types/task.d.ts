@@ -42,6 +42,28 @@ export interface TaskActivityEntry {
 	icon: string;
 }
 
+export interface TaskComment {
+	id: string;
+	taskId: string;
+	authorId: string | null;
+	authorName: string;
+	/** Plain text with mention tokens: @[Name](memberId) */
+	body: string;
+	mentionIds: string[];
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface CreateTaskCommentPayload {
+	body: string;
+	authorId?: string | null;
+	authorName: string;
+}
+
+export interface UpdateTaskCommentPayload {
+	body: string;
+}
+
 export interface Task {
 	id: string;
 	projectId: string;
@@ -90,6 +112,7 @@ export interface UpdateTaskPayload {
 export interface TaskPersistedState {
 	tasks: Task[];
 	activities: TaskActivityEntry[];
+	comments?: TaskComment[];
 }
 
 export type TaskListFilterStatus = "all" | TaskStatus;
