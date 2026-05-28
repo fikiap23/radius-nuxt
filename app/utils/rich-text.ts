@@ -26,10 +26,22 @@ const ALLOWED_TAGS = new Set([
 	"span",
 ]);
 
+/** Per-tag attrs; every allowed tag also keeps safe `class` values (see below). */
 const ALLOWED_ATTRS: Record<string, Set<string>> = {
 	a: new Set(["href", "target", "rel", "class"]),
 	span: new Set(["class", "data-mention-id", "data-mention-label"]),
+	code: new Set(["class"]),
+	pre: new Set(["class"]),
 };
+
+const RICH_TEXT_CLASS_RE = /^(rich-text-|is-editor-empty)/;
+
+function isAllowedClassAttr(value: string) {
+	return value
+		.split(/\s+/)
+		.filter(Boolean)
+		.every(token => RICH_TEXT_CLASS_RE.test(token));
+}
 
 export function isRichTextHtml(value: string) {
 	return HTML_TAG_RE.test(value.trim());
@@ -90,11 +102,16 @@ function sanitizeNode(node: Node): Node | null {
 
 	const out = document.createElement(tag);
 	const allowed = ALLOWED_ATTRS[tag];
-	if (allowed) {
-		for (const attr of el.attributes) {
-			if (allowed.has(attr.name)) {
-				out.setAttribute(attr.name, attr.value);
+
+	for (const attr of el.attributes) {
+		if (attr.name === "class") {
+			if (isAllowedClassAttr(attr.value)) {
+				out.setAttribute("class", attr.value);
 			}
+			continue;
+		}
+		if (allowed?.has(attr.name)) {
+			out.setAttribute(attr.name, attr.value);
 		}
 	}
 

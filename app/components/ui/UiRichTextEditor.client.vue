@@ -212,7 +212,14 @@ function buildExtensions(): Extensions {
 		StarterKit.configure({
 			heading: { levels: isDefault ? [1, 2, 3, 4, 5, 6] : [3] },
 			blockquote: isDefault ? {} : false,
-			codeBlock: isDefault ? {} : false,
+			code: {
+				HTMLAttributes: { class: "rich-text-inline-code" },
+			},
+			codeBlock: isDefault
+				? {
+						HTMLAttributes: { class: "rich-text-code-block" },
+					}
+				: false,
 			horizontalRule: isDefault ? {} : false,
 		}),
 		Underline,

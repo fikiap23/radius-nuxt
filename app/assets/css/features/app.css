@@ -699,16 +699,30 @@
     @apply mt-1.5 mb-0.5 text-xs font-medium uppercase tracking-wide text-muted;
   }
 
-  .rich-text-editor__prose :where(code) {
-    @apply rounded bg-muted px-1 py-0.5 font-mono text-xs text-highlighted;
+  .rich-text-editor__prose :where(.rich-text-inline-code) {
+    @apply rounded-md border border-muted/60 bg-muted px-1.5 py-0.5 font-mono text-xs text-primary;
   }
 
-  .rich-text-editor__prose :where(pre) {
-    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted/40 p-3;
+  .rich-text-editor__prose :where(pre.rich-text-code-block),
+  .rich-text-editor__prose :where(pre:has(> code)) {
+    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted p-3 font-mono text-[0.8125rem] leading-relaxed;
+    color: var(--ui-color-success-600);
+    tab-size: 2;
   }
 
-  .rich-text-editor__prose :where(pre code) {
-    @apply bg-transparent p-0 text-xs;
+  .rich-text-editor__prose :where(pre.rich-text-code-block code),
+  .rich-text-editor__prose :where(pre:has(> code) code) {
+    display: block;
+    white-space: pre-wrap;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  .dark .rich-text-editor__prose :where(pre.rich-text-code-block),
+  .dark .rich-text-editor__prose :where(pre:has(> code)) {
+    color: var(--ui-color-success-400);
   }
 
   .rich-text-editor__prose :where(hr) {
@@ -781,16 +795,30 @@
     @apply mt-1.5 mb-0.5 text-xs font-medium uppercase tracking-wide text-muted;
   }
 
-  .rich-text-content :where(code) {
-    @apply rounded bg-muted px-1 py-0.5 font-mono text-xs;
+  .rich-text-content :where(.rich-text-inline-code) {
+    @apply rounded-md border border-muted/60 bg-muted px-1.5 py-0.5 font-mono text-xs text-primary;
   }
 
-  .rich-text-content :where(pre) {
-    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted/40 p-3 text-xs;
+  .rich-text-content :where(pre.rich-text-code-block),
+  .rich-text-content :where(pre:has(> code)) {
+    @apply my-2 overflow-x-auto rounded-lg border border-muted bg-muted p-3 font-mono text-[0.8125rem] leading-relaxed;
+    color: var(--ui-color-success-600);
+    tab-size: 2;
   }
 
-  .rich-text-content :where(pre code) {
-    @apply bg-transparent p-0;
+  .rich-text-content :where(pre.rich-text-code-block code),
+  .rich-text-content :where(pre:has(> code) code) {
+    display: block;
+    white-space: pre-wrap;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  .dark .rich-text-content :where(pre.rich-text-code-block),
+  .dark .rich-text-content :where(pre:has(> code)) {
+    color: var(--ui-color-success-400);
   }
 
   .rich-text-content :where(hr) {
