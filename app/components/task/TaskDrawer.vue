@@ -68,11 +68,44 @@
 					label="Due date"
 					name="dueAt"
 				>
-					<UInput
-						v-model="form.dueDate"
-						type="date"
-						class="w-full"
-					/>
+					<div class="flex w-full items-stretch gap-2">
+						<UPopover
+							v-model:open="dueDatePopoverOpen"
+							:content="{ align: 'start', side: 'bottom', sideOffset: 4 }"
+							class="min-w-0 flex-1"
+						>
+							<div class="w-full">
+								<UButton
+									type="button"
+									color="neutral"
+									variant="outline"
+									icon="i-lucide-calendar"
+									trailing-icon="i-lucide-chevron-down"
+									class="w-full justify-between font-normal"
+								>
+									<span :class="dueDate ? 'text-default' : 'text-muted'">
+										{{ dueDateLabel }}
+									</span>
+								</UButton>
+							</div>
+							<template #content>
+								<UCalendar
+									v-model="dueDate"
+									class="p-2"
+									@update:model-value="onDueDatePicked"
+								/>
+							</template>
+						</UPopover>
+						<UButton
+							v-if="dueDate"
+							type="button"
+							color="neutral"
+							variant="ghost"
+							icon="i-lucide-x"
+							aria-label="Clear due date"
+							@click="clearDueDate"
+						/>
+					</div>
 				</UFormField>
 
 				<UFormField
@@ -171,6 +204,7 @@
 </template>
 
 <script setup lang="ts">
+import type { CalendarDate } from "@internationalized/date";
 import {
 	TASK_LABEL_PRESETS,
 	TASK_PRIORITY_OPTIONS,
@@ -185,8 +219,9 @@ import type {
 	TaskSubtask,
 } from "~/types/task";
 import {
-	dueAtFromDateInput,
-	isoDateInputValue,
+	calendarDateFromIso,
+	formatCalendarDateLabel,
+	isoFromCalendarDate,
 	taskAssigneeFromSelectValue,
 	taskAssigneeToSelectValue,
 } from "~/utils/task";
@@ -225,13 +260,26 @@ const deleting = ref(false);
 const error = ref<string | null>(null);
 const attachmentUploading = ref(false);
 const attachmentRemovingId = ref<string | null>(null);
+const dueDate = shallowRef<CalendarDate | null>(null);
+const dueDatePopoverOpen = ref(false);
+
+const dueDateLabel = computed(() =>
+	dueDate.value ? formatCalendarDateLabel(dueDate.value) : "No due date",
+);
+
+function onDueDatePicked() {
+	dueDatePopoverOpen.value = false;
+}
+
+function clearDueDate() {
+	dueDate.value = null;
+}
 
 const form = reactive({
 	title: "",
 	description: "",
 	status: "todo" as TaskStatus,
 	priority: "medium" as TaskPriority,
-	dueDate: "",
 	assigneeId: TASK_UNASSIGNED_VALUE,
 	labelIds: [] as string[],
 	subtasks: [] as TaskSubtask[],
@@ -255,7 +303,7 @@ function resetForm() {
 	form.description = "";
 	form.status = "todo";
 	form.priority = "medium";
-	form.dueDate = "";
+	dueDate.value = null;
 	form.assigneeId = TASK_UNASSIGNED_VALUE;
 	form.labelIds = [];
 	form.subtasks = [];
@@ -269,7 +317,7 @@ function loadTask(task: Task) {
 	form.description = task.description;
 	form.status = task.status;
 	form.priority = task.priority;
-	form.dueDate = isoDateInputValue(task.dueAt);
+	dueDate.value = calendarDateFromIso(task.dueAt);
 	form.assigneeId = taskAssigneeToSelectValue(task.assigneeId);
 	form.labelIds = [...task.labelIds];
 	form.subtasks = [...task.subtasks];
@@ -305,6 +353,7 @@ watch(
 		else if (!isOpen) {
 			resetForm();
 			saving.value = false;
+			dueDatePopoverOpen.value = false;
 		}
 	},
 );
@@ -341,7 +390,7 @@ async function saveTask() {
 		description: form.description,
 		status: form.status,
 		priority: form.priority,
-		dueAt: dueAtFromDateInput(form.dueDate),
+		dueAt: isoFromCalendarDate(dueDate.value),
 		labelIds: form.labelIds,
 		assigneeId: taskAssigneeFromSelectValue(form.assigneeId),
 	};

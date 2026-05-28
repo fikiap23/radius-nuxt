@@ -1,3 +1,4 @@
+import { CalendarDate } from "@internationalized/date";
 import { TASK_UNASSIGNED_VALUE } from "~/config/task";
 import type { Task, TaskPriority, TaskStatus } from "~/types/task";
 
@@ -135,6 +136,37 @@ export function dueAtFromDateInput(value: string): string | null {
 		return null;
 	}
 	return date.toISOString();
+}
+
+export function formatCalendarDateLabel(date: CalendarDate): string {
+	return new Date(date.year, date.month - 1, date.day).toLocaleDateString(
+		undefined,
+		{
+			month: "short",
+			day: "numeric",
+			year: "numeric",
+		},
+	);
+}
+
+export function calendarDateFromIso(iso: string | null): CalendarDate | null {
+	const value = isoDateInputValue(iso);
+	if (!value) {
+		return null;
+	}
+	const [year, month, day] = value.split("-").map(Number);
+	if (!year || !month || !day) {
+		return null;
+	}
+	return new CalendarDate(year, month, day);
+}
+
+export function isoFromCalendarDate(date: CalendarDate | null): string | null {
+	if (!date) {
+		return null;
+	}
+	const value = `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
+	return dueAtFromDateInput(value);
 }
 
 export function computeProjectTaskStats(tasks: Task[]) {
