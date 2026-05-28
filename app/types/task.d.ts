@@ -49,6 +49,8 @@ export interface Task {
 	title: string;
 	description: string;
 	status: TaskStatus;
+	/** Kanban column; falls back to status-matched default column when null */
+	columnId: string | null;
 	priority: TaskPriority;
 	dueAt: string | null;
 	labelIds: string[];
@@ -64,6 +66,7 @@ export interface CreateTaskPayload {
 	title: string;
 	description?: string;
 	status?: TaskStatus;
+	columnId?: string | null;
 	priority?: TaskPriority;
 	dueAt?: string | null;
 	labelIds?: string[];
@@ -74,6 +77,7 @@ export interface UpdateTaskPayload {
 	title?: string;
 	description?: string;
 	status?: TaskStatus;
+	columnId?: string | null;
 	priority?: TaskPriority;
 	dueAt?: string | null;
 	labelIds?: string[];

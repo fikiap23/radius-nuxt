@@ -1,23 +1,123 @@
 <template>
-	<UiAppCard
-		title="Board view"
-		description="Kanban columns and drag-and-drop — coming soon"
-		icon="i-lucide-kanban"
-	>
-		<UiEmptyState
-			icon="i-lucide-kanban-square"
-			title="Board coming soon"
-			description="You'll move tasks across columns with drag and drop soon."
+	<div class="space-y-4">
+		<BoardToolbar
+			:filters="boardFilters"
+			:assignee-items="assigneeFilterItems"
+			:label-options="filterLabelOptions"
+			@update:filters="boardFilters = $event"
+			@add-column="addColumnOpen = true"
+			@create="onCreate"
 		/>
-	</UiAppCard>
+
+		<div
+			v-if="!hydrated"
+			class="kanban-board kanban-board--loading"
+		>
+			<div
+				v-for="n in 4"
+				:key="n"
+				class="kanban-column kanban-column--skeleton"
+			>
+				<USkeleton class="h-6 w-24" />
+				<USkeleton
+					v-for="m in 3"
+					:key="m"
+					class="h-20 w-full"
+				/>
+			</div>
+		</div>
+
+		<UiEmptyState
+			v-else-if="projectTasks.length === 0"
+			icon="i-lucide-kanban-square"
+			title="No tasks yet"
+			description="Create your first task or add one from a column below."
+		>
+			<template #actions>
+				<UButton
+					label="New task"
+					icon="i-lucide-plus"
+					@click="onCreate"
+				/>
+			</template>
+		</UiEmptyState>
+
+		<UiEmptyState
+			v-else-if="filteredTasks.length === 0"
+			icon="i-lucide-filter-x"
+			title="No matching cards"
+			description="Try adjusting filters or search."
+		>
+			<template #actions>
+				<UButton
+					label="Clear filters"
+					variant="outline"
+					@click="resetBoardFilters"
+				/>
+			</template>
+		</UiEmptyState>
+
+		<ClientOnly v-else>
+			<BoardKanban
+				:project-id="projectId"
+				:columns="columns"
+				:tasks-by-column="tasksByColumn"
+				:column-counts="columnCounts"
+				:assignee-name-for="assigneeNameFor"
+				@open="onOpenTask"
+				@settings="onColumnSettings"
+			/>
+		</ClientOnly>
+
+		<BoardAddColumnModal
+			v-model:open="addColumnOpen"
+			:project-id="projectId"
+		/>
+
+		<BoardColumnSettingsModal
+			v-model:open="columnSettingsOpen"
+			:project-id="projectId"
+			:column="settingsColumn"
+			:column-count="columns.length"
+		/>
+	</div>
 </template>
 
 <script setup lang="ts">
 import { APP_NAME } from "~/config/brand";
+import type { BoardColumn } from "~/types/board";
 
 const route = useRoute();
 const projectId = route.params.projectId as string;
+
 const { project } = useProjectContext(projectId);
+const { activeWorkspaceId } = useWorkspace();
+const {
+	boardFilters,
+	columns,
+	projectTasks,
+	filteredTasks,
+	tasksByColumn,
+	columnCounts,
+	filterLabelOptions,
+	assigneeFilterItems,
+	hydrated,
+	resetBoardFilters,
+} = useBoard(projectId);
+
+const { openTask, openCreate } = useTaskDrawer();
+const { activeMembers } = useWorkspace();
+
+const addColumnOpen = ref(false);
+const columnSettingsOpen = ref(false);
+const settingsColumnId = ref<string | null>(null);
+
+const settingsColumn = computed<BoardColumn | null>(() => {
+	if (!settingsColumnId.value) {
+		return null;
+	}
+	return columns.value.find(c => c.id === settingsColumnId.value) ?? null;
+});
 
 definePageMeta({
 	appTitle: "Board",
@@ -29,4 +129,38 @@ useSeoMeta({
 			? `${project.value.name} — Board — ${APP_NAME}`
 			: `Board — ${APP_NAME}`,
 });
+
+function drawerContext() {
+	const workspaceId = activeWorkspaceId.value;
+	if (!workspaceId) {
+		return null;
+	}
+	return { projectId, workspaceId };
+}
+
+async function onCreate() {
+	const ctx = drawerContext();
+	if (ctx) {
+		await openCreate(ctx);
+	}
+}
+
+async function onOpenTask(taskId: string) {
+	const ctx = drawerContext();
+	if (ctx) {
+		await openTask(taskId, ctx);
+	}
+}
+
+function onColumnSettings(columnId: string) {
+	settingsColumnId.value = columnId;
+	columnSettingsOpen.value = true;
+}
+
+function assigneeNameFor(assigneeId: string | null) {
+	if (!assigneeId) {
+		return null;
+	}
+	return activeMembers.value.find(m => m.id === assigneeId)?.name ?? null;
+}
 </script>

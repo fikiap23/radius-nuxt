@@ -62,7 +62,10 @@ export const useTaskStore = defineStore("task", () => {
 	function hydrateFromStorage() {
 		const persisted = readPersistedState();
 		if (persisted?.tasks?.length) {
-			tasks.value = persisted.tasks;
+			tasks.value = persisted.tasks.map(task => ({
+				...task,
+				columnId: task.columnId ?? null,
+			}));
 		}
 		if (persisted?.activities?.length) {
 			activities.value = persisted.activities;
@@ -128,6 +131,7 @@ export const useTaskStore = defineStore("task", () => {
 			title,
 			description: payload.description?.trim() ?? "",
 			status: payload.status ?? "todo",
+			columnId: payload.columnId ?? payload.status ?? "todo",
 			priority: payload.priority ?? "medium",
 			dueAt: payload.dueAt ?? null,
 			labelIds: payload.labelIds ?? [],
@@ -159,6 +163,9 @@ export const useTaskStore = defineStore("task", () => {
 		}
 
 		const current = tasks.value[index]!;
+		const statusChanged =
+			payload.status !== undefined && payload.status !== current.status;
+
 		const updated: Task = {
 			...current,
 			...payload,
@@ -167,10 +174,14 @@ export const useTaskStore = defineStore("task", () => {
 			updatedAt: new Date().toISOString(),
 		};
 
-		if (payload.status && payload.status !== current.status) {
+		if (statusChanged && payload.columnId === undefined) {
+			updated.columnId = payload.status!;
+		}
+
+		if (statusChanged) {
 			logActivity(id, {
 				title: "Status changed",
-				description: `${taskStatusLabel(current.status)} → ${taskStatusLabel(payload.status)}`,
+				description: `${taskStatusLabel(current.status)} → ${taskStatusLabel(payload.status!)}`,
 				icon: "i-lucide-arrow-right-left",
 			});
 		}
