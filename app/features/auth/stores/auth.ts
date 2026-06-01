@@ -258,10 +258,7 @@ export const useAuthStore = defineStore("auth", () => {
 		if (!result.ok) {
 			return {
 				ok: false,
-				error: formatAuthApiError(
-					formatAuthNetworkError(result.error),
-					result.code,
-				),
+				error: formatAuthNetworkError(result.error),
 			};
 		}
 
@@ -285,10 +282,7 @@ export const useAuthStore = defineStore("auth", () => {
 		if (!result.ok) {
 			return {
 				ok: false,
-				error: formatAuthApiError(
-					formatAuthNetworkError(result.error),
-					result.code,
-				),
+				error: formatAuthNetworkError(result.error),
 			};
 		}
 
@@ -308,7 +302,7 @@ export const useAuthStore = defineStore("auth", () => {
 		if (!result.ok) {
 			return {
 				ok: false,
-				error: formatAuthApiError(result.error, result.code),
+				error: formatAuthApiError(result.error),
 			};
 		}
 
