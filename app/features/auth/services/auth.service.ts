@@ -2,6 +2,9 @@ import type { ApiClient } from "~/core/api/client";
 import type { ApiResult } from "~/core/api/types";
 import {
 	AuthRoutes,
+	type GithubSsoCallbackBody,
+	type GithubSsoCallbackResponse,
+	type GithubSsoUrlResponse,
 	type GoogleSsoCallbackBody,
 	type GoogleSsoCallbackResponse,
 	type GoogleSsoUrlResponse,
@@ -20,6 +23,21 @@ export function createAuthService(client: ApiClient) {
 			body: GoogleSsoCallbackBody,
 		): Promise<ApiResult<GoogleSsoCallbackResponse>> {
 			return client.post<GoogleSsoCallbackResponse>(AuthRoutes.googleSsoCallback, body, {
+				skipAuth: true,
+			});
+		},
+
+		getGithubSsoUrl(redirectUri: string): Promise<ApiResult<GithubSsoUrlResponse>> {
+			return client.get<GithubSsoUrlResponse>(AuthRoutes.githubSsoUrl, {
+				query: { redirect_uri: redirectUri },
+				skipAuth: true,
+			});
+		},
+
+		completeGithubSso(
+			body: GithubSsoCallbackBody,
+		): Promise<ApiResult<GithubSsoCallbackResponse>> {
+			return client.post<GithubSsoCallbackResponse>(AuthRoutes.githubSsoCallback, body, {
 				skipAuth: true,
 			});
 		},

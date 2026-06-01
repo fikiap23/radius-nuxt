@@ -66,18 +66,19 @@ export const useAuthStore = defineStore("auth", () => {
 		return localStorage.getItem(ACCESS_TOKEN_KEY);
 	}
 
-	function getGoogleCallbackRedirectUri(): string {
+	function getOAuthCallbackRedirectUri(provider: OAuthProvider): string {
+		const path = `/auth/callback/${provider}`;
 		if (import.meta.client) {
-			return `${window.location.origin}/auth/callback/google`;
+			return `${window.location.origin}${path}`;
 		}
-		return "/auth/callback/google";
+		return path;
 	}
 
 	async function fetchGoogleAuthUrl(): Promise<
 		{ ok: true; data: { authUrl: string; state: string } } | { ok: false; error: string }
 	> {
 		const authApi = useAuthApi();
-		const result = await authApi.getGoogleSsoUrl(getGoogleCallbackRedirectUri());
+		const result = await authApi.getGoogleSsoUrl(getOAuthCallbackRedirectUri("google"));
 
 		if (!result.ok) {
 			return {
@@ -153,6 +154,86 @@ export const useAuthStore = defineStore("auth", () => {
 		}
 	}
 
+	async function fetchGithubAuthUrl(): Promise<
+		{ ok: true; data: { authUrl: string; state: string } } | { ok: false; error: string }
+	> {
+		const authApi = useAuthApi();
+		const result = await authApi.getGithubSsoUrl(getOAuthCallbackRedirectUri("github"));
+
+		if (!result.ok) {
+			return {
+				ok: false,
+				error: result.error || "Could not start GitHub sign-in.",
+			};
+		}
+
+		if (!result.data.authUrl || !result.data.state) {
+			return { ok: false, error: "Invalid GitHub sign-in response from server." };
+		}
+
+		return { ok: true, data: result.data };
+	}
+
+	async function loginWithGithub(): Promise<AuthResult> {
+		if (!import.meta.client) {
+			return { ok: false, error: "GitHub sign-in is only available in the browser." };
+		}
+
+		const urlResult = await fetchGithubAuthUrl();
+		if (!urlResult.ok) {
+			const message = urlResult.error.includes("fetch")
+				? "Cannot reach the API. Is the backend running on port 8080?"
+				: urlResult.error;
+			return { ok: false, error: message };
+		}
+
+		sessionStorage.setItem(OAUTH_STATE_KEY, urlResult.data.state);
+		window.location.href = urlResult.data.authUrl;
+
+		return { ok: true, externalRedirect: true };
+	}
+
+	async function completeGithubCallback(code: string): Promise<AuthResult> {
+		if (!import.meta.client) {
+			return { ok: false, error: "Callback can only run in the browser." };
+		}
+
+		const savedState = sessionStorage.getItem(OAUTH_STATE_KEY);
+		if (!savedState) {
+			return {
+				ok: false,
+				error: "Missing sign-in state. Start again from the login page.",
+			};
+		}
+
+		const authApi = useAuthApi();
+
+		try {
+			const result = await authApi.completeGithubSso({ code, state: savedState });
+
+			sessionStorage.removeItem(OAUTH_STATE_KEY);
+
+			if (!result.ok) {
+				return {
+					ok: false,
+					error: result.error || "GitHub sign-in failed.",
+				};
+			}
+
+			setAccessToken(result.data.accessToken);
+			setSession(mapUserDtoToAuthUser(result.data.user));
+
+			return { ok: true };
+		}
+		catch {
+			sessionStorage.removeItem(OAUTH_STATE_KEY);
+			return {
+				ok: false,
+				error: "GitHub sign-in failed. The code may have expired.",
+			};
+		}
+	}
+
 	async function loginWithEmail(
 		email: string,
 		password: string,
@@ -207,16 +288,7 @@ export const useAuthStore = defineStore("auth", () => {
 			return loginWithGoogle();
 		}
 
-		await delay();
-
-		setSession(
-			createUser({
-				name: "GitHub User",
-				email: "github@radius.mock",
-			}),
-		);
-
-		return { ok: true };
+		return loginWithGithub();
 	}
 
 	async function logout() {
@@ -235,6 +307,8 @@ export const useAuthStore = defineStore("auth", () => {
 		loginWithOAuth,
 		loginWithGoogle,
 		completeGoogleCallback,
+		loginWithGithub,
+		completeGithubCallback,
 		logout,
 	};
 });
