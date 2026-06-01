@@ -33,22 +33,18 @@
 			</template>
 
 			<template #password-field="{ state: formState, field }">
-				<UFormField
-					:label="field.label"
-					:name="field.name"
-					:required="field.required"
-				>
+				<div class="w-full space-y-2">
 					<UInput
 						v-model="formState.password"
 						type="password"
+						class="w-full"
+						:name="field.name"
 						:placeholder="field.placeholder"
 						:autocomplete="field.autocomplete"
+						:required="field.required"
 					/>
-					<AuthPasswordStrength
-						class="mt-2"
-						:password="formState.password ?? ''"
-					/>
-				</UFormField>
+					<AuthPasswordStrength :password="formState.password ?? ''" />
+				</div>
 			</template>
 
 			<template #footer>

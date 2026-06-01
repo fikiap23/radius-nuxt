@@ -4,5 +4,7 @@ export const authFormUi = {
 	providers: "gap-2.5",
 	separator: "text-xs uppercase tracking-widest text-muted",
 	form: "gap-4",
+	input: "w-full",
+	password: "w-full",
 	footer: "pt-2",
 } as const;
