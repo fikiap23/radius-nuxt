@@ -9,9 +9,11 @@ export function useAuth() {
 	return {
 		user,
 		isAuthenticated,
+		getAccessToken: store.getAccessToken,
 		loginWithEmail: store.loginWithEmail,
 		registerWithEmail: store.registerWithEmail,
 		loginWithOAuth: store.loginWithOAuth,
+		loginWithGoogle: store.loginWithGoogle,
 		logout: store.logout,
 	};
 }

@@ -1,5 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+	runtimeConfig: {
+		public: {
+			apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
+		},
+	},
 	modules: ["@nuxt/eslint", "@nuxt/image", "@nuxt/ui", "@pinia/nuxt"],
 	devtools: { enabled: true },
 	// Avoid 404 on /_nuxt/builds/meta/dev.json during HMR (tab clicks, navigation).

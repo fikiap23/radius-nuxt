@@ -1,4 +1,7 @@
+import { useAuthApi } from "~/composables/useAuthApi";
+import { ACCESS_TOKEN_KEY, OAUTH_STATE_KEY } from "~/constants/auth";
 import type { AuthResult, AuthSession, AuthUser, OAuthProvider } from "~/types/auth";
+import { mapUserDtoToAuthUser } from "~/utils/auth-mapper";
 
 const SESSION_COOKIE = "radius-session";
 const MOCK_DELAY_MS = 600;
@@ -15,12 +18,13 @@ function createId() {
 }
 
 function createUser(
-	partial: Pick<AuthUser, "name" | "email"> & Partial<Pick<AuthUser, "id">>,
+	partial: Pick<AuthUser, "name" | "email"> & Partial<Pick<AuthUser, "id" | "avatarUrl">>,
 ): AuthUser {
 	return {
 		id: partial.id ?? createId(),
 		name: partial.name,
 		email: partial.email,
+		avatarUrl: partial.avatarUrl ?? null,
 	};
 }
 
@@ -39,6 +43,114 @@ export const useAuthStore = defineStore("auth", () => {
 
 	function clearSession() {
 		session.value = null;
+	}
+
+	function setAccessToken(token: string) {
+		if (!import.meta.client) {
+			return;
+		}
+		localStorage.setItem(ACCESS_TOKEN_KEY, token);
+	}
+
+	function clearAccessToken() {
+		if (!import.meta.client) {
+			return;
+		}
+		localStorage.removeItem(ACCESS_TOKEN_KEY);
+	}
+
+	function getAccessToken(): string | null {
+		if (!import.meta.client) {
+			return null;
+		}
+		return localStorage.getItem(ACCESS_TOKEN_KEY);
+	}
+
+	function getGoogleCallbackRedirectUri(): string {
+		if (import.meta.client) {
+			return `${window.location.origin}/auth/callback/google`;
+		}
+		return "/auth/callback/google";
+	}
+
+	async function fetchGoogleAuthUrl(): Promise<
+		{ ok: true; data: { authUrl: string; state: string } } | { ok: false; error: string }
+	> {
+		const authApi = useAuthApi();
+		const result = await authApi.getGoogleSsoUrl(getGoogleCallbackRedirectUri());
+
+		if (!result.ok) {
+			return {
+				ok: false,
+				error: result.error || "Could not start Google sign-in.",
+			};
+		}
+
+		if (!result.data.authUrl || !result.data.state) {
+			return { ok: false, error: "Invalid Google sign-in response from server." };
+		}
+
+		return { ok: true, data: result.data };
+	}
+
+	async function loginWithGoogle(): Promise<AuthResult> {
+		if (!import.meta.client) {
+			return { ok: false, error: "Google sign-in is only available in the browser." };
+		}
+
+		const urlResult = await fetchGoogleAuthUrl();
+		if (!urlResult.ok) {
+			const message = urlResult.error.includes("fetch")
+				? "Cannot reach the API. Is the backend running on port 8080?"
+				: urlResult.error;
+			return { ok: false, error: message };
+		}
+
+		sessionStorage.setItem(OAUTH_STATE_KEY, urlResult.data.state);
+		window.location.href = urlResult.data.authUrl;
+
+		return { ok: true, externalRedirect: true };
+	}
+
+	async function completeGoogleCallback(code: string): Promise<AuthResult> {
+		if (!import.meta.client) {
+			return { ok: false, error: "Callback can only run in the browser." };
+		}
+
+		const savedState = sessionStorage.getItem(OAUTH_STATE_KEY);
+		if (!savedState) {
+			return {
+				ok: false,
+				error: "Missing sign-in state. Start again from the login page.",
+			};
+		}
+
+		const authApi = useAuthApi();
+
+		try {
+			const result = await authApi.completeGoogleSso({ code, state: savedState });
+
+			sessionStorage.removeItem(OAUTH_STATE_KEY);
+
+			if (!result.ok) {
+				return {
+					ok: false,
+					error: result.error || "Google sign-in failed.",
+				};
+			}
+
+			setAccessToken(result.data.accessToken);
+			setSession(mapUserDtoToAuthUser(result.data.user));
+
+			return { ok: true };
+		}
+		catch {
+			sessionStorage.removeItem(OAUTH_STATE_KEY);
+			return {
+				ok: false,
+				error: "Google sign-in failed. The code may have expired.",
+			};
+		}
 	}
 
 	async function loginWithEmail(
@@ -91,17 +203,16 @@ export const useAuthStore = defineStore("auth", () => {
 	}
 
 	async function loginWithOAuth(provider: OAuthProvider): Promise<AuthResult> {
-		await delay();
+		if (provider === "google") {
+			return loginWithGoogle();
+		}
 
-		const labels: Record<OAuthProvider, string> = {
-			google: "Google User",
-			github: "GitHub User",
-		};
+		await delay();
 
 		setSession(
 			createUser({
-				name: labels[provider],
-				email: `${provider}@radius.mock`,
+				name: "GitHub User",
+				email: "github@radius.mock",
 			}),
 		);
 
@@ -109,6 +220,7 @@ export const useAuthStore = defineStore("auth", () => {
 	}
 
 	async function logout() {
+		clearAccessToken();
 		clearSession();
 		await navigateTo("/auth/login");
 	}
@@ -117,9 +229,12 @@ export const useAuthStore = defineStore("auth", () => {
 		session,
 		user,
 		isAuthenticated,
+		getAccessToken,
 		loginWithEmail,
 		registerWithEmail,
 		loginWithOAuth,
+		loginWithGoogle,
+		completeGoogleCallback,
 		logout,
 	};
 });

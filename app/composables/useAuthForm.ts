@@ -20,6 +20,10 @@ export function useAuthProviders() {
 				return;
 			}
 
+			if (result.externalRedirect) {
+				return;
+			}
+
 			await navigateTo("/app");
 		}
 		catch {
