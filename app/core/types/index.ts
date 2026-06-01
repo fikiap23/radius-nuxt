@@ -1,6 +1,8 @@
 export type {
 	ApiEnvelope,
 	ApiErrorBody,
+	ApiErrorDetail,
+	ApiFailureResponse,
 	AuthErrorCode,
 	PaginatedData,
 	PaginationMeta,

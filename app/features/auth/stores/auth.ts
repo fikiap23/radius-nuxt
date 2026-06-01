@@ -14,6 +14,9 @@ export const useAuthStore = defineStore("auth", () => {
 		sameSite: "lax",
 	});
 
+	/** Bumped on logout so in-flight /users/me cannot restore session afterward. */
+	const authGeneration = ref(0);
+
 	const user = computed(() => session.value?.user ?? null);
 	const isAuthenticated = computed(() => Boolean(session.value?.user));
 
@@ -36,7 +39,12 @@ export const useAuthStore = defineStore("auth", () => {
 		if (!import.meta.client) {
 			return;
 		}
-		localStorage.removeItem(ACCESS_TOKEN_KEY);
+		try {
+			localStorage.removeItem(ACCESS_TOKEN_KEY);
+		}
+		catch {
+			// Storage may be blocked (private mode, etc.)
+		}
 	}
 
 	function getAccessToken(): string | null {
@@ -44,6 +52,19 @@ export const useAuthStore = defineStore("auth", () => {
 			return null;
 		}
 		return localStorage.getItem(ACCESS_TOKEN_KEY);
+	}
+
+	function clearAuth() {
+		authGeneration.value += 1;
+		clearSession();
+		clearAccessToken();
+		if (import.meta.client) {
+			sessionStorage.removeItem(OAUTH_STATE_KEY);
+		}
+	}
+
+	function isAuthStale(epoch: number) {
+		return epoch !== authGeneration.value;
 	}
 
 	function applyAuthTokenResponse(data: AuthTokenResponse) {
@@ -108,12 +129,17 @@ export const useAuthStore = defineStore("auth", () => {
 			};
 		}
 
+		const epoch = authGeneration.value;
 		const authApi = useAuthApi();
 
 		try {
 			const result = await authApi.completeGoogleSso({ code, state: savedState });
 
 			sessionStorage.removeItem(OAUTH_STATE_KEY);
+
+			if (isAuthStale(epoch)) {
+				return { ok: false, error: "Sign-in was cancelled." };
+			}
 
 			if (!result.ok) {
 				return {
@@ -184,12 +210,17 @@ export const useAuthStore = defineStore("auth", () => {
 			};
 		}
 
+		const epoch = authGeneration.value;
 		const authApi = useAuthApi();
 
 		try {
 			const result = await authApi.completeGithubSso({ code, state: savedState });
 
 			sessionStorage.removeItem(OAUTH_STATE_KEY);
+
+			if (isAuthStale(epoch)) {
+				return { ok: false, error: "Sign-in was cancelled." };
+			}
 
 			if (!result.ok) {
 				return {
@@ -216,8 +247,13 @@ export const useAuthStore = defineStore("auth", () => {
 		password: string,
 		_remember?: boolean,
 	): Promise<AuthResult> {
+		const epoch = authGeneration.value;
 		const authApi = useAuthApi();
 		const result = await authApi.login({ email, password });
+
+		if (isAuthStale(epoch)) {
+			return { ok: false, error: "Sign-in was cancelled." };
+		}
 
 		if (!result.ok) {
 			return {
@@ -238,8 +274,13 @@ export const useAuthStore = defineStore("auth", () => {
 		email: string;
 		password: string;
 	}): Promise<AuthResult> {
+		const epoch = authGeneration.value;
 		const authApi = useAuthApi();
 		const result = await authApi.register(payload);
+
+		if (isAuthStale(epoch)) {
+			return { ok: false, error: "Registration was cancelled." };
+		}
 
 		if (!result.ok) {
 			return {
@@ -256,8 +297,13 @@ export const useAuthStore = defineStore("auth", () => {
 	}
 
 	async function fetchCurrentUser(): Promise<AuthResult> {
+		const epoch = authGeneration.value;
 		const usersApi = useUsersApi();
 		const result = await usersApi.getMe();
+
+		if (epoch !== authGeneration.value) {
+			return { ok: false, error: "Aborted" };
+		}
 
 		if (!result.ok) {
 			return {
@@ -275,6 +321,8 @@ export const useAuthStore = defineStore("auth", () => {
 			return;
 		}
 
+		const epoch = authGeneration.value;
+
 		const token = getAccessToken();
 		if (!token) {
 			if (session.value?.user) {
@@ -284,9 +332,12 @@ export const useAuthStore = defineStore("auth", () => {
 		}
 
 		const result = await fetchCurrentUser();
+		if (epoch !== authGeneration.value) {
+			return;
+		}
+
 		if (!result.ok) {
-			clearAccessToken();
-			clearSession();
+			clearAuth();
 		}
 	}
 
@@ -299,9 +350,8 @@ export const useAuthStore = defineStore("auth", () => {
 	}
 
 	async function logout() {
-		clearAccessToken();
-		clearSession();
-		await navigateTo("/auth/login");
+		clearAuth();
+		await navigateTo("/auth/login", { replace: true });
 	}
 
 	return {

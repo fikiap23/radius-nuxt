@@ -1,5 +1,5 @@
 import type { ApiEnvelope } from "~/core/types";
-import { getApiErrorMessage, parseFetchError } from "~/core/api/errors";
+import { getApiErrorCode, getApiErrorMessage, parseFetchError } from "~/core/api/errors";
 import type {
 	ApiClientOptions,
 	ApiRequestOptions,
@@ -76,7 +76,7 @@ export class ApiClient {
 				return {
 					ok: false,
 					error: getApiErrorMessage(response, "Request failed."),
-					code: response.error,
+					code: getApiErrorCode(response),
 				};
 			}
 
@@ -84,7 +84,7 @@ export class ApiClient {
 				return {
 					ok: false,
 					error: getApiErrorMessage(response, "Response did not include data."),
-					code: response.error,
+					code: getApiErrorCode(response),
 				};
 			}
 
