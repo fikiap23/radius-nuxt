@@ -131,11 +131,15 @@ const fields: AuthFormField[] = [
 
 const schema = z
 	.object({
-		name: z.string().min(2, "Name must be at least 2 characters"),
+		name: z
+			.string()
+			.min(2, "Name must be at least 2 characters")
+			.max(255, "Name must be at most 255 characters"),
 		email: z.email("Invalid email address"),
 		password: z
 			.string()
 			.min(8, "Password must be at least 8 characters")
+			.max(72, "Password must be at most 72 characters")
 			.regex(/[A-Z]/, "Include at least one uppercase letter")
 			.regex(/[0-9]/, "Include at least one number"),
 		confirmPassword: z.string(),

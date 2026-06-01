@@ -2,6 +2,9 @@ import type { ApiClient } from "~/core/api/client";
 import type { ApiResult } from "~/core/api/types";
 import {
 	AuthRoutes,
+	type AuthLoginBody,
+	type AuthRegisterBody,
+	type AuthTokenResponse,
 	type GithubSsoCallbackBody,
 	type GithubSsoCallbackResponse,
 	type GithubSsoUrlResponse,
@@ -12,6 +15,18 @@ import {
 
 export function createAuthService(client: ApiClient) {
 	return {
+		register(body: AuthRegisterBody): Promise<ApiResult<AuthTokenResponse>> {
+			return client.post<AuthTokenResponse>(AuthRoutes.register, body, {
+				skipAuth: true,
+			});
+		},
+
+		login(body: AuthLoginBody): Promise<ApiResult<AuthTokenResponse>> {
+			return client.post<AuthTokenResponse>(AuthRoutes.login, body, {
+				skipAuth: true,
+			});
+		},
+
 		getGoogleSsoUrl(redirectUri: string): Promise<ApiResult<GoogleSsoUrlResponse>> {
 			return client.get<GoogleSsoUrlResponse>(AuthRoutes.googleSsoUrl, {
 				query: { redirect_uri: redirectUri },

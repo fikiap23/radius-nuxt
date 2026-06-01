@@ -1,32 +1,12 @@
+import type { AuthTokenResponse } from "~/features/auth/contracts/auth.contract";
 import { useAuthApi } from "~/features/auth/composables/useAuthApi";
 import { ACCESS_TOKEN_KEY, OAUTH_STATE_KEY } from "~/features/auth/constants/auth";
 import type { AuthResult, AuthSession, AuthUser, OAuthProvider } from "~/features/auth/types/auth";
+import { formatAuthApiError, formatAuthNetworkError } from "~/features/auth/utils/auth-errors";
 import { mapUserDtoToAuthUser } from "~/features/auth/utils/auth-mapper";
+import { useUsersApi } from "~/features/users/composables/useUsersApi";
 
 const SESSION_COOKIE = "radius-session";
-const MOCK_DELAY_MS = 600;
-
-function delay(ms = MOCK_DELAY_MS) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function createId() {
-	if (import.meta.client && typeof crypto !== "undefined" && crypto.randomUUID) {
-		return crypto.randomUUID();
-	}
-	return `user-${Date.now()}`;
-}
-
-function createUser(
-	partial: Pick<AuthUser, "name" | "email"> & Partial<Pick<AuthUser, "id" | "avatarUrl">>,
-): AuthUser {
-	return {
-		id: partial.id ?? createId(),
-		name: partial.name,
-		email: partial.email,
-		avatarUrl: partial.avatarUrl ?? null,
-	};
-}
 
 export const useAuthStore = defineStore("auth", () => {
 	const session = useCookie<AuthSession | null>(SESSION_COOKIE, {
@@ -66,6 +46,11 @@ export const useAuthStore = defineStore("auth", () => {
 		return localStorage.getItem(ACCESS_TOKEN_KEY);
 	}
 
+	function applyAuthTokenResponse(data: AuthTokenResponse) {
+		setAccessToken(data.accessToken);
+		setSession(mapUserDtoToAuthUser(data.user));
+	}
+
 	function getOAuthCallbackRedirectUri(provider: OAuthProvider): string {
 		const path = `/auth/callback/${provider}`;
 		if (import.meta.client) {
@@ -101,10 +86,7 @@ export const useAuthStore = defineStore("auth", () => {
 
 		const urlResult = await fetchGoogleAuthUrl();
 		if (!urlResult.ok) {
-			const message = urlResult.error.includes("fetch")
-				? "Cannot reach the API. Is the backend running on port 8080?"
-				: urlResult.error;
-			return { ok: false, error: message };
+			return { ok: false, error: formatAuthNetworkError(urlResult.error) };
 		}
 
 		sessionStorage.setItem(OAUTH_STATE_KEY, urlResult.data.state);
@@ -140,8 +122,7 @@ export const useAuthStore = defineStore("auth", () => {
 				};
 			}
 
-			setAccessToken(result.data.accessToken);
-			setSession(mapUserDtoToAuthUser(result.data.user));
+			applyAuthTokenResponse(result.data);
 
 			return { ok: true };
 		}
@@ -181,10 +162,7 @@ export const useAuthStore = defineStore("auth", () => {
 
 		const urlResult = await fetchGithubAuthUrl();
 		if (!urlResult.ok) {
-			const message = urlResult.error.includes("fetch")
-				? "Cannot reach the API. Is the backend running on port 8080?"
-				: urlResult.error;
-			return { ok: false, error: message };
+			return { ok: false, error: formatAuthNetworkError(urlResult.error) };
 		}
 
 		sessionStorage.setItem(OAUTH_STATE_KEY, urlResult.data.state);
@@ -220,8 +198,7 @@ export const useAuthStore = defineStore("auth", () => {
 				};
 			}
 
-			setAccessToken(result.data.accessToken);
-			setSession(mapUserDtoToAuthUser(result.data.user));
+			applyAuthTokenResponse(result.data);
 
 			return { ok: true };
 		}
@@ -239,23 +216,20 @@ export const useAuthStore = defineStore("auth", () => {
 		password: string,
 		_remember?: boolean,
 	): Promise<AuthResult> {
-		await delay();
+		const authApi = useAuthApi();
+		const result = await authApi.login({ email, password });
 
-		if (password === "wrong") {
+		if (!result.ok) {
 			return {
 				ok: false,
-				error: "Double-check your email and password.",
+				error: formatAuthApiError(
+					formatAuthNetworkError(result.error),
+					result.code,
+				),
 			};
 		}
 
-		const name = email.split("@")[0] ?? "User";
-		setSession(
-			createUser({
-				name: name.charAt(0).toUpperCase() + name.slice(1),
-				email,
-			}),
-		);
-
+		applyAuthTokenResponse(result.data);
 		return { ok: true };
 	}
 
@@ -264,23 +238,56 @@ export const useAuthStore = defineStore("auth", () => {
 		email: string;
 		password: string;
 	}): Promise<AuthResult> {
-		await delay();
+		const authApi = useAuthApi();
+		const result = await authApi.register(payload);
 
-		if (payload.password === "wrong") {
+		if (!result.ok) {
 			return {
 				ok: false,
-				error: "Could not create your account. Try a different password.",
+				error: formatAuthApiError(
+					formatAuthNetworkError(result.error),
+					result.code,
+				),
 			};
 		}
 
-		setSession(
-			createUser({
-				name: payload.name,
-				email: payload.email,
-			}),
-		);
-
+		applyAuthTokenResponse(result.data);
 		return { ok: true };
+	}
+
+	async function fetchCurrentUser(): Promise<AuthResult> {
+		const usersApi = useUsersApi();
+		const result = await usersApi.getMe();
+
+		if (!result.ok) {
+			return {
+				ok: false,
+				error: formatAuthApiError(result.error, result.code),
+			};
+		}
+
+		setSession(mapUserDtoToAuthUser(result.data));
+		return { ok: true };
+	}
+
+	async function hydrateSession(): Promise<void> {
+		if (!import.meta.client) {
+			return;
+		}
+
+		const token = getAccessToken();
+		if (!token) {
+			if (session.value?.user) {
+				clearSession();
+			}
+			return;
+		}
+
+		const result = await fetchCurrentUser();
+		if (!result.ok) {
+			clearAccessToken();
+			clearSession();
+		}
 	}
 
 	async function loginWithOAuth(provider: OAuthProvider): Promise<AuthResult> {
@@ -309,6 +316,8 @@ export const useAuthStore = defineStore("auth", () => {
 		completeGoogleCallback,
 		loginWithGithub,
 		completeGithubCallback,
+		fetchCurrentUser,
+		hydrateSession,
 		logout,
 	};
 });
