@@ -69,8 +69,8 @@
 <script setup lang="ts">
 import * as z from "zod";
 import type { AuthFormField, FormSubmitEvent } from "@nuxt/ui";
-import { APP_NAME } from "~/config/brand";
-import { authFormUi } from "~/utils/auth-form-ui";
+import { APP_NAME } from "~/core/config/brand";
+import { authFormUi } from "~/features/auth/utils/auth-form-ui";
 
 definePageMeta({
 	layout: "auth",

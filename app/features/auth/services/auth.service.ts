@@ -1,11 +1,11 @@
-import type { ApiClient } from "~/api/client";
-import type { ApiResult } from "~/api/types";
+import type { ApiClient } from "~/core/api/client";
+import type { ApiResult } from "~/core/api/types";
 import {
 	AuthRoutes,
 	type GoogleSsoCallbackBody,
 	type GoogleSsoCallbackResponse,
 	type GoogleSsoUrlResponse,
-} from "~/contracts";
+} from "~/features/auth/contracts/auth.contract";
 
 export function createAuthService(client: ApiClient) {
 	return {

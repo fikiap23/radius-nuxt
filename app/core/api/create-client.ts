@@ -1,6 +1,6 @@
-import { ACCESS_TOKEN_KEY } from "~/constants/auth";
-import { ApiClient } from "~/api/client";
-import type { ApiClientOptions } from "~/api/types";
+import { ACCESS_TOKEN_KEY } from "~/features/auth/constants/auth";
+import { ApiClient } from "~/core/api/client";
+import type { ApiClientOptions } from "~/core/api/types";
 
 export function getApiBaseUrl(): string {
 	const config = useRuntimeConfig();

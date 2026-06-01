@@ -1,5 +1,5 @@
-import type { BoardColumn } from "~/types/board";
-import type { Task } from "~/types/task";
+import type { BoardColumn } from "~/features/board/types/board";
+import type { Task } from "~/features/task/types/task";
 
 export function sortBoardColumns(columns: BoardColumn[]) {
 	return [...columns].sort((a, b) => a.order - b.order);

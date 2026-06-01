@@ -1,6 +1,6 @@
 import { CalendarDate } from "@internationalized/date";
-import { TASK_UNASSIGNED_VALUE } from "~/config/task";
-import type { Task, TaskPriority, TaskStatus } from "~/types/task";
+import { TASK_UNASSIGNED_VALUE } from "~/features/task/config/task";
+import type { Task, TaskPriority, TaskStatus } from "~/features/task/types/task";
 
 export function taskAssigneeToSelectValue(assigneeId: string | null) {
 	return assigneeId ?? TASK_UNASSIGNED_VALUE;

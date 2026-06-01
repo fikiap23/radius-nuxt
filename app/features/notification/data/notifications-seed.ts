@@ -1,4 +1,4 @@
-import type { AppNotification } from "~/types/notification";
+import type { AppNotification } from "~/features/notification/types/notification";
 
 export const SEED_NOTIFICATIONS: AppNotification[] = [
 	{

@@ -2,7 +2,7 @@
  * Authentication API contract
  */
 
-import type { UserDto } from "~/contracts/users.contract";
+import type { UserDto } from "~/features/users/contracts/users.contract";
 
 export const AuthRoutes = {
 	googleSsoUrl: "/auth/sso/google/url",

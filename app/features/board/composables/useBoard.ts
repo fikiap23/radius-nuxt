@@ -1,7 +1,7 @@
-import type { BoardColumn, BoardFilters } from "~/types/board";
-import type { Task } from "~/types/task";
-import { isBoardWipExceeded, resolveTaskColumnId } from "~/utils/board";
-import { richTextToPlain } from "~/utils/rich-text";
+import type { BoardColumn, BoardFilters } from "~/features/board/types/board";
+import type { Task } from "~/features/task/types/task";
+import { isBoardWipExceeded, resolveTaskColumnId } from "~/features/board/utils/board";
+import { richTextToPlain } from "~/features/task/utils/rich-text";
 
 const defaultBoardFilters = (): BoardFilters => ({
 	assigneeId: "all",

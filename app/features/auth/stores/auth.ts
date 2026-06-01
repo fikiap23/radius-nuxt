@@ -1,7 +1,7 @@
-import { useAuthApi } from "~/composables/useAuthApi";
-import { ACCESS_TOKEN_KEY, OAUTH_STATE_KEY } from "~/constants/auth";
-import type { AuthResult, AuthSession, AuthUser, OAuthProvider } from "~/types/auth";
-import { mapUserDtoToAuthUser } from "~/utils/auth-mapper";
+import { useAuthApi } from "~/features/auth/composables/useAuthApi";
+import { ACCESS_TOKEN_KEY, OAUTH_STATE_KEY } from "~/features/auth/constants/auth";
+import type { AuthResult, AuthSession, AuthUser, OAuthProvider } from "~/features/auth/types/auth";
+import { mapUserDtoToAuthUser } from "~/features/auth/utils/auth-mapper";
 
 const SESSION_COOKIE = "radius-session";
 const MOCK_DELAY_MS = 600;

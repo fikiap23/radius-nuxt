@@ -1,10 +1,10 @@
-import { NOTIFICATION_PAGE_SIZE } from "~/config/notification";
+import { NOTIFICATION_PAGE_SIZE } from "~/features/notification/config/notification";
 import type {
 	AppNotification,
 	NotificationFilter,
 	NotificationLink,
-} from "~/types/notification";
-import { isNotificationUnread } from "~/utils/notification";
+} from "~/features/notification/types/notification";
+import { isNotificationUnread } from "~/features/notification/utils/notification";
 
 export function useNotification() {
 	const store = useNotificationStore();

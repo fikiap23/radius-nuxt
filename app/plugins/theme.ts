@@ -1,5 +1,5 @@
-import { DEFAULT_FONT, type FontId } from "~/config/fonts";
-import { DEFAULT_BRAND, type BrandId } from "~/config/theme";
+import { DEFAULT_FONT, type FontId } from "~/core/config/fonts";
+import { DEFAULT_BRAND, type BrandId } from "~/core/config/theme";
 
 /**
  * Sync theme cookies → html data attributes for SSR/hydration-safe switching.

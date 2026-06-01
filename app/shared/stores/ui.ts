@@ -2,7 +2,7 @@ import {
 	DEFAULT_APP_LAYOUT,
 	isAppLayoutId,
 	type AppLayoutId,
-} from "~/config/app-layouts";
+} from "~/core/config/app-layouts";
 
 const SIDEBAR_COLLAPSED_KEY = "radius-sidebar-collapsed";
 const APP_LAYOUT_KEY = "radius-app-layout";

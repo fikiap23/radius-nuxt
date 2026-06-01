@@ -1,4 +1,4 @@
-import type { NotificationType } from "~/types/notification";
+import type { NotificationType } from "~/features/notification/types/notification";
 
 export const NOTIFICATION_PAGE_SIZE = 10;
 

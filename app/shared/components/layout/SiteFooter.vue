@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { APP_DESCRIPTION, APP_NAME } from "~/config/brand";
+import { APP_DESCRIPTION, APP_NAME } from "~/core/config/brand";
 
 const year = new Date().getFullYear();
 </script>

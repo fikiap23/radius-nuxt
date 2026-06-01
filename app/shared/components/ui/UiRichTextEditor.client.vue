@@ -161,21 +161,21 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
 import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor } from "@tiptap/vue-3";
-import type { RichTextActionName } from "~/composables/useRichTextEditorActions";
+import type { RichTextActionName } from "~/features/task/composables/useRichTextEditorActions";
 import {
 	currentTextStyleLabel,
 	isRichTextActionActive,
 	isRichTextActionDisabled,
 	runRichTextAction,
-} from "~/composables/useRichTextEditorActions";
-import type { WorkspaceMember } from "~/types/workspace";
-import { createRichTextCodeBlockExtension } from "~/utils/rich-text-lowlight";
-import { RichTextTrelloKeymap } from "~/utils/rich-text-keymap";
+} from "~/features/task/composables/useRichTextEditorActions";
+import type { WorkspaceMember } from "~/features/workspace/types/workspace";
+import { createRichTextCodeBlockExtension } from "~/features/task/utils/rich-text-lowlight";
+import { RichTextTrelloKeymap } from "~/features/task/utils/rich-text-keymap";
 import {
 	emptyRichTextDocument,
 	isRichTextEmpty,
 	sanitizeRichTextHtml,
-} from "~/utils/rich-text";
+} from "~/features/task/utils/rich-text";
 
 const model = defineModel<string>({ default: "" });
 

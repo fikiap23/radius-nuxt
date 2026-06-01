@@ -1,4 +1,4 @@
-import { createUsersService, type UsersService } from "~/services";
+import { createUsersService, type UsersService } from "~/features/users/services";
 
 const USERS_SERVICE_STATE_KEY = "radius-users-api-service";
 

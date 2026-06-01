@@ -428,8 +428,8 @@ import type { AccordionItem } from "@nuxt/ui";
 import {
 	landingFeatureIllustrations,
 	type LandingFeatureIllustrationId,
-} from "~/components/landing/landing-feature-illustrations";
-import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "~/config/brand";
+} from "~/features/landing/components/landing-feature-illustrations";
+import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "~/core/config/brand";
 
 definePageMeta({
 	layout: "landing",

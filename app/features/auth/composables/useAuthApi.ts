@@ -1,4 +1,4 @@
-import { createAuthService, type AuthService } from "~/services";
+import { createAuthService, type AuthService } from "~/features/auth/services";
 
 const AUTH_SERVICE_STATE_KEY = "radius-auth-api-service";
 

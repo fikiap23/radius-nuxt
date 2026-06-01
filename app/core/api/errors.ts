@@ -1,4 +1,4 @@
-import type { ApiEnvelope, ApiErrorBody } from "~/contracts";
+import type { ApiEnvelope, ApiErrorBody } from "~/core/types";
 
 export class ApiClientError extends Error {
 	readonly status?: number;

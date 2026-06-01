@@ -1,6 +1,6 @@
-import { TASK_LABEL_PRESETS } from "~/config/task";
-import type { TaskListFilters } from "~/types/task";
-import { richTextToPlain } from "~/utils/rich-text";
+import { TASK_LABEL_PRESETS } from "~/features/task/config/task";
+import type { TaskListFilters } from "~/features/task/types/task";
+import { richTextToPlain } from "~/features/task/utils/rich-text";
 
 const defaultFilters = (): TaskListFilters => ({
 	status: "all",

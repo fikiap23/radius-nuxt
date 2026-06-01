@@ -1,4 +1,4 @@
-import type { TaskComment } from "~/types/task";
+import type { TaskComment } from "~/features/task/types/task";
 
 const base = "2026-05-22T14:00:00.000Z";
 

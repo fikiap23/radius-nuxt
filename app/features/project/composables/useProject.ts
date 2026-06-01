@@ -2,8 +2,8 @@ import type {
 	Project,
 	ProjectListFilterStatus,
 	ProjectListFilters,
-} from "~/types/project";
-import { isProjectArchived } from "~/utils/project";
+} from "~/features/project/types/project";
+import { isProjectArchived } from "~/features/project/utils/project";
 
 const defaultFilters = (): ProjectListFilters => ({
 	status: "all",

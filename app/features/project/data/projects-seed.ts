@@ -1,4 +1,4 @@
-import type { Project } from "~/types/project";
+import type { Project } from "~/features/project/types/project";
 
 const now = "2026-05-01T12:00:00.000Z";
 

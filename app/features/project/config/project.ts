@@ -1,4 +1,4 @@
-import type { ProjectCoverPreset } from "~/types/project";
+import type { ProjectCoverPreset } from "~/features/project/types/project";
 
 export const PROJECT_ICON_OPTIONS = [
 	{ label: "Rocket", value: "i-lucide-rocket" },

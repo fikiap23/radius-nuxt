@@ -120,9 +120,9 @@
 </template>
 
 <script setup lang="ts">
-import { APP_NAME } from "~/config/brand";
-import { PROJECT_ICON_OPTIONS, PROJECT_STATUS_OPTIONS } from "~/config/project";
-import type { ProjectCoverPreset, ProjectStatus } from "~/types/project";
+import { APP_NAME } from "~/core/config/brand";
+import { PROJECT_ICON_OPTIONS, PROJECT_STATUS_OPTIONS } from "~/features/project/config/project";
+import type { ProjectCoverPreset, ProjectStatus } from "~/features/project/types/project";
 
 const route = useRoute();
 const toast = useToast();

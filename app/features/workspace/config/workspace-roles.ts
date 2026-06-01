@@ -1,4 +1,4 @@
-import type { WorkspaceRole } from "~/types/workspace";
+import type { WorkspaceRole } from "~/features/workspace/types/workspace";
 
 export interface WorkspaceRoleMeta {
 	label: string;

@@ -7,8 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import { enhanceRichTextCodeBlocks } from "~/utils/rich-text-highlight.client";
-import { isRichTextHtml, sanitizeRichTextHtml } from "~/utils/rich-text";
+import { enhanceRichTextCodeBlocks } from "~/features/task/utils/rich-text-highlight.client";
+import { isRichTextHtml, sanitizeRichTextHtml } from "~/features/task/utils/rich-text";
 
 const props = defineProps<{
 	content: string;

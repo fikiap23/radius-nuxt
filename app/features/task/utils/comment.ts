@@ -1,4 +1,4 @@
-import { isRichTextHtml, richTextToPlain } from "~/utils/rich-text";
+import { isRichTextHtml, richTextToPlain } from "~/features/task/utils/rich-text";
 
 /** Stored mention format: @[Display Name](memberId) */
 export const COMMENT_MENTION_REGEX = /@\[([^\]]+)\]\(([^)]+)\)/g;

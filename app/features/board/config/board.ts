@@ -1,5 +1,5 @@
-import { TASK_STATUS_OPTIONS } from "~/config/task";
-import type { BoardColumn } from "~/types/board";
+import { TASK_STATUS_OPTIONS } from "~/features/task/config/task";
+import type { BoardColumn } from "~/features/board/types/board";
 
 /** Default WIP limit for the in-progress column (demo). */
 export const BOARD_DEFAULT_WIP_IN_PROGRESS = 3;

@@ -1,4 +1,4 @@
-import type { Task, TaskActivityEntry } from "~/types/task";
+import type { Task, TaskActivityEntry } from "~/features/task/types/task";
 
 const base = "2026-05-20T10:00:00.000Z";
 

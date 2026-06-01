@@ -1,10 +1,10 @@
-import { getDashboardSnapshot } from "~/data/dashboard-seed";
+import { getDashboardSnapshot } from "~/features/dashboard/data/dashboard-seed";
 import type {
 	DashboardActiveProject,
 	DashboardSnapshot,
 	DashboardSummary,
-} from "~/types/dashboard";
-import { isProjectArchived } from "~/utils/project";
+} from "~/features/dashboard/types/dashboard";
+import { isProjectArchived } from "~/features/project/utils/project";
 
 const MOCK_DELAY_MS = 480;
 

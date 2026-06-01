@@ -2,7 +2,7 @@ import {
 	SEED_MEMBERS,
 	SEED_WORKSPACES,
 	ensureUserMembership,
-} from "~/data/workspaces-seed";
+} from "~/features/workspace/data/workspaces-seed";
 import type {
 	CreateWorkspacePayload,
 	InviteMemberPayload,
@@ -11,12 +11,12 @@ import type {
 	WorkspaceMember,
 	WorkspacePersistedState,
 	WorkspaceRole,
-} from "~/types/workspace";
+} from "~/features/workspace/types/workspace";
 import {
 	createMemberId,
 	createWorkspaceId,
 	slugifyWorkspaceName,
-} from "~/utils/workspace";
+} from "~/features/workspace/utils/workspace";
 
 const ACTIVE_WORKSPACE_COOKIE = "radius-active-workspace";
 const PERSIST_KEY = "radius-workspace-state";

@@ -2,7 +2,7 @@ import {
 	appLayoutById,
 	appLayoutPresets,
 	type AppLayoutId,
-} from "~/config/app-layouts";
+} from "~/core/config/app-layouts";
 
 /**
  * Active app shell layout (sidebar + content chrome).

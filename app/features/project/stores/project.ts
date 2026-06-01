@@ -1,15 +1,15 @@
-import { SEED_PROJECTS } from "~/data/projects-seed";
+import { SEED_PROJECTS } from "~/features/project/data/projects-seed";
 import type {
 	CreateProjectPayload,
 	Project,
 	ProjectPersistedState,
 	UpdateProjectPayload,
-} from "~/types/project";
+} from "~/features/project/types/project";
 import {
 	createProjectId,
 	defaultProjectCover,
 	defaultProjectIcon,
-} from "~/utils/project";
+} from "~/features/project/utils/project";
 
 const PERSIST_KEY = "radius-project-state";
 const MOCK_DELAY_MS = 400;

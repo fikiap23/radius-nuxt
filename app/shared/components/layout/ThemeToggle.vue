@@ -41,8 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import type { FontId } from "~/config/fonts";
-import type { BrandId } from "~/config/theme";
+import type { FontId } from "~/core/config/fonts";
+import type { BrandId } from "~/core/config/theme";
 
 withDefaults(
 	defineProps<{

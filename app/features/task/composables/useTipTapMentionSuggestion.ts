@@ -1,5 +1,5 @@
 import type { MentionOptions } from "@tiptap/extension-mention";
-import type { WorkspaceMember } from "~/types/workspace";
+import type { WorkspaceMember } from "~/features/workspace/types/workspace";
 
 export function useTipTapMentionSuggestion(
 	members: MaybeRefOrGetter<WorkspaceMember[]>,

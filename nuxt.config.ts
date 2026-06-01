@@ -1,4 +1,17 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import process from "node:process";
+
+const featureNames = [
+	"auth",
+	"board",
+	"dashboard",
+	"landing",
+	"notification",
+	"project",
+	"task",
+	"workspace",
+] as const;
+
 export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
@@ -6,6 +19,25 @@ export default defineNuxtConfig({
 		},
 	},
 	modules: ["@nuxt/eslint", "@nuxt/image", "@nuxt/ui", "@pinia/nuxt"],
+	imports: {
+		dirs: [
+			"core/utils",
+			"shared/composables",
+			"features/*/composables",
+			"features/*/utils",
+		],
+	},
+	components: [
+		{ path: "~/shared/components", pathPrefix: true },
+		...featureNames.map(name => ({
+			path: `~/features/${name}/components`,
+			pathPrefix: true,
+			extensions: [".vue"],
+		})),
+	],
+	pinia: {
+		storesDirs: ["./features/**/stores", "./shared/stores"],
+	},
 	devtools: { enabled: true },
 	// Avoid 404 on /_nuxt/builds/meta/dev.json during HMR (tab clicks, navigation).
 	experimental: {

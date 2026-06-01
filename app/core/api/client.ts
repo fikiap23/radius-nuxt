@@ -1,11 +1,11 @@
-import type { ApiEnvelope } from "~/contracts";
-import { getApiErrorMessage, parseFetchError } from "~/api/errors";
+import type { ApiEnvelope } from "~/core/types";
+import { getApiErrorMessage, parseFetchError } from "~/core/api/errors";
 import type {
 	ApiClientOptions,
 	ApiRequestOptions,
 	ApiResult,
 	HttpMethod,
-} from "~/api/types";
+} from "~/core/api/types";
 
 function joinUrl(base: string, path: string): string {
 	if (path.startsWith("http://") || path.startsWith("https://")) {

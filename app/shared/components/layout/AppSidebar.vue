@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { appNavItems } from "~/config/app-nav";
+import { appNavItems } from "~/core/config/app-nav";
 
 defineProps<{
 	collapsed?: boolean;

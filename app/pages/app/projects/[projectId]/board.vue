@@ -84,8 +84,8 @@
 </template>
 
 <script setup lang="ts">
-import { APP_NAME } from "~/config/brand";
-import type { BoardColumn } from "~/types/board";
+import { APP_NAME } from "~/core/config/brand";
+import type { BoardColumn } from "~/features/board/types/board";
 
 const route = useRoute();
 const projectId = route.params.projectId as string;

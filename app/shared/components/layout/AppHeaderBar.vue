@@ -105,8 +105,8 @@
 
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
-import { appNavMenuItems } from "~/config/app-nav";
-import { APP_NAME } from "~/config/brand";
+import { appNavMenuItems } from "~/core/config/app-nav";
+import { APP_NAME } from "~/core/config/brand";
 
 const emit = defineEmits<{
 	"open-sidebar": [];

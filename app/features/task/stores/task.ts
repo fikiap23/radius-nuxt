@@ -1,5 +1,5 @@
-import { SEED_TASK_COMMENTS } from "~/data/comments-seed";
-import { SEED_TASK_ACTIVITIES, SEED_TASKS } from "~/data/tasks-seed";
+import { SEED_TASK_COMMENTS } from "~/features/task/data/comments-seed";
+import { SEED_TASK_ACTIVITIES, SEED_TASKS } from "~/features/task/data/tasks-seed";
 import type {
 	CreateTaskCommentPayload,
 	CreateTaskPayload,
@@ -12,16 +12,16 @@ import type {
 	TaskSubtask,
 	UpdateTaskCommentPayload,
 	UpdateTaskPayload,
-} from "~/types/task";
-import { commentBodyPreview, extractMentionIdsFromBody } from "~/utils/comment";
-import { isRichTextEmpty } from "~/utils/rich-text";
+} from "~/features/task/types/task";
+import { commentBodyPreview, extractMentionIdsFromBody } from "~/features/task/utils/comment";
+import { isRichTextEmpty } from "~/features/task/utils/rich-text";
 import {
 	computeProjectTaskStats,
 	createTaskChildId,
 	createTaskId,
 	taskPriorityLabel,
 	taskStatusLabel,
-} from "~/utils/task";
+} from "~/features/task/utils/task";
 
 const PERSIST_KEY = "radius-task-state";
 const MOCK_DELAY_MS = 350;

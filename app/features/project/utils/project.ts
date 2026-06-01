@@ -1,5 +1,5 @@
-import { PROJECT_ICON_OPTIONS } from "~/config/project";
-import type { ProjectCoverPreset, ProjectStatus } from "~/types/project";
+import { PROJECT_ICON_OPTIONS } from "~/features/project/config/project";
+import type { ProjectCoverPreset, ProjectStatus } from "~/features/project/types/project";
 
 export function createProjectId() {
 	if (import.meta.client && typeof crypto !== "undefined" && crypto.randomUUID) {

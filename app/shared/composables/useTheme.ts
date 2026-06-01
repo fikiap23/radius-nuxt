@@ -3,13 +3,13 @@ import {
 	FONT_IDS,
 	FONT_PRESETS,
 	type FontId,
-} from "~/config/fonts";
+} from "~/core/config/fonts";
 import {
 	BRAND_IDS,
 	DEFAULT_BRAND,
 	type BrandId,
 	type ColorModeOption,
-} from "~/config/theme";
+} from "~/core/config/theme";
 
 /**
  * Central theme API: color mode, brand palette, and font presets.

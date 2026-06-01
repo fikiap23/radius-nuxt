@@ -1,4 +1,4 @@
-import type { Workspace, WorkspaceMember } from "~/types/workspace";
+import type { Workspace, WorkspaceMember } from "~/features/workspace/types/workspace";
 
 export const SEED_WORKSPACES: Workspace[] = [
 	{

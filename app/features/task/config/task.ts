@@ -1,4 +1,4 @@
-import type { TaskLabel, TaskPriority, TaskStatus } from "~/types/task";
+import type { TaskLabel, TaskPriority, TaskStatus } from "~/features/task/types/task";
 
 /** USelect item value for no assignee (empty string is reserved to clear selection). */
 export const TASK_UNASSIGNED_VALUE = "unassigned";

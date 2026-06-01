@@ -1,7 +1,7 @@
 /**
  * Single source of truth for brand / color-mode theme identifiers.
  * CSS maps each brand to palette overrides via [data-brand="…"].
- * Font presets live in ~/config/fonts.ts ([data-font="…"]).
+ * Font presets live in ~/core/config/fonts.ts ([data-font="…"]).
  */
 export const BRAND_IDS = ["default", "ocean", "forest"] as const;
 

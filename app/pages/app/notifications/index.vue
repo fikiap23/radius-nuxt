@@ -65,8 +65,8 @@
 </template>
 
 <script setup lang="ts">
-import { APP_NAME } from "~/config/brand";
-import type { AppNotification, NotificationFilter } from "~/types/notification";
+import { APP_NAME } from "~/core/config/brand";
+import type { AppNotification, NotificationFilter } from "~/features/notification/types/notification";
 
 definePageMeta({
 	layout: "app",

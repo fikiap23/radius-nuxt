@@ -1,5 +1,5 @@
-import { createApiClient } from "~/api";
-import type { ApiClient } from "~/api";
+import { createApiClient } from "~/core/api";
+import type { ApiClient } from "~/core/api";
 
 const API_CLIENT_STATE_KEY = "radius-api-client";
 

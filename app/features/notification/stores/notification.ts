@@ -1,11 +1,11 @@
-import { NOTIFICATION_TYPE_ICONS } from "~/config/notification";
-import { SEED_NOTIFICATIONS } from "~/data/notifications-seed";
+import { NOTIFICATION_TYPE_ICONS } from "~/features/notification/config/notification";
+import { SEED_NOTIFICATIONS } from "~/features/notification/data/notifications-seed";
 import type {
 	AppNotification,
 	CreateNotificationPayload,
 	NotificationPersistedState,
-} from "~/types/notification";
-import { createNotificationId } from "~/utils/notification";
+} from "~/features/notification/types/notification";
+import { createNotificationId } from "~/features/notification/utils/notification";
 
 const PERSIST_KEY = "radius-notification-state";
 const MOCK_DELAY_MS = 200;

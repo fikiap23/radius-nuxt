@@ -129,8 +129,8 @@
 </template>
 
 <script setup lang="ts">
-import { APP_NAME } from "~/config/brand";
-import type { ProjectListFilterStatus } from "~/types/project";
+import { APP_NAME } from "~/core/config/brand";
+import type { ProjectListFilterStatus } from "~/features/project/types/project";
 
 definePageMeta({
 	layout: "app",

@@ -1,4 +1,4 @@
-import type { OAuthProvider } from "~/types/auth";
+import type { OAuthProvider } from "~/features/auth/types/auth";
 
 export function useAuthProviders() {
 	const { loginWithOAuth } = useAuth();

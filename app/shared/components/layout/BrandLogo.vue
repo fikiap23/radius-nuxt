@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { APP_NAME, APP_TAGLINE } from "~/config/brand";
+import { APP_NAME, APP_TAGLINE } from "~/core/config/brand";
 
 const props = withDefaults(
 	defineProps<{

@@ -1,6 +1,6 @@
-import { NOTIFICATION_TYPE_ICONS } from "~/config/notification";
-import type { AppNotification, NotificationLink, NotificationType } from "~/types/notification";
-import { formatActivityTime } from "~/utils/task";
+import { NOTIFICATION_TYPE_ICONS } from "~/features/notification/config/notification";
+import type { AppNotification, NotificationLink, NotificationType } from "~/features/notification/types/notification";
+import { formatActivityTime } from "~/features/task/utils/task";
 
 export function notificationIcon(
 	type: NotificationType,

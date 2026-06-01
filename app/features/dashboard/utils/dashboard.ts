@@ -1,4 +1,4 @@
-import type { DashboardTaskPriority, DashboardTaskStatus } from "~/types/dashboard";
+import type { DashboardTaskPriority, DashboardTaskStatus } from "~/features/dashboard/types/dashboard";
 
 const STATUS_LABELS: Record<DashboardTaskStatus, string> = {
 	backlog: "Backlog",

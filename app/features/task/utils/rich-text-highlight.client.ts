@@ -1,6 +1,6 @@
 import { toHtml } from "hast-util-to-html";
 
-import { richTextLowlight } from "~/utils/rich-text-lowlight";
+import { richTextLowlight } from "~/features/task/utils/rich-text-lowlight";
 
 function languageFromCodeElement(code: HTMLElement) {
 	for (const token of code.classList) {

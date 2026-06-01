@@ -128,9 +128,9 @@
 </template>
 
 <script setup lang="ts">
-import { canInviteMembers, canManageWorkspace } from "~/config/workspace-roles";
-import { APP_NAME } from "~/config/brand";
-import type { WorkspaceRole } from "~/types/workspace";
+import { canInviteMembers, canManageWorkspace } from "~/features/workspace/config/workspace-roles";
+import { APP_NAME } from "~/core/config/brand";
+import type { WorkspaceRole } from "~/features/workspace/types/workspace";
 
 const roleLegend: WorkspaceRole[] = ["owner", "admin", "member", "viewer"];
 

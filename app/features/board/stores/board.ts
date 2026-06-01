@@ -1,11 +1,11 @@
-import { createDefaultBoardColumns } from "~/config/board";
+import { createDefaultBoardColumns } from "~/features/board/config/board";
 import type {
 	BoardColumn,
 	BoardPersistedState,
 	CreateBoardColumnPayload,
 	UpdateBoardColumnPayload,
-} from "~/types/board";
-import { createBoardColumnId, sortBoardColumns } from "~/utils/board";
+} from "~/features/board/types/board";
+import { createBoardColumnId, sortBoardColumns } from "~/features/board/utils/board";
 
 const PERSIST_KEY = "radius-board-state";
 

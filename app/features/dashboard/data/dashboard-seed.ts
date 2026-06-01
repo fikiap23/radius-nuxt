@@ -1,4 +1,4 @@
-import type { DashboardSnapshot } from "~/types/dashboard";
+import type { DashboardSnapshot } from "~/features/dashboard/types/dashboard";
 
 const HQ: DashboardSnapshot = {
 	projects: [
