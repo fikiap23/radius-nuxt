@@ -1,97 +1,52 @@
-import {
-	SEED_MEMBERS,
-	SEED_WORKSPACES,
-	ensureUserMembership,
-} from "~/features/workspace/data/workspaces-seed";
 import type {
 	CreateWorkspacePayload,
 	InviteMemberPayload,
 	UpdateWorkspacePayload,
 	Workspace,
 	WorkspaceMember,
-	WorkspacePersistedState,
 	WorkspaceRole,
 } from "~/features/workspace/types/workspace";
-import {
-	createMemberId,
-	createWorkspaceId,
-	slugifyWorkspaceName,
-} from "~/features/workspace/utils/workspace";
+import { useWorkspaceApi } from "~/features/workspace/composables/useWorkspaceApi";
+import { useAuthStore } from "~/features/auth/stores/auth";
 
 const ACTIVE_WORKSPACE_COOKIE = "radius-active-workspace";
-const PERSIST_KEY = "radius-workspace-state";
-const MOCK_DELAY_MS = 400;
-
-function delay(ms = MOCK_DELAY_MS) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function readPersistedState(): WorkspacePersistedState | null {
-	if (!import.meta.client) {
-		return null;
-	}
-	try {
-		const raw = localStorage.getItem(PERSIST_KEY);
-		if (!raw) {
-			return null;
-		}
-		return JSON.parse(raw) as WorkspacePersistedState;
-	}
-	catch {
-		return null;
-	}
-}
-
-function writePersistedState(state: WorkspacePersistedState) {
-	if (!import.meta.client) {
-		return;
-	}
-	localStorage.setItem(PERSIST_KEY, JSON.stringify(state));
-}
-
-function uniqueSlug(base: string, workspaces: Workspace[], excludeId?: string) {
-	let slug = slugifyWorkspaceName(base) || "workspace";
-	let candidate = slug;
-	let counter = 1;
-
-	while (
-		workspaces.some(ws => ws.slug === candidate && ws.id !== excludeId)
-	) {
-		counter += 1;
-		candidate = `${slug}-${counter}`;
-	}
-
-	return candidate;
-}
 
 export const useWorkspaceStore = defineStore("workspace", () => {
 	const authStore = useAuthStore();
+	const workspaceApi = useWorkspaceApi();
 
 	const activeWorkspaceId = useCookie<string | null>(ACTIVE_WORKSPACE_COOKIE, {
 		default: () => null,
 		sameSite: "lax",
 	});
 
-	const workspaces = ref<Workspace[]>([...SEED_WORKSPACES]);
-	const members = ref<WorkspaceMember[]>([...SEED_MEMBERS]);
+	const workspaces = ref<Workspace[]>([]);
+	const members = ref<WorkspaceMember[]>([]);
 	const hydrated = ref(false);
 
-	function persist() {
-		writePersistedState({
-			workspaces: workspaces.value,
-			members: members.value,
-		});
-	}
-
-	function hydrateFromStorage() {
-		const persisted = readPersistedState();
-		if (persisted?.workspaces?.length) {
-			workspaces.value = persisted.workspaces;
-			members.value = persisted.members;
+	async function hydrateFromStorage() {
+		if (!authStore.isAuthenticated) {
+			workspaces.value = [];
+			members.value = [];
+			activeWorkspaceId.value = null;
+			hydrated.value = true;
+			return;
 		}
 
-		members.value = ensureUserMembership(members.value, authStore.user);
-		persist();
+		const result = await workspaceApi.getWorkspaces();
+		if (result.ok) {
+			workspaces.value = result.data;
+
+			const loadedMembers: WorkspaceMember[] = [];
+			for (const ws of result.data) {
+				const membersRes = await workspaceApi.getWorkspaceMembers(ws.id);
+				if (membersRes.ok) {
+					loadedMembers.push(...membersRes.data);
+				}
+			}
+			members.value = loadedMembers;
+		}
+
 		hydrated.value = true;
 		ensureActiveWorkspace();
 	}
@@ -179,7 +134,6 @@ export const useWorkspaceStore = defineStore("workspace", () => {
 	}
 
 	async function setActiveWorkspace(id: string) {
-		await delay(150);
 		const accessible = accessibleWorkspaces.value;
 		if (!accessible.some(ws => ws.id === id)) {
 			return { ok: false as const, error: "You do not have access to this workspace." };
@@ -189,7 +143,6 @@ export const useWorkspaceStore = defineStore("workspace", () => {
 	}
 
 	async function createWorkspace(payload: CreateWorkspacePayload) {
-		await delay();
 		const name = payload.name.trim();
 		if (!name) {
 			return { ok: false as const, error: "Workspace name is required." };
@@ -200,66 +153,55 @@ export const useWorkspaceStore = defineStore("workspace", () => {
 			return { ok: false as const, error: "Sign in to create a workspace." };
 		}
 
-		const slug = uniqueSlug(
-			payload.slug?.trim() || name,
-			workspaces.value,
-		);
-
-		const workspace: Workspace = {
-			id: createWorkspaceId(),
+		const result = await workspaceApi.createWorkspace({
 			name,
-			slug,
-			createdAt: new Date().toISOString(),
-		};
+			slug: payload.slug?.trim() || undefined,
+		});
 
-		const member: WorkspaceMember = {
-			id: createMemberId(),
-			workspaceId: workspace.id,
-			name: user.name,
-			email: user.email,
-			role: "owner",
-			status: "active",
-		};
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to create workspace." };
+		}
 
+		const workspace = result.data;
 		workspaces.value = [...workspaces.value, workspace];
-		members.value = [...members.value, member];
-		activeWorkspaceId.value = workspace.id;
-		persist();
 
+		const membersRes = await workspaceApi.getWorkspaceMembers(workspace.id);
+		if (membersRes.ok) {
+			members.value = [...members.value, ...membersRes.data];
+		} else {
+			// Fallback: local active member representation until refresh
+			members.value = [
+				...members.value,
+				{
+					id: "mbr_" + Math.random().toString(36).substring(2, 9),
+					workspaceId: workspace.id,
+					name: user.name,
+					email: user.email,
+					role: "owner" as const,
+					status: "active" as const,
+				},
+			];
+		}
+
+		activeWorkspaceId.value = workspace.id;
 		return { ok: true as const, workspace };
 	}
 
 	async function updateWorkspace(id: string, payload: UpdateWorkspacePayload) {
-		await delay();
-		const index = workspaces.value.findIndex(ws => ws.id === id);
-		if (index === -1) {
-			return { ok: false as const, error: "Workspace not found." };
+		const result = await workspaceApi.updateWorkspace(id, payload);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to update workspace." };
 		}
 
-		const current = workspaces.value[index]!;
-		const name = payload.name?.trim() ?? current.name;
-		const slug = uniqueSlug(
-			payload.slug?.trim() || name,
-			workspaces.value,
-			id,
-		);
-
-		const updated: Workspace = {
-			...current,
-			name,
-			slug,
-		};
-
+		const updated = result.data;
 		workspaces.value = workspaces.value.map(ws =>
 			ws.id === id ? updated : ws,
 		);
-		persist();
 
 		return { ok: true as const, workspace: updated };
 	}
 
 	async function inviteMember(workspaceId: string, payload: InviteMemberPayload) {
-		await delay();
 		const email = payload.email.trim().toLowerCase();
 		if (!email || !email.includes("@")) {
 			return { ok: false as const, error: "Enter a valid email address." };
@@ -273,71 +215,47 @@ export const useWorkspaceStore = defineStore("workspace", () => {
 			};
 		}
 
-		const displayName = email.split("@")[0] ?? email;
-		const member: WorkspaceMember = {
-			id: createMemberId(),
-			workspaceId,
-			name: displayName.charAt(0).toUpperCase() + displayName.slice(1),
-			email,
-			role: payload.role,
-			status: "pending",
-		};
+		const result = await workspaceApi.inviteMember(workspaceId, payload);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to invite member." };
+		}
 
+		const member = result.data;
 		members.value = [...members.value, member];
-		persist();
 
 		return { ok: true as const, member };
 	}
 
-	async function updateMemberRole(
-		memberId: string,
-		role: WorkspaceRole,
-	) {
-		await delay(200);
+	async function updateMemberRole(memberId: string, role: WorkspaceRole) {
 		const member = members.value.find(m => m.id === memberId);
 		if (!member) {
 			return { ok: false as const, error: "Member not found." };
 		}
-		if (member.role === "owner" && role !== "owner") {
-			const owners = getMembersForWorkspace(member.workspaceId).filter(
-				m => m.role === "owner" && m.id !== memberId,
-			);
-			if (owners.length === 0) {
-				return {
-					ok: false as const,
-					error: "Each workspace must have at least one owner.",
-				};
-			}
+
+		const result = await workspaceApi.updateMemberRole(member.workspaceId, memberId, role);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to update member role." };
 		}
 
 		members.value = members.value.map(m =>
 			m.id === memberId ? { ...m, role } : m,
 		);
-		persist();
 
 		return { ok: true as const };
 	}
 
 	async function removeMember(memberId: string) {
-		await delay(200);
 		const member = members.value.find(m => m.id === memberId);
 		if (!member) {
 			return { ok: false as const, error: "Member not found." };
 		}
-		if (member.role === "owner") {
-			const owners = getMembersForWorkspace(member.workspaceId).filter(
-				m => m.role === "owner",
-			);
-			if (owners.length <= 1) {
-				return {
-					ok: false as const,
-					error: "Transfer ownership before removing the last owner.",
-				};
-			}
+
+		const result = await workspaceApi.removeMember(member.workspaceId, memberId);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to remove member." };
 		}
 
 		members.value = members.value.filter(m => m.id !== memberId);
-		persist();
 		ensureActiveWorkspace();
 
 		return { ok: true as const };
@@ -345,13 +263,14 @@ export const useWorkspaceStore = defineStore("workspace", () => {
 
 	watch(
 		() => authStore.user?.email,
-		() => {
-			if (!hydrated.value) {
-				return;
+		async (newEmail) => {
+			if (newEmail) {
+				await hydrateFromStorage();
+			} else {
+				workspaces.value = [];
+				members.value = [];
+				activeWorkspaceId.value = null;
 			}
-			members.value = ensureUserMembership(members.value, authStore.user);
-			persist();
-			ensureActiveWorkspace();
 		},
 	);
 

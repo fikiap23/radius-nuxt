@@ -308,7 +308,7 @@ Tabel notifikasi in-app untuk pengguna.
 
 ---
 
-### 3.2 Workspaces (`⬜ Belum Diimplementasi`)
+### 3.2 Workspaces (`✅ Terimplementasi`)
 
 #### `GET /workspaces`
 * **Response (200 OK)**:
