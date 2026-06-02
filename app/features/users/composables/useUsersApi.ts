@@ -1,14 +1,13 @@
 import { createUsersService, type UsersService } from "~/features/users/services";
-
-const USERS_SERVICE_STATE_KEY = "radius-users-api-service";
+import { useApiClient } from "~/features/auth/composables/useApiClient";
 
 export function useUsersApi(): UsersService {
 	const client = useApiClient();
-	const service = useState<UsersService | null>(USERS_SERVICE_STATE_KEY, () => null);
+	const nuxtApp = useNuxtApp() as any;
 
-	if (!service.value) {
-		service.value = createUsersService(client);
+	if (!nuxtApp._usersService) {
+		nuxtApp._usersService = createUsersService(client);
 	}
 
-	return service.value;
+	return nuxtApp._usersService;
 }

@@ -1,15 +1,13 @@
 import { createWorkspaceService, type WorkspaceService } from "~/features/workspace/services";
 import { useApiClient } from "~/features/auth/composables/useApiClient";
 
-const WORKSPACE_SERVICE_STATE_KEY = "radius-workspace-api-service";
-
 export function useWorkspaceApi(): WorkspaceService {
 	const client = useApiClient();
-	const service = useState<WorkspaceService | null>(WORKSPACE_SERVICE_STATE_KEY, () => null);
+	const nuxtApp = useNuxtApp() as any;
 
-	if (!service.value) {
-		service.value = createWorkspaceService(client);
+	if (!nuxtApp._workspaceService) {
+		nuxtApp._workspaceService = createWorkspaceService(client);
 	}
 
-	return service.value;
+	return nuxtApp._workspaceService;
 }

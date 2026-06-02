@@ -1,15 +1,14 @@
 import { createApiClient } from "~/core/api";
 import type { ApiClient } from "~/core/api";
-
-const API_CLIENT_STATE_KEY = "radius-api-client";
+import { useAuthStore } from "~/features/auth/stores/auth";
 
 export function useApiClient(): ApiClient {
-	const client = useState<ApiClient | null>(API_CLIENT_STATE_KEY, () => null);
+	const nuxtApp = useNuxtApp() as any;
 
-	if (!client.value) {
+	if (!nuxtApp._apiClient) {
 		const authStore = useAuthStore();
 
-		client.value = createApiClient({
+		nuxtApp._apiClient = createApiClient({
 			onUnauthorized: () => {
 				if (authStore.isAuthenticated) {
 					void authStore.logout();
@@ -18,5 +17,5 @@ export function useApiClient(): ApiClient {
 		});
 	}
 
-	return client.value;
+	return nuxtApp._apiClient;
 }

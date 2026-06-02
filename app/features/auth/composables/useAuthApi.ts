@@ -1,14 +1,13 @@
 import { createAuthService, type AuthService } from "~/features/auth/services";
-
-const AUTH_SERVICE_STATE_KEY = "radius-auth-api-service";
+import { useApiClient } from "~/features/auth/composables/useApiClient";
 
 export function useAuthApi(): AuthService {
 	const client = useApiClient();
-	const service = useState<AuthService | null>(AUTH_SERVICE_STATE_KEY, () => null);
+	const nuxtApp = useNuxtApp() as any;
 
-	if (!service.value) {
-		service.value = createAuthService(client);
+	if (!nuxtApp._authService) {
+		nuxtApp._authService = createAuthService(client);
 	}
 
-	return service.value;
+	return nuxtApp._authService;
 }
