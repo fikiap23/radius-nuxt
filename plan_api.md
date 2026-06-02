@@ -1,6 +1,6 @@
-# Radius — Kontrak API Backend (plan_api.md)
+# Radius — Kontrak API & Skema Database (plan_api.md)
 
-Dokumen ini mendefinisikan seluruh endpoint, request, dan response API untuk mempermudah development backend. 
+Dokumen ini mendefinisikan seluruh endpoint, kontrak API, serta skema dan relasi database untuk mempermudah development backend.
 
 * **Status Implementasi di Frontend**:
   * `✅ Terimplementasi` — Layer service/API sudah terhubung di frontend.
@@ -39,9 +39,169 @@ Authorization: Bearer <access_token>
 
 ---
 
-## 2. Endpoint Referensi
+## 2. Skema & Relasi Database
 
-### 2.1 Authentication & User Profile (`✅ Terimplementasi`)
+### 2.1 Diagram Relasi (ERD)
+
+```mermaid
+erDiagram
+    USERS ||--o{ WORKSPACE_MEMBERS : "has membership"
+    WORKSPACES ||--|{ WORKSPACE_MEMBERS : "has members"
+    WORKSPACES ||--o{ PROJECTS : "contains"
+    PROJECTS ||--|{ BOARD_COLUMNS : "defines"
+    PROJECTS ||--o{ TASKS : "has"
+    WORKSPACES ||--o{ TASKS : "contains"
+    BOARD_COLUMNS ||--o{ TASKS : "categorizes"
+    TASKS ||--o{ TASK_SUBTASKS : "has"
+    TASKS ||--o{ TASK_CHECKLIST_ITEMS : "has"
+    TASKS ||--o{ TASK_ATTACHMENTS : "has"
+    TASKS ||--o{ TASK_COMMENTS : "has comments"
+    TASKS ||--o{ TASK_ACTIVITY_LOGS : "records"
+    USERS ||--o{ TASK_COMMENTS : "writes"
+    USERS ||--o{ TASKS : "assigned to"
+```
+
+### 2.2 Definisi Tabel & Field
+
+#### 1. `users`
+Tabel untuk menyimpan data pengguna terautentikasi.
+* **`id`** (PK, string/uuid): Identifier unik.
+* **`name`** (string): Nama lengkap.
+* **`email`** (string, Unique): Email pengguna.
+* **`password_hash`** (string): Hash password (hanya di backend).
+* **`email_verified_at`** (timestamp, nullable): Waktu verifikasi email.
+* **`avatar_url`** (string, nullable): URL foto profil.
+* **`last_login_at`** (timestamp, nullable): Waktu login terakhir.
+* **`timezone`** (string, nullable): Zona waktu default (contoh: "Asia/Jakarta").
+* **`locale`** (string, default: "id"): Preferensi bahasa.
+* **`created_at`** (timestamp)
+* **`updated_at`** (timestamp)
+
+#### 2. `workspaces`
+Tabel organisasi/workspace (multi-tenant container).
+* **`id`** (PK, string/uuid): Identifier unik.
+* **`name`** (string): Nama workspace.
+* **`slug`** (string, Unique): URL slug workspace.
+* **`created_at`** (timestamp)
+* **`updated_at`** (timestamp)
+
+#### 3. `workspace_members`
+Tabel relasi (pivot) antara user dan workspace dengan roles.
+* **`id`** (PK, string/uuid)
+* **`workspace_id`** (FK -> `workspaces.id`, Cascade Delete)
+* **`user_id`** (FK -> `users.id`, Nullable, Cascade Delete): Nullable untuk mendukung undangan member yang belum registrasi.
+* **`name`** (string): Nama anggota (default dari email/user).
+* **`email`** (string): Email anggota (untuk verifikasi / invite).
+* **`role`** (enum: "owner", "admin", "member", "viewer")
+* **`status`** (enum: "active", "pending")
+* **`created_at`** (timestamp)
+* **`updated_at`** (timestamp)
+
+#### 4. `projects`
+Tabel proyek di bawah suatu workspace.
+* **`id`** (PK, string/uuid)
+* **`workspace_id`** (FK -> `workspaces.id`, Cascade Delete)
+* **`name`** (string)
+* **`description`** (text/html): Deskripsi proyek dalam format HTML/RichText.
+* **`icon`** (string): Emoji atau string icon identifier (default: "🚀").
+* **`cover`** (enum: "emerald", "ocean", "sunset", "violet", "rose", "slate")
+* **`cover_image_url`** (string, nullable): Custom cover image URL.
+* **`status`** (enum: "active", "on_hold", "completed")
+* **`is_favorite`** (boolean, default: false): (Catatan: Bisa dipindah ke pivot table `project_favorites` jika per-user favorit).
+* **`archived_at`** (timestamp, nullable)
+* **`open_tasks`** (integer, default: 0): Cache jumlah task aktif.
+* **`progress`** (integer, default: 0): Persentase progress task selesai (0-100).
+* **`created_at`** (timestamp)
+* **`updated_at`** (timestamp)
+
+#### 5. `board_columns`
+Tabel kolom kustom Kanban di bawah suatu project.
+* **`id`** (PK, string/uuid)
+* **`project_id`** (FK -> `projects.id`, Cascade Delete)
+* **`title`** (string): Nama kolom (contoh: "To Do", "In Progress").
+* **`status`** (enum: "backlog", "todo", "in_progress", "review", "done")
+* **`wip_limit`** (integer, nullable): Limit Work In Progress.
+* **`order`** (integer): Urutan sorting kolom.
+* **`created_at`** (timestamp)
+* **`updated_at`** (timestamp)
+
+#### 6. `tasks`
+Tabel utama manajemen pekerjaan.
+* **`id`** (PK, string/uuid)
+* **`project_id`** (FK -> `projects.id`, Cascade Delete)
+* **`workspace_id`** (FK -> `workspaces.id`, Cascade Delete)
+* **`title`** (string)
+* **`description`** (text): Deskripsi tugas.
+* **`status`** (enum: "backlog", "todo", "in_progress", "review", "done")
+* **`column_id`** (FK -> `board_columns.id`, Nullable, Set Null on Delete): Kolom kanban tempat task berada.
+* **`priority`** (enum: "low", "medium", "high", "urgent")
+* **`due_at`** (timestamp, nullable)
+* **`label_ids`** (json/array of string): Array label (contoh: `["lbl_red", "lbl_blue"]`).
+* **`assignee_id`** (FK -> `users.id`, Nullable, Set Null)
+* **`created_at`** (timestamp)
+* **`updated_at`** (timestamp)
+
+#### 7. `task_subtasks`
+Daftar child-tasks terstruktur yang tersemat dalam satu task.
+* **`id`** (PK, string/uuid)
+* **`task_id`** (FK -> `tasks.id`, Cascade Delete)
+* **`title`** (string)
+* **`done`** (boolean, default: false)
+
+#### 8. `task_checklist_items`
+Daftar checklist ringan di dalam detail task.
+* **`id`** (PK, string/uuid)
+* **`task_id`** (FK -> `tasks.id`, Cascade Delete)
+* **`text`** (string)
+* **`checked`** (boolean, default: false)
+
+#### 9. `task_attachments`
+File lampiran yang diupload ke suatu task.
+* **`id`** (PK, string/uuid)
+* **`task_id`** (FK -> `tasks.id`, Cascade Delete)
+* **`name`** (string): Nama file asli.
+* **`size`** (bigint): Ukuran file dalam bytes.
+* **`mime_type`** (string): Tipe file (contoh: "image/png").
+* **`uploaded_at`** (timestamp)
+
+#### 10. `task_comments`
+Tabel percakapan dan feedback di dalam task.
+* **`id`** (PK, string/uuid)
+* **`task_id`** (FK -> `tasks.id`, Cascade Delete)
+* **`author_id`** (FK -> `users.id`, Nullable, Set Null): Pembuat komentar.
+* **`author_name`** (string): Nama pembuat (untuk cache cepat).
+* **`body`** (text): Teks komentar (mendukung mention token format: `@[Nama](usr_id)`).
+* **`mention_ids`** (json/array of string): Array User ID yang di-mention di dalam komentar.
+* **`created_at`** (timestamp)
+* **`updated_at`** (timestamp)
+
+#### 11. `task_activity_logs`
+Catatan riwayat perubahan (history) dari suatu task.
+* **`id`** (PK, string/uuid)
+* **`task_id`** (FK -> `tasks.id`, Cascade Delete)
+* **`title`** (string): Contoh "Status changed", "Priority updated".
+* **`description`** (string, nullable): Contoh "Todo -> In Progress".
+* **`icon`** (string): Class icon UI (contoh: "i-lucide-arrow-right-left").
+* **`occurred_at`** (timestamp)
+
+#### 12. `notifications`
+Tabel notifikasi in-app untuk pengguna.
+* **`id`** (PK, string/uuid)
+* **`recipient_email`** (string): Email penerima notifikasi.
+* **`workspace_id`** (FK -> `workspaces.id`, Cascade Delete)
+* **`type`** (enum: "mention", "comment", "assign", "project", "workspace", "system")
+* **`title`** (string)
+* **`body`** (string)
+* **`icon`** (string): Class icon UI.
+* **`read_at`** (timestamp, nullable): Null jika belum dibaca.
+* **`link`** (json, nullable): Payload navigasi (contoh: `{"kind": "task", "taskId": "tsk_1", "projectId": "proj_1"}`)
+* **`created_at`** (timestamp)
+
+---
+
+## 3. Endpoint Referensi
+
+### 3.1 Authentication & User Profile (`✅ Terimplementasi`)
 
 #### `POST /auth/register`
 * **Request**:
@@ -148,7 +308,7 @@ Authorization: Bearer <access_token>
 
 ---
 
-### 2.2 Workspaces (`⬜ Belum Diimplementasi`)
+### 3.2 Workspaces (`⬜ Belum Diimplementasi`)
 
 #### `GET /workspaces`
 * **Response (200 OK)**:
@@ -279,7 +439,7 @@ Authorization: Bearer <access_token>
 
 ---
 
-### 2.3 Projects (`⬜ Belum Diimplementasi`)
+### 3.3 Projects (`⬜ Belum Diimplementasi`)
 
 #### `GET /workspaces/:workspaceId/projects`
 * **Response (200 OK)**:
@@ -422,7 +582,7 @@ Authorization: Bearer <access_token>
 
 ---
 
-### 2.4 Kanban Board Columns (`⬜ Belum Diimplementasi`)
+### 3.4 Kanban Board Columns (`⬜ Belum Diimplementasi`)
 
 #### `GET /projects/:projectId/board/columns`
 * **Response (200 OK)**:
@@ -517,7 +677,7 @@ Authorization: Bearer <access_token>
 
 ---
 
-### 2.5 Tasks (`⬜ Belum Diimplementasi`)
+### 3.5 Tasks (`⬜ Belum Diimplementasi`)
 
 #### `GET /projects/:projectId/tasks`
 * **Response (200 OK)**:
@@ -674,7 +834,7 @@ Authorization: Bearer <access_token>
 
 ---
 
-### 2.6 Task Comments (`⬜ Belum Diimplementasi`)
+### 3.6 Task Comments (`⬜ Belum Diimplementasi`)
 
 #### `GET /tasks/:taskId/comments`
 * **Response (200 OK)**:
@@ -754,7 +914,7 @@ Authorization: Bearer <access_token>
 
 ---
 
-### 2.7 Notifications (`⬜ Belum Diimplementasi`)
+### 3.7 Notifications (`⬜ Belum Diimplementasi`)
 
 #### `GET /notifications`
 * **Response (200 OK)**:
