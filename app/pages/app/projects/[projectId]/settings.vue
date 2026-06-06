@@ -56,6 +56,7 @@
 				<ProjectCoverField
 					v-model:cover="form.cover"
 					v-model:cover-image-url="form.coverImageUrl"
+					v-model:cover-image-temp-key="form.coverImageTempKey"
 					:preview-name="form.name"
 					:preview-icon="form.icon"
 				/>
@@ -148,6 +149,7 @@ const form = reactive({
 	icon: "",
 	cover: "ocean" as ProjectCoverPreset,
 	coverImageUrl: null as string | null,
+	coverImageTempKey: null as string | null,
 	status: "active" as ProjectStatus,
 });
 
@@ -166,6 +168,7 @@ watch(
 		form.icon = p.icon;
 		form.cover = p.cover;
 		form.coverImageUrl = p.coverImageUrl;
+		form.coverImageTempKey = null;
 		form.status = p.status;
 	},
 	{ immediate: true },
@@ -189,6 +192,7 @@ async function onSave() {
 		icon: form.icon,
 		cover: form.cover,
 		coverImageUrl: form.coverImageUrl,
+		coverImageTempKey: form.coverImageTempKey,
 		status: form.status,
 	});
 	saving.value = false;

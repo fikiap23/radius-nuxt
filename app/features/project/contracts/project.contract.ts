@@ -27,6 +27,7 @@ export interface CreateProjectBody {
 	icon?: string;
 	cover?: ProjectCoverPreset;
 	coverImageUrl?: string | null;
+	coverImageTempKey?: string | null;
 	status?: ProjectStatus;
 }
 
@@ -39,6 +40,7 @@ export interface UpdateProjectBody {
 	icon?: string;
 	cover?: ProjectCoverPreset;
 	coverImageUrl?: string | null;
+	coverImageTempKey?: string | null;
 	status?: ProjectStatus;
 	isFavorite?: boolean;
 }

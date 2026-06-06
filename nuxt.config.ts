@@ -8,6 +8,7 @@ const featureNames = [
 	"landing",
 	"notification",
 	"project",
+	"storage",
 	"task",
 	"workspace",
 ] as const;

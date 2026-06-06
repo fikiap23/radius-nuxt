@@ -64,6 +64,7 @@
 					<ProjectCoverField
 						v-model:cover="state.cover"
 						v-model:cover-image-url="state.coverImageUrl"
+						v-model:cover-image-temp-key="state.coverImageTempKey"
 						:preview-name="state.name"
 						:preview-icon="state.icon"
 					/>
@@ -129,9 +130,10 @@ const error = ref<string | null>(null);
 const state = reactive({
 	name: "",
 	description: "",
-	icon: PROJECT_ICON_OPTIONS[0]!.value,
+	icon: PROJECT_ICON_OPTIONS[0]!.value as string,
 	cover: defaultProjectCover() as ProjectCoverPreset,
 	coverImageUrl: null as string | null,
+	coverImageTempKey: null as string | null,
 	status: "active" as ProjectStatus,
 });
 
@@ -142,6 +144,7 @@ watch(open, isOpen => {
 		state.icon = PROJECT_ICON_OPTIONS[0]!.value;
 		state.cover = defaultProjectCover();
 		state.coverImageUrl = null;
+		state.coverImageTempKey = null;
 		state.status = "active";
 		error.value = null;
 	}
@@ -178,6 +181,7 @@ async function onSubmit(event: Event) {
 		icon: state.icon,
 		cover: state.cover,
 		coverImageUrl: state.coverImageUrl,
+		coverImageTempKey: state.coverImageTempKey,
 		status: state.status,
 	});
 

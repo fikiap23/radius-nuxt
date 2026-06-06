@@ -40,39 +40,17 @@
 		</div>
 
 		<div class="space-y-2">
-			<p class="text-xs font-medium text-muted">
-				Custom image
-			</p>
-			<div class="flex flex-wrap gap-2">
-				<UButton
-					type="button"
-					label="Upload image"
-					icon="i-lucide-upload"
-					color="neutral"
-					variant="outline"
-					:loading="uploading"
-					@click="fileInputRef?.click()"
-				/>
-				<UButton
-					v-if="coverImageUrl"
-					type="button"
-					label="Remove image"
-					icon="i-lucide-image-off"
-					color="neutral"
-					variant="ghost"
-					@click="coverImageUrl = null"
-				/>
-			</div>
-			<input
-				ref="fileInputRef"
-				type="file"
+			<UiFileUploader
+				v-model="coverImageTempKey"
+				purpose="project_cover"
 				accept="image/jpeg,image/png,image/webp,image/gif"
-				class="sr-only"
-				@change="onFileChange"
-			>
-			<p class="text-xs text-muted">
-				JPEG, PNG, WebP, or GIF — max 500 KB. Saved with the project.
-			</p>
+				:max-size="5 * 1024 * 1024"
+				label="Custom image"
+				placeholder="JPEG, PNG, WebP, or GIF — max 5 MB"
+				:preview-url="coverImageUrl"
+				@upload-success="onUploadSuccess"
+				@remove="removeCustomImage"
+			/>
 		</div>
 
 		<UFormField
@@ -113,11 +91,13 @@ import type { ProjectCoverPreset } from "~/features/project/types/project";
 import {
 	defaultProjectIcon,
 	isValidProjectCoverImageUrl,
-	readProjectCoverImageFile,
 } from "~/features/project/utils/project";
 
 const cover = defineModel<ProjectCoverPreset>("cover", { required: true });
 const coverImageUrl = defineModel<string | null>("coverImageUrl", {
+	default: null,
+});
+const coverImageTempKey = defineModel<string | null>("coverImageTempKey", {
 	default: null,
 });
 
@@ -126,8 +106,6 @@ const props = defineProps<{
 	previewIcon?: string;
 }>();
 
-const fileInputRef = ref<HTMLInputElement | null>(null);
-const uploading = ref(false);
 const imageError = ref<string | null>(null);
 const imageUrlDraft = ref("");
 
@@ -144,28 +122,26 @@ watch(coverImageUrl, url => {
 function selectPreset(id: ProjectCoverPreset) {
 	cover.value = id;
 	coverImageUrl.value = null;
+	coverImageTempKey.value = null;
 	imageError.value = null;
 }
 
-async function onFileChange(event: Event) {
-	const input = event.target as HTMLInputElement;
-	const file = input.files?.[0];
-	input.value = "";
-	if (!file) {
-		return;
-	}
+interface UploadPayload {
+	tempKey: string;
+	file: File;
+	previewUrl: string;
+}
 
+function onUploadSuccess(payload: UploadPayload) {
+	coverImageUrl.value = payload.previewUrl;
 	imageError.value = null;
-	uploading.value = true;
-	const result = await readProjectCoverImageFile(file);
-	uploading.value = false;
+}
 
-	if (!result.ok) {
-		imageError.value = result.error;
-		return;
-	}
-
-	coverImageUrl.value = result.dataUrl;
+function removeCustomImage() {
+	coverImageUrl.value = null;
+	coverImageTempKey.value = null;
+	imageError.value = null;
+	imageUrlDraft.value = "";
 }
 
 function applyImageUrl() {
@@ -179,5 +155,6 @@ function applyImageUrl() {
 	}
 	imageError.value = null;
 	coverImageUrl.value = trimmed;
+	coverImageTempKey.value = null;
 }
 </script>
