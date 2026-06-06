@@ -1,62 +1,46 @@
-import { SEED_PROJECTS } from "~/features/project/data/projects-seed";
+import { useWorkspaceStore } from "~/features/workspace/stores/workspace";
+import { useProjectApi } from "~/features/project/composables/useProjectApi";
 import type {
 	CreateProjectPayload,
 	Project,
-	ProjectPersistedState,
 	UpdateProjectPayload,
 } from "~/features/project/types/project";
-import {
-	createProjectId,
-	defaultProjectCover,
-	defaultProjectIcon,
-} from "~/features/project/utils/project";
-
-const PERSIST_KEY = "radius-project-state";
-const MOCK_DELAY_MS = 400;
-
-function delay(ms = MOCK_DELAY_MS) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function readPersistedState(): ProjectPersistedState | null {
-	if (!import.meta.client) {
-		return null;
-	}
-	try {
-		const raw = localStorage.getItem(PERSIST_KEY);
-		if (!raw) {
-			return null;
-		}
-		return JSON.parse(raw) as ProjectPersistedState;
-	}
-	catch {
-		return null;
-	}
-}
-
-function writePersistedState(state: ProjectPersistedState) {
-	if (!import.meta.client) {
-		return;
-	}
-	localStorage.setItem(PERSIST_KEY, JSON.stringify(state));
-}
 
 export const useProjectStore = defineStore("project", () => {
-	const projects = ref<Project[]>([...SEED_PROJECTS]);
+	const workspaceStore = useWorkspaceStore();
+	const projectApi = useProjectApi();
+
+	const projects = ref<Project[]>([]);
 	const hydrated = ref(false);
 
-	function persist() {
-		writePersistedState({ projects: projects.value });
+	async function loadProjectsForWorkspace(workspaceId: string) {
+		const result = await projectApi.getProjects(workspaceId);
+		if (result.ok) {
+			projects.value = [
+				...projects.value.filter(p => p.workspaceId !== workspaceId),
+				...result.data,
+			];
+		}
 	}
 
-	function hydrateFromStorage() {
-		const persisted = readPersistedState();
-		if (persisted?.projects?.length) {
-			projects.value = persisted.projects.map(project => ({
-				...project,
-				description: project.description ?? "",
-				coverImageUrl: project.coverImageUrl ?? null,
-			}));
+	watch(
+		() => workspaceStore.activeWorkspaceId,
+		async (workspaceId) => {
+			if (workspaceId) {
+				await loadProjectsForWorkspace(workspaceId);
+			} else {
+				projects.value = [];
+			}
+		},
+	);
+
+	async function hydrateFromStorage() {
+		if (hydrated.value) {
+			return;
+		}
+		const workspaceId = workspaceStore.activeWorkspaceId;
+		if (workspaceId) {
+			await loadProjectsForWorkspace(workspaceId);
 		}
 		hydrated.value = true;
 	}
@@ -76,105 +60,89 @@ export const useProjectStore = defineStore("project", () => {
 		workspaceId: string,
 		payload: CreateProjectPayload,
 	) {
-		await delay();
 		const name = payload.name.trim();
 		if (!name) {
 			return { ok: false as const, error: "Project name is required." };
 		}
 
-		const timestamp = new Date().toISOString();
-		const project: Project = {
-			id: createProjectId(),
-			workspaceId,
-			name,
-			description: payload.description?.trim() ?? "",
-			icon: payload.icon ?? defaultProjectIcon(name),
-			cover: payload.cover ?? defaultProjectCover(),
-			coverImageUrl: payload.coverImageUrl ?? null,
-			status: payload.status ?? "active",
-			isFavorite: false,
-			archivedAt: null,
-			openTasks: 0,
-			progress: 0,
-			createdAt: timestamp,
-			updatedAt: timestamp,
-		};
+		const result = await projectApi.createProject(workspaceId, payload);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to create project." };
+		}
 
+		const project = result.data;
 		projects.value = [...projects.value, project];
-		persist();
 
 		return { ok: true as const, project };
 	}
 
 	async function updateProject(id: string, payload: UpdateProjectPayload) {
-		await delay(200);
-		const index = projects.value.findIndex(p => p.id === id);
-		if (index === -1) {
-			return { ok: false as const, error: "Project not found." };
+		const result = await projectApi.updateProject(id, payload);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to update project." };
 		}
 
-		const current = projects.value[index]!;
-		const updated: Project = {
-			...current,
-			...payload,
-			name: payload.name?.trim() ?? current.name,
-			updatedAt: new Date().toISOString(),
-		};
-
+		const updated = result.data;
 		projects.value = projects.value.map(p => (p.id === id ? updated : p));
-		persist();
 
 		return { ok: true as const, project: updated };
 	}
 
 	async function toggleFavorite(id: string) {
-		const project = getProjectById(id);
-		if (!project) {
-			return { ok: false as const, error: "Project not found." };
+		const result = await projectApi.toggleFavorite(id);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to toggle favorite." };
 		}
-		return updateProject(id, { isFavorite: !project.isFavorite });
+
+		const { isFavorite } = result.data;
+		projects.value = projects.value.map(p =>
+			p.id === id ? { ...p, isFavorite, updatedAt: new Date().toISOString() } : p,
+		);
+
+		const updatedProject = getProjectById(id);
+		if (!updatedProject) {
+			return { ok: false as const, error: "Project not found after update." };
+		}
+
+		return { ok: true as const, project: updatedProject };
 	}
 
 	async function archiveProject(id: string) {
-		const project = getProjectById(id);
-		if (!project) {
-			return { ok: false as const, error: "Project not found." };
-		}
-		if (project.archivedAt) {
-			return { ok: false as const, error: "Project is already archived." };
+		const result = await projectApi.archiveProject(id);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to archive project." };
 		}
 
-		await delay(200);
-		const updated: Project = {
-			...project,
-			archivedAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-		};
-		projects.value = projects.value.map(p => (p.id === id ? updated : p));
-		persist();
+		const { archivedAt } = result.data;
+		projects.value = projects.value.map(p =>
+			p.id === id ? { ...p, archivedAt, updatedAt: new Date().toISOString() } : p,
+		);
 
-		return { ok: true as const, project: updated };
+		const updatedProject = getProjectById(id);
+		if (!updatedProject) {
+			return { ok: false as const, error: "Project not found after archive." };
+		}
+
+		return { ok: true as const, project: updatedProject };
 	}
 
 	async function unarchiveProject(id: string) {
-		const project = getProjectById(id);
-		if (!project) {
-			return { ok: false as const, error: "Project not found." };
-		}
-		if (!project.archivedAt) {
-			return { ok: false as const, error: "Project is not archived." };
+		const result = await projectApi.unarchiveProject(id);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to unarchive project." };
 		}
 
-		await delay(200);
-		const updated: Project = {
-			...project,
-			archivedAt: null,
-			updatedAt: new Date().toISOString(),
-		};
-		projects.value = projects.value.map(p => (p.id === id ? updated : p));
-		persist();
+		const { archivedAt } = result.data;
+		projects.value = projects.value.map(p =>
+			p.id === id ? { ...p, archivedAt, updatedAt: new Date().toISOString() } : p,
+		);
 
-		return { ok: true as const, project: updated };
+		const updatedProject = getProjectById(id);
+		if (!updatedProject) {
+			return { ok: false as const, error: "Project not found after unarchive." };
+		}
+
+		return { ok: true as const, project: updatedProject };
 	}
 
 	function syncTaskMetrics(
@@ -202,17 +170,15 @@ export const useProjectStore = defineStore("project", () => {
 					}
 				: p,
 		);
-		persist();
 	}
 
 	async function deleteProject(id: string) {
-		await delay(200);
-		const exists = projects.value.some(p => p.id === id);
-		if (!exists) {
-			return { ok: false as const, error: "Project not found." };
+		const result = await projectApi.deleteProject(id);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to delete project." };
 		}
+
 		projects.value = projects.value.filter(p => p.id !== id);
-		persist();
 		return { ok: true as const };
 	}
 

@@ -3,7 +3,9 @@ import type { ApiClient } from "~/core/api";
 import { useAuthStore } from "~/features/auth/stores/auth";
 
 export function useApiClient(): ApiClient {
-	const nuxtApp = useNuxtApp() as any;
+	const nuxtApp = useNuxtApp() as ReturnType<typeof useNuxtApp> & {
+		_apiClient?: ApiClient;
+	};
 
 	if (!nuxtApp._apiClient) {
 		const authStore = useAuthStore();

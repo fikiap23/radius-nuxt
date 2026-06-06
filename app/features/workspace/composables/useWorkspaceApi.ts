@@ -3,7 +3,9 @@ import { useApiClient } from "~/features/auth/composables/useApiClient";
 
 export function useWorkspaceApi(): WorkspaceService {
 	const client = useApiClient();
-	const nuxtApp = useNuxtApp() as any;
+	const nuxtApp = useNuxtApp() as ReturnType<typeof useNuxtApp> & {
+		_workspaceService?: WorkspaceService;
+	};
 
 	if (!nuxtApp._workspaceService) {
 		nuxtApp._workspaceService = createWorkspaceService(client);

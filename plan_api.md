@@ -439,7 +439,7 @@ Tabel notifikasi in-app untuk pengguna.
 
 ---
 
-### 3.3 Projects (`⬜ Belum Diimplementasi`)
+### 3.3 Projects (`✅ Terimplementasi`)
 
 #### `GET /workspaces/:workspaceId/projects`
 * **Response (200 OK)**:
