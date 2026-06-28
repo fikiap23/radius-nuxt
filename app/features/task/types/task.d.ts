@@ -30,6 +30,7 @@ export interface TaskAttachment {
 	name: string;
 	size: number;
 	mimeType: string;
+	url?: string;
 	uploadedAt: string;
 }
 

@@ -1,4 +1,4 @@
 export default defineNuxtPlugin(() => {
 	const store = useTaskStore();
-	store.hydrateFromStorage();
+	store.hydrateCommentsFromStorage();
 });

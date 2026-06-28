@@ -11,14 +11,18 @@ const defaultFilters = (): TaskListFilters => ({
 
 export function useTask() {
 	const store = useTaskStore();
-	const { tasks, activities, comments, hydrated } = storeToRefs(store);
+	const { tasks, activities, comments, commentsHydrated } = storeToRefs(store);
 
 	return {
 		tasks,
 		activities,
 		comments,
-		hydrated,
+		commentsHydrated,
 		labelPresets: TASK_LABEL_PRESETS,
+		isProjectLoaded: store.isProjectLoaded,
+		isProjectLoading: store.isProjectLoading,
+		loadTasksForProject: store.loadTasksForProject,
+		loadActivitiesForTask: store.loadActivitiesForTask,
 		getTaskById: store.getTaskById,
 		tasksForProject: store.tasksForProject,
 		activitiesForTask: store.activitiesForTask,
@@ -37,8 +41,21 @@ export function useTask() {
 
 export function useTaskList(projectId: MaybeRefOrGetter<string>) {
 	const id = computed(() => toValue(projectId));
+	const store = useTaskStore();
 	const { tasksForProject, labelPresets } = useTask();
 	const { activeMembers } = useWorkspace();
+
+	watch(
+		id,
+		projectId => {
+			if (projectId) {
+				void store.loadTasksForProject(projectId);
+			}
+		},
+		{ immediate: true },
+	);
+
+	const hydrated = computed(() => store.isProjectLoaded(id.value));
 
 	const listFilters = useState<TaskListFilters>(
 		`task-list-filters-${id.value}`,
@@ -129,6 +146,7 @@ export function useTaskList(projectId: MaybeRefOrGetter<string>) {
 
 	return {
 		listFilters,
+		hydrated,
 		projectTasks,
 		filteredTasks,
 		filterLabelOptions,

@@ -72,9 +72,9 @@ const projectId = route.params.projectId as string;
 
 const { project } = useProjectContext(projectId);
 const { activeWorkspaceId } = useWorkspace();
-const { hydrated } = useTask();
 const {
 	listFilters,
+	hydrated,
 	projectTasks,
 	filteredTasks,
 	filterLabelOptions,

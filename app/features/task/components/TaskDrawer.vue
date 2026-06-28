@@ -267,6 +267,7 @@ const {
 	deleteTask,
 	addAttachment,
 	removeAttachment,
+	loadActivitiesForTask,
 } = useTask();
 const { activeMembers } = useWorkspace();
 const { user } = useAuth();
@@ -389,9 +390,12 @@ watch(
 
 watch(
 	() => [open.value, activeTaskId.value, isCreateMode.value, isReady.value] as const,
-	([isOpen, , , ready]) => {
+	([isOpen, taskId, createMode, ready]) => {
 		if (isOpen && ready) {
 			nextTick(() => hydrateForm());
+			if (taskId && !createMode) {
+				void loadActivitiesForTask(taskId);
+			}
 		}
 		else if (!isOpen) {
 			resetForm();
@@ -468,7 +472,6 @@ async function saveTask() {
 			...payload,
 			subtasks: form.subtasks,
 			checklist: form.checklist,
-			attachments: form.attachments,
 		});
 
 		if (!result.ok) {

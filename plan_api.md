@@ -785,7 +785,7 @@ Content-Type: image/jpeg
 
 ---
 
-### 3.6 Tasks (`⬜ Belum Diimplementasi`)
+### 3.6 Tasks (`✅ Terimplementasi`)
 
 #### `GET /projects/:projectId/tasks`
 * **Response (200 OK)**:

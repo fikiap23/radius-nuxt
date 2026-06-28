@@ -54,7 +54,7 @@
 				@click="fileInput?.click()"
 			/>
 			<p class="text-xs text-muted">
-				Mock upload — files are stored in browser state only.
+				Max file size depends on workspace policy.
 			</p>
 		</div>
 	</section>

@@ -1,11 +1,10 @@
+import { useTaskApi } from "~/features/task/composables/useTaskApi";
 import { SEED_TASK_COMMENTS } from "~/features/task/data/comments-seed";
-import { SEED_TASK_ACTIVITIES, SEED_TASKS } from "~/features/task/data/tasks-seed";
 import type {
 	CreateTaskCommentPayload,
 	CreateTaskPayload,
 	Task,
 	TaskActivityEntry,
-	TaskAttachment,
 	TaskChecklistItem,
 	TaskComment,
 	TaskPersistedState,
@@ -18,19 +17,11 @@ import { isRichTextEmpty } from "~/features/task/utils/rich-text";
 import {
 	computeProjectTaskStats,
 	createTaskChildId,
-	createTaskId,
-	taskPriorityLabel,
-	taskStatusLabel,
 } from "~/features/task/utils/task";
 
 const PERSIST_KEY = "radius-task-state";
-const MOCK_DELAY_MS = 350;
 
-function delay(ms = MOCK_DELAY_MS) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function readPersistedState(): TaskPersistedState | null {
+function readPersistedComments(): TaskComment[] | null {
 	if (!import.meta.client) {
 		return null;
 	}
@@ -39,53 +30,99 @@ function readPersistedState(): TaskPersistedState | null {
 		if (!raw) {
 			return null;
 		}
-		return JSON.parse(raw) as TaskPersistedState;
+		const parsed = JSON.parse(raw) as TaskPersistedState;
+		return parsed.comments ?? null;
 	}
 	catch {
 		return null;
 	}
 }
 
-function writePersistedState(state: TaskPersistedState) {
+function writePersistedComments(comments: TaskComment[]) {
 	if (!import.meta.client) {
 		return;
 	}
-	localStorage.setItem(PERSIST_KEY, JSON.stringify(state));
+	localStorage.setItem(PERSIST_KEY, JSON.stringify({ comments }));
 }
 
 export const useTaskStore = defineStore("task", () => {
-	const tasks = ref<Task[]>([...SEED_TASKS]);
-	const activities = ref<TaskActivityEntry[]>([...SEED_TASK_ACTIVITIES]);
+	const taskApi = useTaskApi();
+	const { upload } = useStorage();
+
+	const tasks = ref<Task[]>([]);
+	const activities = ref<TaskActivityEntry[]>([]);
 	const comments = ref<TaskComment[]>([...SEED_TASK_COMMENTS]);
-	const hydrated = ref(false);
+	const loadedProjectIds = ref<Set<string>>(new Set());
+	const loadingProjectIds = ref<Set<string>>(new Set());
+	const commentsHydrated = ref(false);
 
-	function persist() {
-		writePersistedState({
-			tasks: tasks.value,
-			activities: activities.value,
-			comments: comments.value,
-		});
-	}
-
-	function hydrateFromStorage() {
-		const persisted = readPersistedState();
-		if (persisted?.tasks?.length) {
-			tasks.value = persisted.tasks.map(task => ({
-				...task,
-				columnId: task.columnId ?? null,
-			}));
-		}
-		if (persisted?.activities?.length) {
-			activities.value = persisted.activities;
-		}
-		if (persisted?.comments?.length) {
-			comments.value = persisted.comments.map(comment => ({
+	function hydrateCommentsFromStorage() {
+		const persisted = readPersistedComments();
+		if (persisted?.length) {
+			comments.value = persisted.map(comment => ({
 				...comment,
 				mentionIds:
 					comment.mentionIds ?? extractMentionIdsFromBody(comment.body),
 			}));
 		}
-		hydrated.value = true;
+		commentsHydrated.value = true;
+	}
+
+	function persistComments() {
+		writePersistedComments(comments.value);
+	}
+
+	function setTasksForProject(projectId: string, projectTasks: Task[]) {
+		tasks.value = [
+			...tasks.value.filter(t => t.projectId !== projectId),
+			...projectTasks.map(task => ({
+				...task,
+				columnId: task.columnId ?? null,
+			})),
+		];
+	}
+
+	function isProjectLoaded(projectId: string) {
+		return loadedProjectIds.value.has(projectId);
+	}
+
+	function isProjectLoading(projectId: string) {
+		return loadingProjectIds.value.has(projectId);
+	}
+
+	async function loadTasksForProject(projectId: string) {
+		if (!projectId || loadedProjectIds.value.has(projectId)) {
+			return;
+		}
+		if (loadingProjectIds.value.has(projectId)) {
+			return;
+		}
+
+		loadingProjectIds.value = new Set([...loadingProjectIds.value, projectId]);
+
+		const result = await taskApi.getTasks(projectId);
+
+		loadingProjectIds.value = new Set(
+			[...loadingProjectIds.value].filter(id => id !== projectId),
+		);
+
+		if (result.ok) {
+			setTasksForProject(projectId, result.data);
+		}
+
+		loadedProjectIds.value = new Set([...loadedProjectIds.value, projectId]);
+	}
+
+	async function loadActivitiesForTask(taskId: string) {
+		const result = await taskApi.getActivities(taskId);
+		if (!result.ok) {
+			return;
+		}
+
+		activities.value = [
+			...activities.value.filter(a => a.taskId !== taskId),
+			...result.data,
+		];
 	}
 
 	function getTaskById(id: string) {
@@ -118,19 +155,6 @@ export const useTaskStore = defineStore("task", () => {
 		return comments.value.find(c => c.id === id) ?? null;
 	}
 
-	function logActivity(
-		taskId: string,
-		entry: Omit<TaskActivityEntry, "id" | "taskId" | "occurredAt">,
-	) {
-		const activity: TaskActivityEntry = {
-			id: createTaskChildId("act"),
-			taskId,
-			occurredAt: new Date().toISOString(),
-			...entry,
-		};
-		activities.value = [activity, ...activities.value];
-	}
-
 	function syncProjectStats(projectId: string) {
 		const projectStore = useProjectStore();
 		if (!projectStore.getProjectById(projectId)) {
@@ -142,117 +166,75 @@ export const useTaskStore = defineStore("task", () => {
 
 	async function createTask(
 		projectId: string,
-		workspaceId: string,
+		_workspaceId: string,
 		payload: CreateTaskPayload,
 	) {
-		await delay();
 		const title = payload.title.trim();
 		if (!title) {
 			return { ok: false as const, error: "Task title is required." };
 		}
 
-		const timestamp = new Date().toISOString();
-		const task: Task = {
-			id: createTaskId(),
-			projectId,
-			workspaceId,
+		const result = await taskApi.createTask(projectId, {
+			...payload,
 			title,
 			description: payload.description?.trim() ?? "",
-			status: payload.status ?? "todo",
-			columnId: payload.columnId ?? payload.status ?? "todo",
-			priority: payload.priority ?? "medium",
-			dueAt: payload.dueAt ?? null,
-			labelIds: payload.labelIds ?? [],
-			assigneeId: payload.assigneeId ?? null,
-			subtasks: [],
-			checklist: [],
-			attachments: [],
-			createdAt: timestamp,
-			updatedAt: timestamp,
-		};
-
-		tasks.value = [...tasks.value, task];
-		logActivity(task.id, {
-			title: "Task created",
-			description: title,
-			icon: "i-lucide-plus-circle",
 		});
-		persist();
+
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to create task." };
+		}
+
+		const task = result.data;
+		tasks.value = [...tasks.value, task];
 		syncProjectStats(projectId);
 
 		return { ok: true as const, task };
 	}
 
 	async function updateTask(id: string, payload: UpdateTaskPayload) {
-		await delay(200);
-		const index = tasks.value.findIndex(t => t.id === id);
-		if (index === -1) {
+		const current = getTaskById(id);
+		if (!current) {
 			return { ok: false as const, error: "Task not found." };
 		}
 
-		const current = tasks.value[index]!;
-		const statusChanged =
-			payload.status !== undefined && payload.status !== current.status;
-
-		const updated: Task = {
-			...current,
+		const body: UpdateTaskPayload = {
 			...payload,
-			title: payload.title?.trim() ?? current.title,
-			description: payload.description?.trim() ?? current.description,
-			updatedAt: new Date().toISOString(),
+			...(payload.title !== undefined ? { title: payload.title.trim() } : {}),
+			...(payload.description !== undefined
+				? { description: payload.description.trim() }
+				: {}),
 		};
 
-		if (statusChanged && payload.columnId === undefined) {
-			updated.columnId = payload.status!;
+		const result = await taskApi.updateTask(id, body);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to update task." };
 		}
 
-		if (statusChanged) {
-			logActivity(id, {
-				title: "Status changed",
-				description: `${taskStatusLabel(current.status)} → ${taskStatusLabel(payload.status!)}`,
-				icon: "i-lucide-arrow-right-left",
-			});
-		}
-
-		if (
-			payload.priority !== undefined
-			&& payload.priority !== current.priority
-		) {
-			logActivity(id, {
-				title: "Priority updated",
-				description: taskPriorityLabel(payload.priority),
-				icon: "i-lucide-flag",
-			});
-		}
-
-		if (
-			payload.assigneeId !== undefined
-			&& payload.assigneeId !== current.assigneeId
-		) {
-			logActivity(id, {
-				title: payload.assigneeId ? "Assignee updated" : "Assignee cleared",
-				icon: "i-lucide-user",
-			});
-		}
-
+		const updated = result.data;
 		tasks.value = tasks.value.map(t => (t.id === id ? updated : t));
-		persist();
 		syncProjectStats(current.projectId);
+		void loadActivitiesForTask(id);
 
 		return { ok: true as const, task: updated };
 	}
 
 	async function deleteTask(id: string) {
-		await delay(200);
 		const task = getTaskById(id);
 		if (!task) {
 			return { ok: false as const, error: "Task not found." };
 		}
+
+		const result = await taskApi.deleteTask(id);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to delete task." };
+		}
+
 		tasks.value = tasks.value.filter(t => t.id !== id);
 		activities.value = activities.value.filter(a => a.taskId !== id);
 		comments.value = comments.value.filter(c => c.taskId !== id);
-		persist();
+		persistComments();
 		syncProjectStats(task.projectId);
+
 		return { ok: true as const };
 	}
 
@@ -262,27 +244,33 @@ export const useTaskStore = defineStore("task", () => {
 			return { ok: false as const, error: "Task not found." };
 		}
 
-		const attachment: TaskAttachment = {
-			id: createTaskChildId("att"),
-			name: file.name,
+		const uploadResult = await upload(file, "task_attachment", { taskId: id });
+		if (!uploadResult.ok) {
+			return { ok: false as const, error: uploadResult.error };
+		}
+
+		const result = await taskApi.createAttachment(id, {
+			tempKey: uploadResult.tempKey,
+			fileName: file.name,
+			contentType: file.type || "application/octet-stream",
 			size: file.size,
-			mimeType: file.type || "application/octet-stream",
-			uploadedAt: new Date().toISOString(),
+		});
+
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to add attachment." };
+		}
+
+		const attachment = result.data;
+		const updated: Task = {
+			...task,
+			attachments: [...task.attachments, attachment],
+			updatedAt: new Date().toISOString(),
 		};
 
-		return updateTask(id, {
-			attachments: [...task.attachments, attachment],
-		}).then(result => {
-			if (result.ok) {
-				logActivity(id, {
-					title: "Attachment added",
-					description: file.name,
-					icon: "i-lucide-paperclip",
-				});
-				persist();
-			}
-			return result;
-		});
+		tasks.value = tasks.value.map(t => (t.id === id ? updated : t));
+		void loadActivitiesForTask(id);
+
+		return { ok: true as const, task: updated };
 	}
 
 	async function removeAttachment(taskId: string, attachmentId: string) {
@@ -290,23 +278,25 @@ export const useTaskStore = defineStore("task", () => {
 		if (!task) {
 			return { ok: false as const, error: "Task not found." };
 		}
-		const removed = task.attachments.find(a => a.id === attachmentId);
-		const result = await updateTask(taskId, {
-			attachments: task.attachments.filter(a => a.id !== attachmentId),
-		});
-		if (result.ok && removed) {
-			logActivity(taskId, {
-				title: "Attachment removed",
-				description: removed.name,
-				icon: "i-lucide-trash-2",
-			});
-			persist();
+
+		const result = await taskApi.deleteAttachment(taskId, attachmentId);
+		if (!result.ok) {
+			return { ok: false as const, error: result.error || "Failed to remove attachment." };
 		}
-		return result;
+
+		const updated: Task = {
+			...task,
+			attachments: task.attachments.filter(a => a.id !== attachmentId),
+			updatedAt: new Date().toISOString(),
+		};
+
+		tasks.value = tasks.value.map(t => (t.id === taskId ? updated : t));
+		void loadActivitiesForTask(taskId);
+
+		return { ok: true as const, task: updated };
 	}
 
 	async function createComment(taskId: string, payload: CreateTaskCommentPayload) {
-		await delay(200);
 		const task = getTaskById(taskId);
 		if (!task) {
 			return { ok: false as const, error: "Task not found." };
@@ -330,12 +320,7 @@ export const useTaskStore = defineStore("task", () => {
 		};
 
 		comments.value = [...comments.value, comment];
-		logActivity(taskId, {
-			title: "Comment added",
-			description: commentBodyPreview(body),
-			icon: "i-lucide-message-square",
-		});
-		persist();
+		persistComments();
 
 		if (import.meta.client && comment.mentionIds.length) {
 			const workspaceStore = useWorkspaceStore();
@@ -370,7 +355,6 @@ export const useTaskStore = defineStore("task", () => {
 	}
 
 	async function updateComment(id: string, payload: UpdateTaskCommentPayload) {
-		await delay(200);
 		const index = comments.value.findIndex(c => c.id === id);
 		if (index === -1) {
 			return { ok: false as const, error: "Comment not found." };
@@ -390,19 +374,18 @@ export const useTaskStore = defineStore("task", () => {
 		};
 
 		comments.value = comments.value.map(c => (c.id === id ? updated : c));
-		persist();
+		persistComments();
 
 		return { ok: true as const, comment: updated };
 	}
 
 	async function deleteComment(id: string) {
-		await delay(200);
 		const comment = getCommentById(id);
 		if (!comment) {
 			return { ok: false as const, error: "Comment not found." };
 		}
 		comments.value = comments.value.filter(c => c.id !== id);
-		persist();
+		persistComments();
 		return { ok: true as const };
 	}
 
@@ -422,8 +405,12 @@ export const useTaskStore = defineStore("task", () => {
 		tasks,
 		activities,
 		comments,
-		hydrated,
-		hydrateFromStorage,
+		commentsHydrated,
+		hydrateCommentsFromStorage,
+		isProjectLoaded,
+		isProjectLoading,
+		loadTasksForProject,
+		loadActivitiesForTask,
 		getTaskById,
 		tasksForProject,
 		activitiesForTask,

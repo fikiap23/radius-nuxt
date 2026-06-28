@@ -39,8 +39,8 @@ function applyBoardFilters(tasks: Task[], filters: BoardFilters) {
 export function useBoard(projectId: MaybeRefOrGetter<string>) {
 	const id = computed(() => toValue(projectId));
 	const boardStore = useBoardStore();
-	const { tasksForProject, updateTask, createTask, hydrated: taskHydrated } =
-		useTask();
+	const taskStore = useTaskStore();
+	const { tasksForProject, updateTask, createTask } = useTask();
 	const { labelPresets } = useTask();
 	const { activeMembers } = useWorkspace();
 	const { activeWorkspaceId } = useWorkspace();
@@ -57,6 +57,7 @@ export function useBoard(projectId: MaybeRefOrGetter<string>) {
 		projectId => {
 			if (projectId) {
 				void boardStore.loadColumnsForProject(projectId);
+				void taskStore.loadTasksForProject(projectId);
 			}
 		},
 		{ immediate: true },
@@ -125,7 +126,8 @@ export function useBoard(projectId: MaybeRefOrGetter<string>) {
 	});
 
 	const hydrated = computed(
-		() => boardStore.isProjectLoaded(id.value) && taskHydrated.value,
+		() =>
+			boardStore.isProjectLoaded(id.value) && taskStore.isProjectLoaded(id.value),
 	);
 
 	function resetBoardFilters() {

@@ -1,21 +1,28 @@
 import { useStorageApi } from "~/features/storage/composables/useStorageApi";
-import type { StorageUploadPurpose } from "~/features/storage/contracts/storage.contract";
+import type {
+	PresignUploadContext,
+	StorageUploadPurpose,
+} from "~/features/storage/contracts/storage.contract";
 
 export function useStorage() {
 	const storageApi = useStorageApi();
 	const uploading = ref(false);
 	const error = ref<string | null>(null);
 
-	async function upload(file: File, purpose: StorageUploadPurpose) {
+	async function upload(
+		file: File,
+		purpose: StorageUploadPurpose,
+		context?: PresignUploadContext,
+	) {
 		uploading.value = true;
 		error.value = null;
 
 		try {
-			// 1. Get presigned URL
 			const presignResult = await storageApi.presignUpload({
 				fileName: file.name,
 				contentType: file.type,
 				purpose,
+				...(context ? { context } : {}),
 			});
 
 			if (!presignResult.ok) {
