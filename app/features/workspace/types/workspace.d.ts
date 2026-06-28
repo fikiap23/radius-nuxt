@@ -12,6 +12,7 @@ export interface Workspace {
 export interface WorkspaceMember {
 	id: string;
 	workspaceId: string;
+	userId: string | null;
 	name: string;
 	email: string;
 	role: WorkspaceRole;

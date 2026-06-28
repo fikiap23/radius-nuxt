@@ -86,6 +86,7 @@
 <script setup lang="ts">
 import { APP_NAME } from "~/core/config/brand";
 import type { BoardColumn } from "~/features/board/types/board";
+import { findMemberByUserId } from "~/features/workspace/utils/workspace";
 
 const route = useRoute();
 const projectId = route.params.projectId as string;
@@ -161,6 +162,6 @@ function assigneeNameFor(assigneeId: string | null) {
 	if (!assigneeId) {
 		return null;
 	}
-	return activeMembers.value.find(m => m.id === assigneeId)?.name ?? null;
+	return findMemberByUserId(activeMembers.value, assigneeId)?.name ?? null;
 }
 </script>

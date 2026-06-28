@@ -39,3 +39,21 @@ export function workspaceAvatarHue(slug: string) {
 	}
 	return Math.abs(hash) % 360;
 }
+
+export function isAssignableMember(member: WorkspaceMember) {
+	return member.status === "active" && Boolean(member.userId);
+}
+
+export function assignableMembers(members: WorkspaceMember[]) {
+	return members.filter(isAssignableMember);
+}
+
+export function findMemberByUserId(
+	members: WorkspaceMember[],
+	userId: string | null | undefined,
+) {
+	if (!userId) {
+		return undefined;
+	}
+	return members.find(member => member.userId === userId);
+}

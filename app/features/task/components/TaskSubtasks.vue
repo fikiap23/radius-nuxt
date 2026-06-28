@@ -104,4 +104,18 @@ function add() {
 	]);
 	draft.value = "";
 }
+
+function commitDraft(): TaskSubtask[] {
+	const title = draft.value.trim();
+	if (!title) {
+		return [...props.items];
+	}
+	draft.value = "";
+	return [
+		...props.items,
+		{ id: createTaskChildId("st"), title, done: false },
+	];
+}
+
+defineExpose({ commitDraft });
 </script>

@@ -190,6 +190,23 @@ export function formatFileSize(bytes: number) {
 	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+export function isImageAttachment(mimeType: string) {
+	return mimeType.startsWith("image/");
+}
+
+export function attachmentIcon(mimeType: string) {
+	if (isImageAttachment(mimeType)) {
+		return "i-lucide-image";
+	}
+	if (mimeType.startsWith("video/")) {
+		return "i-lucide-video";
+	}
+	if (mimeType === "application/pdf") {
+		return "i-lucide-file-text";
+	}
+	return "i-lucide-file";
+}
+
 export function formatActivityTime(iso: string) {
 	const date = new Date(iso);
 	const diffMs = date.getTime() - Date.now();

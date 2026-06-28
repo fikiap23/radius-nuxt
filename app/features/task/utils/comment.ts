@@ -87,7 +87,7 @@ export function buildMentionToken(name: string, memberId: string) {
 export function insertMentionToken(
 	body: string,
 	cursor: number,
-	member: { id: string; name: string },
+	member: { userId: string; name: string },
 ) {
 	const query = getActiveMentionQuery(body, cursor);
 	if (query === null) {
@@ -95,7 +95,7 @@ export function insertMentionToken(
 	}
 
 	const at = body.slice(0, cursor).lastIndexOf("@");
-	const token = `${buildMentionToken(member.name, member.id)} `;
+	const token = `${buildMentionToken(member.name, member.userId)} `;
 	const nextBody = body.slice(0, at) + token + body.slice(cursor);
 	const nextCursor = at + token.length;
 	return { body: nextBody, cursor: nextCursor };

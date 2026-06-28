@@ -138,17 +138,20 @@
 					</div>
 				</UFormField>
 
-				<template v-if="!isCreateMode && activeTaskId">
-					<USeparator />
+				<USeparator />
 
-					<TaskSubtasks
-						:items="form.subtasks"
-						@update="onSubtasksUpdate"
-					/>
-					<TaskChecklist
-						:items="form.checklist"
-						@update="onChecklistUpdate"
-					/>
+				<TaskSubtasks
+					ref="subtasksRef"
+					:items="form.subtasks"
+					@update="onSubtasksUpdate"
+				/>
+				<TaskChecklist
+					ref="checklistRef"
+					:items="form.checklist"
+					@update="onChecklistUpdate"
+				/>
+
+				<template v-if="!isCreateMode && activeTaskId">
 					<TaskAttachments
 						:items="form.attachments"
 						:uploading="attachmentUploading"
@@ -233,6 +236,7 @@ import {
 	taskAssigneeFromSelectValue,
 	taskAssigneeToSelectValue,
 } from "~/features/task/utils/task";
+import { assignableMembers } from "~/features/workspace/utils/workspace";
 
 const { widthPx, isResizing, startResize, resetWidth } = useTaskDrawerWidth();
 
@@ -268,6 +272,7 @@ const {
 	addAttachment,
 	removeAttachment,
 	loadActivitiesForTask,
+	activities,
 } = useTask();
 const { activeMembers } = useWorkspace();
 const { user } = useAuth();
@@ -280,6 +285,8 @@ const attachmentUploading = ref(false);
 const attachmentRemovingId = ref<string | null>(null);
 const dueDate = shallowRef<CalendarDate | null>(null);
 const dueDatePopoverOpen = ref(false);
+const subtasksRef = ref<{ commitDraft: () => TaskSubtask[] } | null>(null);
+const checklistRef = ref<{ commitDraft: () => TaskChecklistItem[] } | null>(null);
 
 const form = reactive({
 	title: "",
@@ -293,17 +300,19 @@ const form = reactive({
 	attachments: [] as Task["attachments"],
 });
 
-const activityEntries = computed(() =>
-	activeTaskId.value ? activitiesForTask(activeTaskId.value) : [],
-);
+const activityEntries = computed(() => {
+	if (!activeTaskId.value) {
+		return [];
+	}
+	void activities.value;
+	return activitiesForTask(activeTaskId.value);
+});
 
 const commentEntries = computed(() =>
 	activeTaskId.value ? commentsForTask(activeTaskId.value) : [],
 );
 
-const mentionMembers = computed(() =>
-	activeMembers.value.filter(m => m.status === "active"),
-);
+const mentionMembers = computed(() => assignableMembers(activeMembers.value));
 
 const currentAuthor = computed(() => {
 	const authUser = user.value;
@@ -311,16 +320,17 @@ const currentAuthor = computed(() => {
 		? mentionMembers.value.find(m => m.email === authUser.email)
 		: null;
 	return {
-		authorId: member?.id ?? null,
+		authorId: member?.userId ?? null,
 		authorName: member?.name ?? authUser?.name ?? "You",
 	};
 });
 
 const assigneeItems = computed(() => [
 	{ label: "Unassigned", value: TASK_UNASSIGNED_VALUE },
-	...activeMembers.value
-		.filter(m => m.status === "active")
-		.map(m => ({ label: m.name, value: m.id })),
+	...assignableMembers(activeMembers.value).map(m => ({
+		label: m.name,
+		value: m.userId!,
+	})),
 ]);
 
 function resetForm() {
@@ -442,6 +452,11 @@ async function saveTask() {
 		assigneeId: taskAssigneeFromSelectValue(form.assigneeId),
 	};
 
+	const subtasks = subtasksRef.value?.commitDraft() ?? [...form.subtasks];
+	const checklist = checklistRef.value?.commitDraft() ?? [...form.checklist];
+	form.subtasks = subtasks;
+	form.checklist = checklist;
+
 	saving.value = true;
 
 	try {
@@ -455,6 +470,18 @@ async function saveTask() {
 				error.value = result.error;
 				return;
 			}
+
+			if (subtasks.length || checklist.length) {
+				const patchResult = await updateTask(result.task.id, {
+					subtasks,
+					checklist,
+				});
+				if (!patchResult.ok) {
+					error.value = patchResult.error;
+					return;
+				}
+			}
+
 			toast.add({
 				title: "Task created",
 				color: "success",
@@ -470,8 +497,8 @@ async function saveTask() {
 
 		const result = await updateTask(activeTaskId.value, {
 			...payload,
-			subtasks: form.subtasks,
-			checklist: form.checklist,
+			subtasks,
+			checklist,
 		});
 
 		if (!result.ok) {

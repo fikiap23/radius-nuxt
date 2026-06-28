@@ -11,29 +11,88 @@
 			<li
 				v-for="file in items"
 				:key="file.id"
-				class="flex items-center gap-3 px-3 py-2"
+				class="px-3 py-2"
 			>
-				<UIcon
-					name="i-lucide-file"
-					class="size-4 shrink-0 text-muted"
-				/>
-				<div class="min-w-0 flex-1">
-					<p class="truncate text-sm font-medium text-highlighted">
-						{{ file.name }}
-					</p>
-					<p class="text-xs text-muted">
-						{{ formatFileSize(file.size) }}
-					</p>
+				<div class="flex items-center gap-3">
+					<a
+						v-if="file.url && isImageAttachment(file.mimeType)"
+						:href="file.url"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="shrink-0 overflow-hidden rounded-md border border-muted"
+						:aria-label="`View ${file.name}`"
+					>
+						<img
+							:src="file.url"
+							:alt="file.name"
+							class="size-10 object-cover"
+							loading="lazy"
+						>
+					</a>
+					<UIcon
+						v-else
+						:name="attachmentIcon(file.mimeType)"
+						class="size-4 shrink-0 text-muted"
+					/>
+
+					<div class="min-w-0 flex-1">
+						<a
+							v-if="file.url"
+							:href="file.url"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="block truncate text-sm font-medium text-primary hover:underline"
+						>
+							{{ file.name }}
+						</a>
+						<p
+							v-else
+							class="truncate text-sm font-medium text-highlighted"
+						>
+							{{ file.name }}
+						</p>
+						<p class="text-xs text-muted">
+							{{ formatFileSize(file.size) }}
+						</p>
+					</div>
+
+					<div class="flex shrink-0 items-center gap-0.5">
+						<UButton
+							v-if="file.url"
+							icon="i-lucide-external-link"
+							color="neutral"
+							variant="ghost"
+							size="xs"
+							:aria-label="`Open ${file.name}`"
+							:to="file.url"
+							target="_blank"
+						/>
+						<UButton
+							icon="i-lucide-trash-2"
+							color="neutral"
+							variant="ghost"
+							size="xs"
+							aria-label="Remove attachment"
+							:loading="removingId === file.id"
+							@click="onRemove(file.id)"
+						/>
+					</div>
 				</div>
-				<UButton
-					icon="i-lucide-trash-2"
-					color="neutral"
-					variant="ghost"
-					size="xs"
-					aria-label="Remove attachment"
-					:loading="removingId === file.id"
-					@click="onRemove(file.id)"
-				/>
+
+				<a
+					v-if="file.url && isImageAttachment(file.mimeType)"
+					:href="file.url"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="mt-2 block overflow-hidden rounded-lg border border-muted"
+				>
+					<img
+						:src="file.url"
+						:alt="file.name"
+						class="max-h-48 w-full object-contain bg-elevated"
+						loading="lazy"
+					>
+				</a>
 			</li>
 		</ul>
 
@@ -62,7 +121,11 @@
 
 <script setup lang="ts">
 import type { TaskAttachment } from "~/features/task/types/task";
-import { formatFileSize } from "~/features/task/utils/task";
+import {
+	attachmentIcon,
+	formatFileSize,
+	isImageAttachment,
+} from "~/features/task/utils/task";
 
 defineProps<{
 	items: TaskAttachment[];

@@ -104,4 +104,18 @@ function add() {
 	]);
 	draft.value = "";
 }
+
+function commitDraft(): TaskChecklistItem[] {
+	const text = draft.value.trim();
+	if (!text) {
+		return [...props.items];
+	}
+	draft.value = "";
+	return [
+		...props.items,
+		{ id: createTaskChildId("cl"), text, checked: false },
+	];
+}
+
+defineExpose({ commitDraft });
 </script>

@@ -1,7 +1,8 @@
 import type { BoardColumn, BoardFilters } from "~/features/board/types/board";
-import type { Task } from "~/features/task/types/task";
 import { isBoardWipExceeded, resolveTaskColumnId } from "~/features/board/utils/board";
+import type { Task } from "~/features/task/types/task";
 import { richTextToPlain } from "~/features/task/utils/rich-text";
+import { assignableMembers } from "~/features/workspace/utils/workspace";
 
 const defaultBoardFilters = (): BoardFilters => ({
 	assigneeId: "all",
@@ -115,12 +116,12 @@ export function useBoard(projectId: MaybeRefOrGetter<string>) {
 			{ label: "Unassigned", value: "unassigned" },
 		];
 		const seen = new Set<string>();
-		for (const member of activeMembers.value) {
-			if (member.status !== "active" || seen.has(member.id)) {
+		for (const member of assignableMembers(activeMembers.value)) {
+			if (!member.userId || seen.has(member.userId)) {
 				continue;
 			}
-			seen.add(member.id);
-			items.push({ label: member.name, value: member.id });
+			seen.add(member.userId);
+			items.push({ label: member.name, value: member.userId });
 		}
 		return items;
 	});

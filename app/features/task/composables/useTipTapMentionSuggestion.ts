@@ -1,5 +1,6 @@
 import type { MentionOptions } from "@tiptap/extension-mention";
 import type { WorkspaceMember } from "~/features/workspace/types/workspace";
+import { assignableMembers } from "~/features/workspace/utils/workspace";
 
 export function useTipTapMentionSuggestion(
 	members: MaybeRefOrGetter<WorkspaceMember[]>,
@@ -9,7 +10,7 @@ export function useTipTapMentionSuggestion(
 		allowSpaces: false,
 		items: ({ query }) => {
 			const q = query.trim().toLowerCase();
-			const active = toValue(members).filter(m => m.status === "active");
+			const active = assignableMembers(toValue(members));
 			if (!q) {
 				return active.slice(0, 8);
 			}
@@ -44,7 +45,10 @@ export function useTipTapMentionSuggestion(
 					button.innerHTML = `<span class="font-medium">${item.name}</span><span class="text-xs text-muted">${item.email}</span>`;
 					button.addEventListener("mousedown", event => {
 						event.preventDefault();
-						latestProps?.command({ id: item.id, label: item.name });
+						if (!item.userId) {
+							return;
+						}
+						latestProps?.command({ id: item.userId, label: item.name });
 					});
 					popup?.appendChild(button);
 				});
@@ -98,8 +102,8 @@ export function useTipTapMentionSuggestion(
 					}
 					if (props.event.key === "Enter" || props.event.key === "Tab") {
 						const item = latestProps.items[selectedIndex];
-						if (item) {
-							props.command({ id: item.id, label: item.name });
+						if (item?.userId) {
+							props.command({ id: item.userId, label: item.name });
 						}
 						return true;
 					}

@@ -113,15 +113,31 @@ export const useTaskStore = defineStore("task", () => {
 		loadedProjectIds.value = new Set([...loadedProjectIds.value, projectId]);
 	}
 
+	function normalizeActivityEntry(
+		entry: TaskActivityEntry,
+		taskId: string,
+		index: number,
+	): TaskActivityEntry {
+		return {
+			...entry,
+			taskId: entry.taskId ?? taskId,
+			id: entry.id ?? `${taskId}-act-${index}-${entry.occurredAt}`,
+		};
+	}
+
 	async function loadActivitiesForTask(taskId: string) {
 		const result = await taskApi.getActivities(taskId);
 		if (!result.ok) {
 			return;
 		}
 
+		const normalized = result.data.map((entry, index) =>
+			normalizeActivityEntry(entry, taskId, index),
+		);
+
 		activities.value = [
 			...activities.value.filter(a => a.taskId !== taskId),
-			...result.data,
+			...normalized,
 		];
 	}
 
@@ -327,12 +343,12 @@ export const useTaskStore = defineStore("task", () => {
 			const notificationStore = useNotificationStore();
 			const members = workspaceStore.getMembersForWorkspace(task.workspaceId);
 			const authorMember = payload.authorId
-				? members.find(m => m.id === payload.authorId)
+				? members.find(m => m.userId === payload.authorId)
 				: null;
 			const authorEmail = authorMember?.email.toLowerCase();
 
-			for (const memberId of comment.mentionIds) {
-				const mentioned = members.find(m => m.id === memberId);
+			for (const userId of comment.mentionIds) {
+				const mentioned = members.find(m => m.userId === userId);
 				if (!mentioned?.email) {
 					continue;
 				}

@@ -25,6 +25,7 @@ export const SEED_MEMBERS: WorkspaceMember[] = [
 	{
 		id: "mem-hq-owner",
 		workspaceId: "ws-radius-hq",
+		userId: "usr-hq-owner",
 		name: "Alex Morgan",
 		email: "alex@radius.mock",
 		role: "owner",
@@ -33,6 +34,7 @@ export const SEED_MEMBERS: WorkspaceMember[] = [
 	{
 		id: "mem-hq-admin",
 		workspaceId: "ws-radius-hq",
+		userId: "usr-hq-admin",
 		name: "Jordan Lee",
 		email: "jordan@radius.mock",
 		role: "admin",
@@ -41,6 +43,7 @@ export const SEED_MEMBERS: WorkspaceMember[] = [
 	{
 		id: "mem-hq-member",
 		workspaceId: "ws-radius-hq",
+		userId: "usr-hq-member",
 		name: "Sam Rivera",
 		email: "sam@radius.mock",
 		role: "member",
@@ -49,6 +52,7 @@ export const SEED_MEMBERS: WorkspaceMember[] = [
 	{
 		id: "mem-side-owner",
 		workspaceId: "ws-side-project",
+		userId: "usr-hq-owner",
 		name: "Alex Morgan",
 		email: "alex@radius.mock",
 		role: "admin",
@@ -57,6 +61,7 @@ export const SEED_MEMBERS: WorkspaceMember[] = [
 	{
 		id: "mem-side-viewer",
 		workspaceId: "ws-side-project",
+		userId: "usr-side-viewer",
 		name: "Casey Kim",
 		email: "casey@radius.mock",
 		role: "viewer",
@@ -65,6 +70,7 @@ export const SEED_MEMBERS: WorkspaceMember[] = [
 	{
 		id: "mem-design-owner",
 		workspaceId: "ws-design-lab",
+		userId: "usr-hq-owner",
 		name: "Alex Morgan",
 		email: "alex@radius.mock",
 		role: "owner",
@@ -73,6 +79,7 @@ export const SEED_MEMBERS: WorkspaceMember[] = [
 	{
 		id: "mem-design-pending",
 		workspaceId: "ws-design-lab",
+		userId: null,
 		name: "Pending invite",
 		email: "invite@radius.mock",
 		role: "member",
@@ -112,6 +119,7 @@ export function ensureUserMembership(
 		{
 			id: `mem-${user.email}`,
 			workspaceId: SEED_WORKSPACES[0]!.id,
+			userId: `usr-${user.email}`,
 			name: user.name,
 			email: user.email,
 			role: "owner",
