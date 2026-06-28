@@ -28,22 +28,7 @@
 		</div>
 
 		<UiEmptyState
-			v-else-if="projectTasks.length === 0"
-			icon="i-lucide-kanban-square"
-			title="No tasks yet"
-			description="Create your first task or add one from a column below."
-		>
-			<template #actions>
-				<UButton
-					label="New task"
-					icon="i-lucide-plus"
-					@click="onCreate"
-				/>
-			</template>
-		</UiEmptyState>
-
-		<UiEmptyState
-			v-else-if="filteredTasks.length === 0"
+			v-else-if="filteredTasks.length === 0 && projectTasks.length > 0"
 			icon="i-lucide-filter-x"
 			title="No matching cards"
 			description="Try adjusting filters or search."
@@ -57,7 +42,7 @@
 			</template>
 		</UiEmptyState>
 
-		<ClientOnly v-else>
+		<ClientOnly v-else-if="columns.length > 0">
 			<BoardKanban
 				:project-id="projectId"
 				:columns="columns"
@@ -68,6 +53,21 @@
 				@settings="onColumnSettings"
 			/>
 		</ClientOnly>
+
+		<UiEmptyState
+			v-else
+			icon="i-lucide-kanban-square"
+			title="No columns yet"
+			description="Add a column to start organizing tasks on the board."
+		>
+			<template #actions>
+				<UButton
+					label="Add column"
+					icon="i-lucide-plus"
+					@click="addColumnOpen = true"
+				/>
+			</template>
+		</UiEmptyState>
 
 		<BoardAddColumnModal
 			v-model:open="addColumnOpen"

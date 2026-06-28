@@ -78,6 +78,7 @@
 </template>
 
 <script setup lang="ts">
+import { parseOptionalWipLimit } from "~/features/board/utils/board";
 import { TASK_STATUS_OPTIONS } from "~/features/task/config/task";
 import type { TaskStatus } from "~/features/task/types/task";
 
@@ -120,13 +121,12 @@ async function onSubmit() {
 	error.value = null;
 	saving.value = true;
 
-	const parsed = wipLimitInput.value.trim();
-	const wipLimit = parsed ? Number(parsed) : null;
+	const wipLimit = parseOptionalWipLimit(wipLimitInput.value);
 
 	const result = await addColumn(props.projectId, {
 		title: form.title,
 		status: form.status,
-		wipLimit: wipLimit && wipLimit > 0 ? wipLimit : null,
+		wipLimit,
 	});
 
 	saving.value = false;

@@ -39,7 +39,6 @@ function applyBoardFilters(tasks: Task[], filters: BoardFilters) {
 export function useBoard(projectId: MaybeRefOrGetter<string>) {
 	const id = computed(() => toValue(projectId));
 	const boardStore = useBoardStore();
-	const { hydrated: boardHydrated } = storeToRefs(boardStore);
 	const { tasksForProject, updateTask, createTask, hydrated: taskHydrated } =
 		useTask();
 	const { labelPresets } = useTask();
@@ -52,6 +51,16 @@ export function useBoard(projectId: MaybeRefOrGetter<string>) {
 	);
 
 	const columns = computed(() => boardStore.columnsForProject(id.value));
+
+	watch(
+		id,
+		projectId => {
+			if (projectId) {
+				void boardStore.loadColumnsForProject(projectId);
+			}
+		},
+		{ immediate: true },
+	);
 
 	const projectTasks = computed(() => tasksForProject(id.value));
 
@@ -116,7 +125,7 @@ export function useBoard(projectId: MaybeRefOrGetter<string>) {
 	});
 
 	const hydrated = computed(
-		() => boardHydrated.value && taskHydrated.value,
+		() => boardStore.isProjectLoaded(id.value) && taskHydrated.value,
 	);
 
 	function resetBoardFilters() {
@@ -181,6 +190,7 @@ export function useBoard(projectId: MaybeRefOrGetter<string>) {
 		isWipExceeded,
 		addColumn: boardStore.addColumn,
 		updateColumn: boardStore.updateColumn,
+		reorderColumns: boardStore.reorderColumns,
 		removeColumn: boardStore.removeColumn,
 	};
 }

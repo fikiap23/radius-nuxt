@@ -582,7 +582,7 @@ Tabel notifikasi in-app untuk pengguna.
 
 ---
 
-### 3.4 Kanban Board Columns (`⬜ Belum Diimplementasi`)
+### 3.4 Kanban Board Columns (`✅ Terimplementasi`)
 
 #### `GET /projects/:projectId/board/columns`
 * **Response (200 OK)**:

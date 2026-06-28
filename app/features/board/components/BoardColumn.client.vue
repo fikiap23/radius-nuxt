@@ -5,6 +5,17 @@
 		:aria-label="`${column.title} column`"
 	>
 		<header class="kanban-column__header">
+			<button
+				type="button"
+				class="kanban-column__drag-handle"
+				aria-label="Drag to reorder column"
+				tabindex="-1"
+			>
+				<UIcon
+					name="i-lucide-grip-vertical"
+					class="size-4"
+				/>
+			</button>
 			<div class="min-w-0 flex-1">
 				<h2 class="kanban-column__title">
 					{{ column.title }}
