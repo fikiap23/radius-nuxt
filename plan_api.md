@@ -37,6 +37,21 @@ Authorization: Bearer <access_token>
 }
 ```
 
+### 1.4 Upload File via Presigned URL
+
+Semua upload file **tidak** menggunakan `multipart/form-data` ke API Radius. Semua request ke API Radius tetap `Content-Type: application/json`.
+
+**Alur standar (3 langkah):**
+
+1. **Mint presigned URL** — `POST /storage/presign-upload` dengan body JSON (`fileName`, `contentType`, `purpose`, dan `context` opsional).
+2. **Upload langsung ke storage** — Client mengirim file ke `uploadUrl` menggunakan HTTP method yang dikembalikan (biasanya `PUT`). Request ini **bukan** ke API Radius dan **tidak** memakai envelope `ApiEnvelope`.
+3. **Konfirmasi / bind** — Client mengirim `tempKey` ke endpoint domain terkait (mis. `coverImageTempKey` saat create/update project, atau `tempKey` saat menambah attachment task) agar backend memindahkan file dari area temporary ke lokasi permanen.
+
+**Catatan:**
+* `tempKey` hanya valid selama `expiresIn` detik setelah presign diterbitkan.
+* Setiap `purpose` dapat memerlukan `context` tambahan untuk otorisasi (lihat tabel di §3.1).
+* Ukuran dan tipe file divalidasi di langkah presign **dan** saat konfirmasi.
+
 ---
 
 ## 2. Skema & Relasi Database
@@ -156,12 +171,14 @@ Daftar checklist ringan di dalam detail task.
 * **`checked`** (boolean, default: false)
 
 #### 9. `task_attachments`
-File lampiran yang diupload ke suatu task.
+File lampiran yang diupload ke suatu task (via presigned URL).
 * **`id`** (PK, string/uuid)
 * **`task_id`** (FK -> `tasks.id`, Cascade Delete)
 * **`name`** (string): Nama file asli.
 * **`size`** (bigint): Ukuran file dalam bytes.
 * **`mime_type`** (string): Tipe file (contoh: "image/png").
+* **`storage_key`** (string): Object key permanen di object storage.
+* **`url`** (string): URL publik atau signed-read URL untuk mengunduh file.
 * **`uploaded_at`** (timestamp)
 
 #### 10. `task_comments`
@@ -201,7 +218,63 @@ Tabel notifikasi in-app untuk pengguna.
 
 ## 3. Endpoint Referensi
 
-### 3.1 Authentication & User Profile (`✅ Terimplementasi`)
+### 3.1 Storage — Presigned Upload (`⬜ Belum Diimplementasi`)
+
+Endpoint terpusat untuk meminta presigned URL. Semua upload file di aplikasi memulai dari sini.
+
+#### `POST /storage/presign-upload`
+
+* **Request**:
+  ```json
+  {
+    "fileName": "cover.jpg",
+    "contentType": "image/jpeg",
+    "purpose": "project_cover"
+  }
+  ```
+* **Request dengan context** (wajib untuk `task_attachment` dan `user_avatar`):
+  ```json
+  {
+    "fileName": "spec.pdf",
+    "contentType": "application/pdf",
+    "purpose": "task_attachment",
+    "context": {
+      "taskId": "tsk_1"
+    }
+  }
+  ```
+* **Response (200 OK)**:
+  ```json
+  {
+    "isSuccess": true,
+    "data": {
+      "uploadUrl": "https://storage.example.com/tmp/abc123?X-Amz-Signature=...",
+      "tempKey": "tmp_abc123",
+      "expiresIn": 300,
+      "method": "PUT"
+    }
+  }
+  ```
+
+**Nilai `purpose` yang didukung:**
+
+| `purpose` | `context` wajib | Dipakai di endpoint konfirmasi |
+|---|---|---|
+| `project_cover` | — | `POST/PATCH` project (`coverImageTempKey`) |
+| `task_attachment` | `{ "taskId": "..." }` | `POST /tasks/:taskId/attachments` (`tempKey`) |
+| `user_avatar` | — | `PATCH /users/me` (`avatarTempKey`) |
+
+**Langkah upload ke storage (di luar API Radius):**
+```http
+PUT https://storage.example.com/tmp/abc123?X-Amz-Signature=...
+Content-Type: image/jpeg
+
+<binary file bytes>
+```
+
+---
+
+### 3.2 Authentication & User Profile (`✅ Terimplementasi`)
 
 #### `POST /auth/register`
 * **Request**:
@@ -306,9 +379,40 @@ Tabel notifikasi in-app untuk pengguna.
   }
   ```
 
+#### `PATCH /users/me`
+* **Request** (update profil; avatar via presigned URL):
+  ```json
+  {
+    "name": "John Doe",
+    "timezone": "Asia/Jakarta",
+    "locale": "id",
+    "avatarTempKey": "tmp_avatar_xyz"
+  }
+  ```
+* **Response (200 OK)**:
+  ```json
+  {
+    "isSuccess": true,
+    "data": {
+      "id": "usr_1",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "emailVerifiedAt": "2026-06-01T12:00:00Z",
+      "avatarUrl": "https://storage.example.com/avatars/usr_1.jpg",
+      "lastLoginAt": "2026-06-02T10:00:00Z",
+      "timezone": "Asia/Jakarta",
+      "locale": "id",
+      "createdAt": "2026-06-01T12:00:00Z",
+      "updatedAt": "2026-06-02T11:00:00Z"
+    }
+  }
+  ```
+
+> **Avatar upload flow:** `POST /storage/presign-upload` (`purpose: "user_avatar"`) → upload `PUT` ke `uploadUrl` → `PATCH /users/me` dengan `avatarTempKey`.
+
 ---
 
-### 3.2 Workspaces (`✅ Terimplementasi`)
+### 3.3 Workspaces (`✅ Terimplementasi`)
 
 #### `GET /workspaces`
 * **Response (200 OK)**:
@@ -439,7 +543,7 @@ Tabel notifikasi in-app untuk pengguna.
 
 ---
 
-### 3.3 Projects (`✅ Terimplementasi`)
+### 3.4 Projects (`✅ Terimplementasi`)
 
 #### `GET /workspaces/:workspaceId/projects`
 * **Response (200 OK)**:
@@ -476,9 +580,11 @@ Tabel notifikasi in-app untuk pengguna.
     "icon": "🚀",
     "cover": "emerald",
     "coverImageUrl": null,
+    "coverImageTempKey": "tmp_cover_xyz",
     "status": "active"
   }
   ```
+* **Catatan:** Untuk custom cover image, gunakan `coverImageTempKey` dari presign (`purpose: "project_cover"`). Backend mempromosikan file temporary ke `cover_image_url` permanen. Kirim **salah satu** dari `coverImageUrl` (URL eksternal) atau `coverImageTempKey` (upload via presign), bukan keduanya.
 * **Response (201 Created)**:
   ```json
   {
@@ -507,9 +613,11 @@ Tabel notifikasi in-app untuk pengguna.
   ```json
   {
     "name": "Product Launch v2",
-    "isFavorite": true
+    "isFavorite": true,
+    "coverImageTempKey": "tmp_cover_xyz"
   }
   ```
+* **Catatan:** `coverImageTempKey: null` menghapus custom cover image dan kembali ke preset `cover`.
 * **Response (200 OK)**:
   ```json
   {
@@ -582,7 +690,7 @@ Tabel notifikasi in-app untuk pengguna.
 
 ---
 
-### 3.4 Kanban Board Columns (`✅ Terimplementasi`)
+### 3.5 Kanban Board Columns (`✅ Terimplementasi`)
 
 #### `GET /projects/:projectId/board/columns`
 * **Response (200 OK)**:
@@ -677,7 +785,7 @@ Tabel notifikasi in-app untuk pengguna.
 
 ---
 
-### 3.5 Tasks (`⬜ Belum Diimplementasi`)
+### 3.6 Tasks (`⬜ Belum Diimplementasi`)
 
 #### `GET /projects/:projectId/tasks`
 * **Response (200 OK)**:
@@ -703,7 +811,16 @@ Tabel notifikasi in-app untuk pengguna.
         "checklist": [
           { "id": "chk_1", "text": "Colors approved", "checked": false }
         ],
-        "attachments": [],
+        "attachments": [
+          {
+            "id": "att_1",
+            "name": "spec.pdf",
+            "size": 512000,
+            "mimeType": "application/pdf",
+            "url": "https://storage.example.com/attachments/att_1/spec.pdf",
+            "uploadedAt": "2026-06-02T10:40:00Z"
+          }
+        ],
         "createdAt": "2026-06-01T12:00:00Z",
         "updatedAt": "2026-06-01T12:00:00Z"
       }
@@ -806,7 +923,17 @@ Tabel notifikasi in-app untuk pengguna.
   ```
 
 #### `POST /tasks/:taskId/attachments`
-* **Request**: `multipart/form-data` (field: `file`)
+Konfirmasi attachment setelah file diupload ke presigned URL.
+
+* **Request**:
+  ```json
+  {
+    "tempKey": "tmp_att_xyz",
+    "fileName": "spec.pdf",
+    "contentType": "application/pdf",
+    "size": 512000
+  }
+  ```
 * **Response (201 Created)**:
   ```json
   {
@@ -816,10 +943,13 @@ Tabel notifikasi in-app untuk pengguna.
       "name": "spec.pdf",
       "size": 512000,
       "mimeType": "application/pdf",
+      "url": "https://storage.example.com/attachments/att_1/spec.pdf",
       "uploadedAt": "2026-06-02T10:40:00Z"
     }
   }
   ```
+
+> **Attachment upload flow:** `POST /storage/presign-upload` (`purpose: "task_attachment"`, `context.taskId`) → upload `PUT` ke `uploadUrl` → `POST /tasks/:taskId/attachments` dengan `tempKey` + metadata file.
 
 #### `DELETE /tasks/:taskId/attachments/:attachmentId`
 * **Response (200 OK)**:
@@ -834,7 +964,7 @@ Tabel notifikasi in-app untuk pengguna.
 
 ---
 
-### 3.6 Task Comments (`⬜ Belum Diimplementasi`)
+### 3.7 Task Comments (`⬜ Belum Diimplementasi`)
 
 #### `GET /tasks/:taskId/comments`
 * **Response (200 OK)**:
@@ -914,7 +1044,7 @@ Tabel notifikasi in-app untuk pengguna.
 
 ---
 
-### 3.7 Notifications (`⬜ Belum Diimplementasi`)
+### 3.8 Notifications (`⬜ Belum Diimplementasi`)
 
 #### `GET /notifications`
 * **Response (200 OK)**:
